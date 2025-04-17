@@ -1,3 +1,4 @@
+import { CTASection } from '@/components/CtaSection'
 import { FeaturesSection } from '@/components/FeaturesSection'
 import { Header } from '@/components/Header'
 import { HeroSection } from '@/components/Hero-section'
@@ -9,6 +10,7 @@ const page = () => {
     <Header/>
     <HeroSection/>
     <FeaturesSection/>
+    <CTASection/>
     </>
   )
 }
