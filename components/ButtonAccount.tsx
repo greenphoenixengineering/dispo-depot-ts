@@ -16,6 +16,8 @@ const ButtonAccount = () => {
   const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+
+
   const handleSignOut = () => {
     signOut({ callbackUrl: "/" });
   };
