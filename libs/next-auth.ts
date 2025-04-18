@@ -20,7 +20,8 @@ export const authOptions: NextAuthOptionsExtended = {
       async profile(profile) {
         return {
           id: profile.sub,
-          name: profile.given_name ? profile.given_name : profile.name,
+          first_name: profile.given_name ? profile.given_name : profile.name,
+          last_name:profile.family_name,
           email: profile.email,
           image: profile.picture,
         };
