@@ -18,7 +18,6 @@ export const authOptions: NextAuthOptionsExtended = {
       clientId: process.env.GOOGLE_ID,
       clientSecret: process.env.GOOGLE_SECRET,
       async profile(profile) {
-        console.log('profiles',profile)
         return {
           id: profile.sub,
           name: profile.given_name ? profile.given_name : profile.name,
