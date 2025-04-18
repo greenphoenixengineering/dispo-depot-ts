@@ -18,9 +18,6 @@ const ButtonAccount = () => {
 
 
 
-  console.log("my session",session)
-  // console.log("data",data)
-
   const handleSignOut = () => {
     signOut({ callbackUrl: "/" });
   };
