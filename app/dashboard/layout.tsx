@@ -5,6 +5,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/libs/next-auth";
 import { redirect } from "next/navigation";
 import config from "@/config";
+import { signOut } from "next-auth/react";
+import DashboardSideBar from "@/components/DashboardSideBar";
 
 export default async function DashboardLayout({
   children,
@@ -17,52 +19,14 @@ export default async function DashboardLayout({
     redirect(config.auth.loginUrl);
   }
 
+  
+
+
+
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-200 hidden md:block">
-        <div className="p-6">
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
-              <div className="w-4 h-4 rounded-full border-2 border-white"></div>
-            </div>
-            <span className="font-bold text-xl">Dispo Depot</span>
-          </Link>
-        </div>
-        <nav className="mt-6">
-          <div className="px-4 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Main</div>
-          <Link
-            href="/dashboard"
-            className="flex items-center gap-2 px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-green-500"
-          >
-            <Home className="w-5 h-5" />
-            <span>Dashboard</span>
-          </Link>
-          <Link
-            href="/dashboard/tags"
-            className="flex items-center gap-2 px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-green-500"
-          >
-            <Tag className="w-5 h-5" />
-            <span>Manage Tags</span>
-          </Link>
-          <Link
-            href="/dashboard/deals"
-            className="flex items-center gap-2 px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-green-500"
-          >
-            <Mail className="w-5 h-5" />
-            <span>Send Deals</span>
-          </Link>
-
-          <div className="px-4 mt-6 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Account</div>
-          <Link
-            href="/logout"
-            className="flex items-center gap-2 px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-red-500"
-          >
-            <LogOut className="w-5 h-5" />
-            <span>Logout</span>
-          </Link>
-        </nav>
-      </aside>
+    <DashboardSideBar/>
 
       {/* Main content */}
       <div className="flex-1 flex flex-col overflow-hidden">
