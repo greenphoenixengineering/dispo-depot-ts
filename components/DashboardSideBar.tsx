@@ -3,6 +3,7 @@ import React from "react";
 import { Tag, LogOut, Mail, Home } from "lucide-react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
+import ButtonAccount from "./ButtonAccount";
 
 const DashboardSideBar = () => {
   const handleSignOut = () => {
