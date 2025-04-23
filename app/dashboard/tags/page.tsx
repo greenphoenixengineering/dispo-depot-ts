@@ -65,10 +65,10 @@ export default function ManageTagsPage() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {mockTags.map((tag) => (
+            {mockTags.map((tag,index) => (
               <tr key={tag.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <TagChip label={tag.name} color={tag.color} />
+                  <TagChip label={tag.name} index={index} />
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-500 capitalize">{tag.color}</div>

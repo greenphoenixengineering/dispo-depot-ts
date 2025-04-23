@@ -7,7 +7,6 @@ const Dashboard = async () => {
 
   const buyersWithTags=await getBuyersWithTags()
 
-  console.log("buyers with tags",buyersWithTags)
 
   return (
     <div>
