@@ -5,7 +5,7 @@ import type React from "react";
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, X, Save } from "lucide-react";
-import { addBuyerToMailerLit } from "@/app/actions/action";
+import  { addBuyerToMailerLit, linkBuyerToTag ,addBuyer} from "@/app/actions/action";
 
 export default function AddBuyerForm({tags}:{tags:any}) {
   const [formData, setFormData] = useState({
@@ -37,14 +37,15 @@ export default function AddBuyerForm({tags}:{tags:any}) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-
-console.log("form data",formData)
     const result = await addBuyerToMailerLit(formData);
+    if(!result.status)return
+    const newBuyerWithMailerSubId = {...formData,api_id:result.newSubscriberId}
 
-    console.log("result",result)
+    const addedBuyer=await addBuyer(newBuyerWithMailerSubId)
 
-    // In a real app, you would send the data to your API
-    console.log("Form submitted:", { ...formData});
+    const linkBuyerAndTag=await linkBuyerToTag({buyer_id:addedBuyer[0]?.id,tag_id:selectedTagId})
+    console.log("linked buyer and tag",linkBuyerAndTag)
+
 
     setIsSaving(false);
     setSaveMessage("Buyer created successfully!");
@@ -170,12 +171,14 @@ console.log("form data",formData)
               name="tags"
               className="w-full p-2 border rounded-md mb-2"
               value={formData.groupId}
-              onChange={(e) =>
+              onChange={(e) =>{
+                const selectedTag = tags?.find(tags => tags.api_id === e.target.value);
+                setSelectedTagId(selectedTag.id)
                 setFormData((prev) => ({
                   ...prev,
                   groupId: e.target.value,
                 }))
-              }
+              }}
             >
               <option value="">Select a tag</option>
               {tags?.map((tag) => (

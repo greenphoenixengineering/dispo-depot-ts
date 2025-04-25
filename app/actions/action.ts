@@ -78,9 +78,8 @@ export async function addBuyerToMailerLit(newBuyer: any) {
   //    Assuming newBuyer has the correct structure.
   const { first_name, last_name, email, phone, groupId } = newBuyer;
 
-  console.log("new buyer",newBuyer)
+  console.log("new buyer", newBuyer);
 
-  
   const MAILERLITE_API_URL = "https://connect.mailerlite.com/api/subscribers";
 
   // 3. Prepare MailerLite Payload using destructured variables
@@ -91,12 +90,11 @@ export async function addBuyerToMailerLit(newBuyer: any) {
       name: first_name, // MailerLite often uses 'name' for first name
       // Only include last_name if it exists and is not empty
       ...(last_name && { last_name: last_name }),
-      phone
+      phone,
     },
-    groups:[groupId], // Add subscriber to this specific group ID
+    groups: [groupId], // Add subscriber to this specific group ID
     status: "active", // Or 'unconfirmed' if you use double opt-in
   };
-
 
   // 4. Make the API Call
   try {
@@ -110,23 +108,67 @@ export async function addBuyerToMailerLit(newBuyer: any) {
         Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
       },
       body: JSON.stringify(payload),
-
     });
 
-    const result=await response.json()
+    const result = await response.json();
 
-    console.log("result",result)
+    console.log("result", result);
 
-    if(response.ok){
-      return {status:true,newSubscriberId:result?.data?.id}
+    if (response.ok) {
+      return { status: true, newSubscriberId: result?.data?.id };
+    } else {
+      return { status: false };
     }
-else{
-  return {status:false}
-}
- 
-  
   } catch (e) {
     console.log("error", e.message);
-
   }
+}
+
+export  async function addBuyer(newBuyer: any) {
+  const wholesalerData = await getCurrentWholesaler();
+
+  const { first_name, last_name, email, phone, api_id } = newBuyer;
+
+  const { data, error } = await supabase
+    .from("buyer")
+    .insert([
+      {
+        first_name: first_name,
+        last_name: last_name,
+        email: email,
+        phone_num: phone,
+        api_id,
+        wholesaler_id: wholesalerData.id,
+      },
+    ])
+    .select();
+
+  if (error) {
+    throw new Error(`Failed to add buyer: ${error.message}`);
+  }
+
+  return data;
+}
+
+
+export  async function linkBuyerToTag(buyerAndTagData: any) {
+
+  const {buyer_id,tag_id } = buyerAndTagData;
+
+
+  const { data, error } = await supabase
+    .from("buyer_tags")
+    .insert([
+      {
+       buyer_id,
+       tag_id
+      },
+    ])
+    .select();
+
+  if (error) {
+    throw new Error(`something went wrong: ${error.message}`);
+  }
+
+  return data;
 }
