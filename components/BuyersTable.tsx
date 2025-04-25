@@ -76,7 +76,7 @@ export default function BuyersTable({
           <span>Manage Tags</span>
         </Link>
         <Link
-          href="/dashboard/edit-buyer/new"
+          href="/dashboard/buyer/new"
           className="inline-flex items-center gap-2 bg-white border border-gray-300 text-gray-700 rounded-md px-4 py-2 hover:bg-gray-50 transition-colors ml-auto"
         >
           <Plus className="w-4 h-4" />
