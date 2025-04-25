@@ -4,22 +4,26 @@ import type React from "react";
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, X, Save } from "lucide-react";
-import  { addBuyerToMailerLit, linkBuyerToTag ,addBuyer} from "@/app/actions/action";
+import { ArrowLeft, Save } from "lucide-react";
+import {
+  addBuyerToMailerLit,
+  linkBuyerToTag,
+  addBuyer,
+} from "@/app/actions/action";
 
-export default function AddBuyerForm({tags}:{tags:any}) {
+export default function AddBuyerForm({ tags }: { tags: any }) {
+  const [error, setError] = useState(false);
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
     email: "",
     phone: "",
-   groupId:''
+    groupId: "",
   });
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
   const [selectedTagId, setSelectedTagId] = useState<string>("");
-
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -28,43 +32,64 @@ export default function AddBuyerForm({tags}:{tags:any}) {
     });
   };
 
-  const handleTagSelected = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedTagId(e.target.value);
-  };
-
-
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    const result = await addBuyerToMailerLit(formData);
-    if(!result.status)return
-    const newBuyerWithMailerSubId = {...formData,api_id:result.newSubscriberId}
+    setSaveMessage("");
 
-    const addedBuyer=await addBuyer(newBuyerWithMailerSubId)
+    try {
+      const result = await addBuyerToMailerLit(formData);
+      if (!result?.status || !result?.newSubscriberId) {
+        throw new Error("Failed to add buyer to MailerLite.");
+      }
 
-    const linkBuyerAndTag=await linkBuyerToTag({buyer_id:addedBuyer[0]?.id,tag_id:selectedTagId})
-    console.log("linked buyer and tag",linkBuyerAndTag)
+      const newBuyerWithMailerSubId = {
+        ...formData,
+        api_id: result.newSubscriberId,
+      };
 
+      const addedBuyer = await addBuyer(newBuyerWithMailerSubId);
+      if (!addedBuyer?.[0]?.id) {
+        throw new Error("Failed to add buyer to database.");
+      }
 
-    setIsSaving(false);
-    setSaveMessage("Buyer created successfully!");
+      const linkResult = await linkBuyerToTag({
+        buyer_id: addedBuyer[0].id,
+        tag_id: selectedTagId,
+      });
 
-    // Clear form after successful submission
-    setFormData({
-      first_name: "",
-      last_name: "",
-      email: "",
-      phone: "",
-      groupId: "",
-    });
+      console.log("Linked buyer and tag:", linkResult);
 
-    // Clear message after 3 seconds
-    setTimeout(() => {
-      setSaveMessage("");
-    }, 3000);
+      setSaveMessage("Buyer created successfully!");
+
+      // Clear form
+      setFormData({
+        first_name: "",
+        last_name: "",
+        email: "",
+        phone: "",
+        groupId: "",
+      });
+    } catch (error: any) {
+      console.error("Submission error:", error);
+
+      const duplicateKey = "duplicate key value violates unique constraint";
+      const isDuplicate = error.message?.includes(duplicateKey);
+    
+      setError(true);
+      setSaveMessage(
+        isDuplicate
+          ? "This buyer already exists "
+          : error.message || "An unexpected error occurred."
+      );
+    } finally {
+      setIsSaving(false);
+      setTimeout(() => {
+        setSaveMessage("");
+        setError(false)
+      }, 4000);
+    }
   };
-
 
   return (
     <div>
@@ -171,17 +196,20 @@ export default function AddBuyerForm({tags}:{tags:any}) {
               name="tags"
               className="w-full p-2 border rounded-md mb-2"
               value={formData.groupId}
-              onChange={(e) =>{
-                const selectedTag = tags?.find(tags => tags.api_id === e.target.value);
-                setSelectedTagId(selectedTag.id)
+              required
+              onChange={(e) => {
+                const selectedTag = tags?.find(
+                  (tags:any) => tags.api_id === e.target.value
+                );
+                setSelectedTagId(selectedTag.id);
                 setFormData((prev) => ({
                   ...prev,
                   groupId: e.target.value,
-                }))
+                }));
               }}
             >
               <option value="">Select a tag</option>
-              {tags?.map((tag) => (
+              {tags?.map((tag:any) => (
                 <option key={tag.id} value={tag.api_id}>
                   {tag.name}
                 </option>
@@ -190,11 +218,17 @@ export default function AddBuyerForm({tags}:{tags:any}) {
           </div>
 
           {saveMessage && (
-            <div className="mb-4 p-2 bg-green-100 text-green-800 rounded-md">
+            <div 
+            className={`mb-4 p-2 rounded-md ${
+              error ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"
+            }`}
+        
+            >
               {saveMessage}
             </div>
           )}
 
+    
           <div className="flex justify-end gap-3">
             <Link
               href="/dashboard"

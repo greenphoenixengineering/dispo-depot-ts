@@ -42,7 +42,7 @@ export async function getCurrentWholesaler() {
     .from("wholesaler")
     .select("*")
     .eq("user_id", session.user.id)
-    .single(); // if expecting one wholesaler per user
+    .single(); 
 
   if (error) {
     throw new Error(`Failed to fetch wholesaler: ${error.message}`);
@@ -75,25 +75,21 @@ export async function getWholesalerTags() {
 
 export async function addBuyerToMailerLit(newBuyer: any) {
   // 1. Destructure necessary data from the input object
-  //    Assuming newBuyer has the correct structure.
   const { first_name, last_name, email, phone, groupId } = newBuyer;
 
-  console.log("new buyer", newBuyer);
 
   const MAILERLITE_API_URL = "https://connect.mailerlite.com/api/subscribers";
 
   // 3. Prepare MailerLite Payload using destructured variables
   const payload: any = {
-    // Using 'any' here since structure can vary slightly
     email: email,
     fields: {
-      name: first_name, // MailerLite often uses 'name' for first name
-      // Only include last_name if it exists and is not empty
+      name: first_name, // M
       ...(last_name && { last_name: last_name }),
       phone,
     },
-    groups: [groupId], // Add subscriber to this specific group ID
-    status: "active", // Or 'unconfirmed' if you use double opt-in
+    groups: [groupId], 
+    status: "active", 
   };
 
   // 4. Make the API Call
@@ -103,8 +99,7 @@ export async function addBuyerToMailerLit(newBuyer: any) {
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
-        // IMPORTANT: Verify this matches your MailerLite API key type
-        // It might be 'X-MailerLite-ApiKey: YOUR_KEY' for older keys
+  
         Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
       },
       body: JSON.stringify(payload),
@@ -112,7 +107,6 @@ export async function addBuyerToMailerLit(newBuyer: any) {
 
     const result = await response.json();
 
-    console.log("result", result);
 
     if (response.ok) {
       return { status: true, newSubscriberId: result?.data?.id };
@@ -120,7 +114,7 @@ export async function addBuyerToMailerLit(newBuyer: any) {
       return { status: false };
     }
   } catch (e) {
-    console.log("error", e.message);
+    throw new Error("something went wrong")
   }
 }
 
