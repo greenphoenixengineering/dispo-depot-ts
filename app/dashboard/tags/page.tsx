@@ -3,19 +3,13 @@ import { ArrowLeft, Plus, Edit, Trash } from "lucide-react"
 import { TagChip } from "@/components/tag-ship"
 import { getTagsWithCounts } from "@/app/actions/action"
 
-// Mock data for tags
-const mockTags = [
-  { id: 1, name: "Retail", color: "green", buyerCount: 42 },
-  { id: 2, name: "VIP", color: "purple", buyerCount: 15 },
-  { id: 3, name: "New", color: "blue", buyerCount: 23 },
-  { id: 4, name: "Wholesale", color: "yellow", buyerCount: 18 },
-  { id: 5, name: "Inactive", color: "red", buyerCount: 7 },
-]
 
 export default async function ManageTagsPage() {
   const tags=await getTagsWithCounts()
 
   console.log("all tags",tags)
+
+  // return
   return (
     <div>
       <div className="mb-6">
@@ -48,12 +42,7 @@ export default async function ManageTagsPage() {
               >
                 Tag
               </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Color
-              </th>
+           
               <th
                 scope="col"
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -69,16 +58,14 @@ export default async function ManageTagsPage() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {mockTags.map((tag,index) => (
+            {tags.map((tag,index) => (
               <tr key={tag.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <TagChip label={tag.name} index={index} />
                 </td>
+             
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-500 capitalize">{tag.color}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-500">{tag.buyerCount} buyers</div>
+                  <div className="text-sm text-gray-500">{tag.buyer_count} buyers</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button className="text-gray-600 hover:text-gray-900 mr-3">
