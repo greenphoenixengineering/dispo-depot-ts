@@ -196,7 +196,7 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
               name="tags"
               className="w-full p-2 border rounded-md mb-2"
               value={formData.groupId}
-              required
+              // required
               onChange={(e) => {
                 const selectedTag = tags?.find(
                   (tags:any) => tags.api_id === e.target.value

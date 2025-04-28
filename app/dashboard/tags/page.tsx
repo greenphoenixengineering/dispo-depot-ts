@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { ArrowLeft, Plus, Edit, Trash } from "lucide-react"
 import { TagChip } from "@/components/tag-ship"
+import { getTagsWithCounts } from "@/app/actions/action"
 
 // Mock data for tags
 const mockTags = [
@@ -11,7 +12,10 @@ const mockTags = [
   { id: 5, name: "Inactive", color: "red", buyerCount: 7 },
 ]
 
-export default function ManageTagsPage() {
+export default async function ManageTagsPage() {
+  const tags=await getTagsWithCounts()
+
+  console.log("all tags",tags)
   return (
     <div>
       <div className="mb-6">
