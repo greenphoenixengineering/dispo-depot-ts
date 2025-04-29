@@ -251,7 +251,12 @@ export async function updateBuyerAndTagsAction(payload: any) {
       body: JSON.stringify(payload),
     });
 
+     if(!response.ok){
+      return { success: false, message: "Error updating buyer!" };
+  
+     }
     const result = await response.json();
+    console.log("update on mailerlit result",result)
 
   } catch (revalidateError) {
     console.warn(

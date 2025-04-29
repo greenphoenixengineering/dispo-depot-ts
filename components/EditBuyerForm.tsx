@@ -40,6 +40,8 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
   });
 
 
+  const [buyerUpdatedSuccessfuly,setBuyerUpdatedSuccessfuly]=useState(false)
+
 
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
 
@@ -144,13 +146,20 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
       buyerApiId: buyer.api_id,
     };
 
+
     // --- Call the Server Action ---
     const result = await updateBuyerAndTagsAction(payload);
-
-
+  
+    if(result.success) {
+        setBuyerUpdatedSuccessfuly(true)
+        setSaveMessage("Buyer updated successfully");
+    }else{
+        setBuyerUpdatedSuccessfuly(false)
+        setSaveMessage("error updating buyer");
+    }
+   console.log("result",result.success)
 
     setIsSaving(false);
-    setSaveMessage("Buyer updated successfully! (Mock)");
     setTimeout(() => setSaveMessage(""), 3000);
   };
 
@@ -343,7 +352,9 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
 
           {/* Save Message */}
           {saveMessage && (
-            <div className="mb-4 p-3 bg-green-100 text-green-800 rounded-md text-sm">
+            <div   className={`mb-4 p-2 rounded-md ${
+                !buyerUpdatedSuccessfuly ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"
+              }`}>
               {saveMessage}
             </div>
           )}
