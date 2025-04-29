@@ -197,3 +197,50 @@ console.log("fetched buyer",buyerId)
     return data;
   }
 }
+
+
+
+
+export async function updateBuyerAndTagsAction(
+  payload:any
+) {
+  const { buyerId, updates, tagIds } = payload;
+
+  console.log(`[Action] Calling RPC 'update_buyer_and_sync_tags' for Buyer ID: ${buyerId}`);
+  console.log(`[Action] Updates:`, updates);
+  console.log(`[Action] Tag IDs:`, tagIds);
+
+  // --- Call the Supabase RPC Function ---
+  // Arguments must match the function definition ORDER and TYPE
+  const { error: rpcError } = await supabase.rpc('update_buyer_and_sync_tags', {
+      p_buyer_id: buyerId,                   // Argument 1: uuid or text
+      p_first_name: updates.first_name,    // Argument 2: text
+      p_last_name: updates.last_name,      // Argument 3: text
+      p_email: updates.email,              // Argument 4: text
+      p_phone_num: updates.phone,          // Argument 5: text (maps to the DB column)
+      p_tag_ids: tagIds                    // Argument 6: int[] or text[] etc.
+  });
+  // ---
+
+  if (rpcError) {
+    console.error("[Action Error] RPC call 'update_buyer_and_sync_tags' failed:", rpcError);
+    return {
+      success: false,
+      message: `Failed to update buyer: ${rpcError.message}`, // Provide Supabase error
+      error: rpcError,
+    };
+  }
+
+  // --- Revalidate Cache ---
+  // Success! Revalidate relevant paths
+  try {
+      console.log(`[Action] RPC call successful for Buyer ID: ${buyerId}. Revalidating paths...`);
+     
+  } catch (revalidateError) {
+      console.warn("[Action Warning] Failed to revalidate path:", revalidateError);
+      // Usually not critical enough to mark the whole operation as failed
+  }
+
+
+  return { success: true, message: "Buyer updated successfully!" };
+}

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { ArrowLeft, Save, Trash, X, ChevronDown } from "lucide-react";
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal";
+import { updateBuyerAndTagsAction } from "@/app/actions/action";
 
 interface Tag {
   id: number | string;
@@ -121,6 +122,12 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
     };
     console.log("Submitting data:", payload);
 
+    
+    // --- Call the Server Action ---
+    const result = await updateBuyerAndTagsAction(payload);
+
+    console.log("result",result)
+    // ---
     await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate API
 
     setIsSaving(false);
@@ -262,3 +269,6 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
     </div>
   );
 }
+
+
+
