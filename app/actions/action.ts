@@ -182,7 +182,6 @@ export async function getSingleBuyer(buyerId: string) {
     )
     .eq("id", buyerId);
 
-  console.log("fetched buyer", buyerId);
   if (error) {
     console.log("error", error.message);
   } else {
@@ -249,7 +248,6 @@ export async function updateBuyerAndTagsAction(payload: any) {
       return { success: false, message: "Error updating buyer!" };
     }
     const result = await response.json();
-    console.log("update on mailerlit result", result);
   } catch (revalidateError) {
     console.warn(
       "[Action Warning] Failed to revalidate path:",
