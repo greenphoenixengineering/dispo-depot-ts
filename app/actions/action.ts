@@ -166,3 +166,34 @@ export  async function linkBuyerToTag(buyerAndTagData: any) {
 
   return data;
 }
+
+
+
+
+
+// GET A SINGLE BUYER
+
+export async function getSingleBuyer(buyerId:string) {
+
+  const { data, error } = await supabase
+  .from("buyer")
+  .select(
+    `
+    *,
+    buyer_tags (
+      tags:tag_id (
+        id,
+        name
+      )
+    )
+  `
+  )
+  .eq("id", buyerId);
+
+console.log("fetched buyer",buyerId)
+  if (error) {
+    console.log("error", error.message);
+  } else {
+    return data;
+  }
+}
