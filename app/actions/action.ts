@@ -23,7 +23,6 @@ export async function getBuyersWithTags() {
     )
     .eq("wholesaler_id", wholesalerData.id);
 
-  console.log("data from action", data);
 
   if (error) {
     console.log("error", error.message);
@@ -195,10 +194,7 @@ export async function updateBuyerAndTagsAction(payload: any) {
   const { buyerId, updates, tags, buyerApiId } = payload;
   const tagIds = tags.map((tagInfo: any) => tagInfo.id);
 
-  const mailerLiteGroupIds = tags
-  .map((tagInfo:any) => tagInfo.api_id)            
- 
-
+  const mailerLiteGroupIds = tags.map((tagInfo: any) => tagInfo.api_id);
 
   // --- Call the Supabase RPC Function ---
   const { error: rpcError } = await supabase.rpc("update_buyer_and_sync_tags", {
@@ -215,7 +211,7 @@ export async function updateBuyerAndTagsAction(payload: any) {
       "[Action Error] RPC call 'update_buyer_and_sync_tags' failed:",
       rpcError
     );
-    
+
     return {
       success: false,
       message: `Failed to update buyer`,
@@ -224,9 +220,7 @@ export async function updateBuyerAndTagsAction(payload: any) {
   }
 
   try {
-
     const MAILERLITE_API_URL = `https://connect.mailerlite.com/api/subscribers/${buyerApiId}`;
-
 
     // 3. Prepare MailerLite Payload using destructured variables
     const payload: any = {
@@ -236,7 +230,7 @@ export async function updateBuyerAndTagsAction(payload: any) {
         last_name: updates.last_name,
         phone: updates.phone_num,
       },
-      groups:mailerLiteGroupIds,
+      groups: mailerLiteGroupIds,
       status: "active",
     };
 
@@ -251,21 +245,47 @@ export async function updateBuyerAndTagsAction(payload: any) {
       body: JSON.stringify(payload),
     });
 
-     if(!response.ok){
+    if (!response.ok) {
       return { success: false, message: "Error updating buyer!" };
-  
-     }
+    }
     const result = await response.json();
-    console.log("update on mailerlit result",result)
-
+    console.log("update on mailerlit result", result);
   } catch (revalidateError) {
     console.warn(
       "[Action Warning] Failed to revalidate path:",
       revalidateError
     );
-  return { success: false, message: "Error updating buyer!" };
-
+    return { success: false, message: "Error updating buyer!" };
   }
 
   return { success: true, message: "Buyer updated successfully!" };
+}
+
+export async function deleteBuyer(DeletePayload: any) {
+  const { error: deleteError } = await supabase
+    .from("buyer") // Your buyers table name
+    .delete()
+    .eq("id", DeletePayload.buyerId); // Match the buyer ID
+
+  if (deleteError) {
+    return { success: false, message: "Error deleting buyer!" };
+  }
+
+  const MAILERLITE_API_URL = `https://connect.mailerlite.com/api/subscribers/${DeletePayload.buyerApiId}`;
+
+  const response = await fetch(MAILERLITE_API_URL, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+
+      Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
+    },
+  });
+
+  if (!response.ok) {
+    return { success: false, message: "Error deleting buyer!" };
+  }
+
+  return { success: true, message: "Buyer deleted successfully!" };
 }

@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { ArrowLeft, Save, Trash, X, ChevronDown } from "lucide-react";
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal";
-import { updateBuyerAndTagsAction } from "@/app/actions/action";
+import { deleteBuyer, updateBuyerAndTagsAction } from "@/app/actions/action";
 
 interface Tag {
   id: number | string;
@@ -115,6 +115,8 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
     }
   }, []);
 
+
+  console.log("buyer",buyer)
   useEffect(() => {
     if (isTagDropdownOpen) {
       document.addEventListener("mousedown", handleClickOutsideTags);
@@ -165,7 +167,10 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
 
   const handleDelete = async () => {
     setIsDeleting(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API
+
+    const deleteBuyerResult=await deleteBuyer({buyerId:buyer.id,buyerApiId:buyer.api_id})
+
+    console.log("dlete buyer result",deleteBuyerResult)
     setIsDeleting(false);
     setShowDeleteModal(false);
     window.location.href = "/dashboard";
