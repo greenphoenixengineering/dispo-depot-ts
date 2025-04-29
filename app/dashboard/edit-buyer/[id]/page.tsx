@@ -1,122 +1,159 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { ArrowLeft, X, Save, Trash } from "lucide-react"
-import { getBuyerById } from "@/libs/data"
+import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
+import { ArrowLeft, Save, Trash } from "lucide-react";
+import { getBuyerById } from "@/libs/data";
+import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal";
+import { SearchableSelect } from "@/components/SearchableSelect";
 
 interface Buyer {
-  id: string
-  name: string
-  email: string
-  phone: string
-  company?: string
-  tags: { name: string }[]
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  company?: string;
+  tags: { name: string }[];
 }
 
 interface Props {
-  params: { id: string }
+  params: { id: string };
 }
 
 export default function EditBuyerPage({ params }: Props) {
-  const buyerId = params.id
-  const [isLoading, setIsLoading] = useState(true)
+  const buyerId = params.id;
+  const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState({
-    name: "",
+    first_name: "",
+    last_name: "",
     email: "",
     phone: "",
     company: "",
-  })
-  const [tags, setTags] = useState<string[]>([])
-  const [tagInput, setTagInput] = useState("")
-  const [isSaving, setIsSaving] = useState(false)
-  const [saveMessage, setSaveMessage] = useState("")
+  });
+  const [tag, setTag] = useState<string>("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const availableTags = [
+    "Retail",
+    "Wholesale",
+    "VIP",
+    "New",
+    "Inactive",
+    "High Value",
+    "Local",
+    "International",
+  ];
 
   useEffect(() => {
-    const buyer = getBuyerById(buyerId)
+    const buyer = {
+      id: "1",
+      first_name: "John Smith",
+      last_name: "John Smith",
+      email: "john.smith@example.com",
+      phone: "(555) 123-4567",
+      tags: [{ name: "Retail" }, { name: "VIP" }],
+      company: "Acme Corp",
+    };
+
     if (buyer) {
       setFormData({
-        name: buyer.name,
+        first_name: buyer.first_name,
+        last_name: buyer.last_name,
         email: buyer.email,
         phone: buyer.phone,
         company: buyer.company || "",
-      })
-      setTags(buyer.tags.map((tag) => tag.name))
+      });
+      // Set the first tag if available, otherwise empty string
+      setTag(buyer.tags.length > 0 ? buyer.tags[0].name : "");
     }
-    setIsLoading(false)
-  }, [buyerId])
+    setIsLoading(false);
+  }, [buyerId]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.id]: e.target.value,
-    })
-  }
-
-  const handleTagInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTagInput(e.target.value)
-  }
-
-  const handleTagInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && tagInput.trim()) {
-      e.preventDefault()
-      if (!tags.includes(tagInput.trim())) {
-        setTags([...tags, tagInput.trim()])
-      }
-      setTagInput("")
-    }
-  }
-
-  const removeTag = (tagToRemove: string) => {
-    setTags(tags.filter((tag) => tag !== tagToRemove))
-  }
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSaving(true)
+    e.preventDefault();
+    setIsSaving(true);
 
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // In a real app, you would send the data to your API
-    console.log("Form submitted:", { ...formData, tags, id: buyerId })
+    console.log("Form submitted:", { ...formData, tag, id: buyerId });
 
-    setIsSaving(false)
-    setSaveMessage("Buyer updated successfully!")
+    setIsSaving(false);
+    setSaveMessage("Buyer updated successfully!");
 
     // Clear message after 3 seconds
     setTimeout(() => {
-      setSaveMessage("")
-    }, 3000)
-  }
+      setSaveMessage("");
+    }, 3000);
+  };
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // In a real app, you would send a delete request to your API
+    console.log("Buyer deleted:", buyerId);
+
+    setIsDeleting(false);
+    setShowDeleteModal(false);
+
+    // Redirect to dashboard
+    window.location.href = "/dashboard";
+  };
+
+  // Callback for the SearchableSelect component
+  const handleTagChange = useCallback((newValue: string) => {
+    setTag(newValue);
+  }, []);
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
       </div>
-    )
+    );
   }
 
   return (
     <div>
       <div className="mb-6">
-        <Link href="/dashboard" className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 mb-4">
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 mb-4"
+        >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Dashboard</span>
         </Link>
         <h1 className="text-2xl font-bold mb-2">Edit Buyer</h1>
-        <p className="text-gray-600">Update buyer information and manage tags</p>
+        <p className="text-gray-600">
+          Update buyer information and manage tags
+        </p>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm p-6">
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                Full Name *
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                First Name
               </label>
               <input
                 type="text"
@@ -125,13 +162,34 @@ export default function EditBuyerPage({ params }: Props) {
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 placeholder="John Smith"
-                value={formData.name}
+                value={formData.first_name}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Last Name
+              </label>
+              <input
+                type="text"
+                id="last_name"
+                name="last_name"
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                placeholder="John Smith"
+                value={formData.last_name}
                 onChange={handleChange}
               />
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Email Address *
               </label>
               <input
@@ -147,7 +205,10 @@ export default function EditBuyerPage({ params }: Props) {
             </div>
 
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="phone"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Phone Number *
               </label>
               <input
@@ -161,61 +222,34 @@ export default function EditBuyerPage({ params }: Props) {
                 onChange={handleChange}
               />
             </div>
-
-            <div>
-              <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-1">
-                Company
-              </label>
-              <input
-                type="text"
-                id="company"
-                name="company"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                placeholder="Company Name"
-                value={formData.company}
-                onChange={handleChange}
-              />
-            </div>
           </div>
-
+          {/* Tag Searchable Select */}
           <div className="mb-6">
-            <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-1">
-              Tags
+            <label
+              htmlFor="tag"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Tag (Optional)
             </label>
-            <div className="flex flex-wrap gap-2 mb-2">
-              {tags.map((tag, index) => (
-                <div
-                  key={index}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm"
-                >
-                  <span>{tag}</span>
-                  <button type="button" onClick={() => removeTag(tag)} className="text-green-800 hover:text-green-900">
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              ))}
-            </div>
-            <div className="relative">
-              <input
-                type="text"
-                id="tags"
-                value={tagInput}
-                onChange={handleTagInputChange}
-                onKeyDown={handleTagInputKeyDown}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                placeholder="Type a tag and press Enter to add"
-              />
-            </div>
-            <p className="mt-1 text-sm text-gray-500">
-              Enter tags to categorize this buyer. Press Enter after each tag.
-            </p>
+            <SearchableSelect
+              options={availableTags}
+              value={tag}
+              onChange={handleTagChange}
+              placeholder="Select a tag..."
+              allowClear={true}
+            />
           </div>
 
-          {saveMessage && <div className="mb-4 p-2 bg-green-100 text-green-800 rounded-md">{saveMessage}</div>}
+          {saveMessage && (
+            <div className="mb-4 p-2 bg-green-100 text-green-800 rounded-md">
+              {saveMessage}
+            </div>
+          )}
 
           <div className="flex justify-between">
             <button
               type="button"
+              onClick={() => setShowDeleteModal(true)}
               className="inline-flex items-center gap-2 px-4 py-2 border border-red-300 text-red-700 rounded-md hover:bg-red-50 transition-colors"
             >
               <Trash className="w-4 h-4" />
@@ -250,6 +284,16 @@ export default function EditBuyerPage({ params }: Props) {
           </div>
         </form>
       </div>
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={showDeleteModal}
+        title="Delete Buyer"
+        description="Are you sure you want to delete the buyer"
+        itemName={formData.first_name}
+        isDeleting={isDeleting}
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteModal(false)}
+      />
     </div>
-  )
+  );
 }
