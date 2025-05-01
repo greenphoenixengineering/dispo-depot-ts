@@ -205,3 +205,60 @@ export async function getTagsWithCounts() {
     return { tags: [], error: { message: error.message || 'Failed to fetch tags with counts.' } };
   }
 }
+
+export async function addTagToMailerlit(payload:any) {
+  // add tag to mailerlit and get the tag id
+  const MAILERLITE_API_URL = "https://connect.mailerlite.com/api/groups";
+
+    try {
+      const response = await fetch(MAILERLITE_API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+    
+          Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      const result = await response.json();
+  
+
+      console.log('tag creation result',result)
+  
+      if (response.ok) {
+        return { status: true,tagApiId:result?.data?.id};
+      } else {
+        return { status: false };
+      }
+    } catch (e) {
+      throw new Error("something went wrong")
+    }
+}
+
+
+export  async function addTagToSupabase(payload: any) {
+
+  const wholesalerData = await getCurrentWholesaler();
+
+  const {name,api_id} = payload;
+
+
+  const { data, error } = await supabase
+    .from("tags")
+    .insert([
+      {
+       name,
+       api_id,
+       wholesaler_id:wholesalerData.id
+      },
+    ])
+    .select();
+
+  if (error) {
+    throw new Error(`something went wrong: ${error.message}`);
+  }
+
+  return data;
+}

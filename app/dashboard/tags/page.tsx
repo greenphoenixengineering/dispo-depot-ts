@@ -7,6 +7,7 @@ import { useState } from "react"
 import { ArrowLeft, Plus, X, Check } from "lucide-react"
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal"
 import { TagChip } from "@/components/tag-ship"
+import { addTagToMailerlit, addTagToSupabase } from "@/app/actions/action"
 
 // Mock data for tags
 const mockTags = [
@@ -30,38 +31,64 @@ export default function ManageTagsPage() {
   const [isDeleting, setIsDeleting] = useState(false)
 
   const handleCreateTag = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsCreating(true)
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // Available colors for random selection
-    const colors = ["green", "blue", "purple", "yellow", "red"]
-    const randomColor = colors[Math.floor(Math.random() * colors.length)]
-
-    // In a real app, you would send the data to your API
-    const newTag = {
-      id: Math.max(...tags.map((tag) => tag.id)) + 1,
-      name: newTagName,
-      color: randomColor,
-      buyerCount: 0,
+    e.preventDefault();
+    if (!newTagName.trim()) {
+      setCreateMessage("Please enter a tag name.");
+      return;
     }
 
-    setTags([...tags, newTag])
-    console.log("Tag created:", newTag)
+    setIsCreating(true);
+    setCreateMessage(''); // Clear previous messages
 
-    setIsCreating(false)
-    setCreateMessage("Tag created successfully!")
-    setNewTagName("")
+    try {
+      const newTagPayload = {
+        name: newTagName.trim(), // Use trimmed name
+      };
 
-    // Hide form after successful creation
-    setTimeout(() => {
-      setShowCreateForm(false)
-      setCreateMessage("")
-    }, 2000)
-  }
+      // --- 1. Call MailerLite ---
+      const addTagResult = await addTagToMailerlit(newTagPayload);
+      console.log('MailerLite Result:', addTagResult);
 
+      // --- 2. Check MailerLite Result ---
+      if (addTagResult.status && addTagResult.tagApiId) {
+        // MailerLite Success, proceed to Supabase
+        console.log("MailerLite success. Calling addTagToSupabase...");
+
+        // --- 3. Call Supabase ---
+        const addTagToSupabaseResult = await addTagToSupabase({
+          name: newTagPayload.name,
+          api_id: addTagResult.tagApiId // Use the ID received
+        });
+        console.log('Supabase Result:', addTagToSupabaseResult);
+
+        // --- 4. Handle Overall Success ---
+        console.log("Tag created successfully in MailerLite and Supabase:", newTagPayload.name);
+        setCreateMessage("Tag created successfully!");
+        setNewTagName(""); // Clear input on success
+
+        // Hide form after successful creation (optional)
+        setTimeout(() => {
+          setShowCreateForm(false);
+          setCreateMessage("");
+        }, 2000);
+
+      } else {
+        // MailerLite Failed
+        console.error("Failed to add tag to MailerLite.");
+        // Use the error message from the result if available
+        setCreateMessage(`Error: 'Failed to create tag in MailerLite.'}`);
+      }
+
+    } catch (error: any) {
+      // --- 5. Handle Errors (Network, Supabase Error, etc.) ---
+      console.error("An error occurred during the tag creation process:", error);
+      setCreateMessage(`Error: ${error.message || 'An unexpected error occurred.'}`);
+
+    } finally {
+      setIsCreating(false);
+      console.log("Finished create tag attempt.");
+    }
+  };
   const cancelCreate = () => {
     setShowCreateForm(false)
     setNewTagName("")
