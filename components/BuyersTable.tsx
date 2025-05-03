@@ -6,19 +6,9 @@ import Link from "next/link";
 import { Tag, Mail, Plus, Search } from "lucide-react";
 import { TagChip } from "@/components/tag-ship";
 import { Pagination } from "@/components/pagination";
+import { Buyer } from "@/libs/types";
 
-interface Buyer {
-  id: number;
-  first_name: string;
-  email: string;
-  phone_num?: string;
-  buyer_tags?: {
-    tags: {
-      id: number;
-      name: string;
-    };
-  }[];
-}
+
 
 
 export default function BuyersTable({

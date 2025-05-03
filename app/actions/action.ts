@@ -2,6 +2,7 @@
 
 import { authOptions } from "@/libs/next-auth";
 import { supabase } from "@/libs/supabase";
+import { NewBuyer, NewBuyerInSupa } from "@/libs/types";
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
 
@@ -23,7 +24,6 @@ export async function getBuyersWithTags() {
     )
     .eq("wholesaler_id", wholesalerData.id);
 
-  console.log("data from action", data);
 
   if (error) {
     console.log("error", error.message);
@@ -74,7 +74,7 @@ export async function getWholesalerTags() {
   return tags;
 }
 
-export async function addBuyerToMailerLit(newBuyer: any) {
+export async function addBuyerToMailerLit(newBuyer: NewBuyer) {
   // 1. Destructure necessary data from the input object
   const { first_name, last_name, email, phone, groupId } = newBuyer;
 
@@ -119,7 +119,8 @@ export async function addBuyerToMailerLit(newBuyer: any) {
   }
 }
 
-export  async function addBuyer(newBuyer: any) {
+
+export  async function addBuyer(newBuyer: NewBuyerInSupa) {
   const wholesalerData = await getCurrentWholesaler();
 
   const { first_name, last_name, email, phone, api_id } = newBuyer;
@@ -190,14 +191,12 @@ export async function getTagsWithCounts() {
       { wholesaler_id_input: wholesalerData.id } 
     );
 
-    console.log('my data',data)
 
     if (error) {
       console.error('Error calling RPC get_tags_with_buyer_count:', error);
       throw new Error(`Database error: ${error.message}`); // Throw to be caught below
     }
 
-    console.log(`Successfully fetched ${data?.length || 0} tags with counts.`);
 
 
 

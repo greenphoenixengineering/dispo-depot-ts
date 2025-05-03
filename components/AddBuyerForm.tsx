@@ -21,7 +21,7 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
     phone: "",
     groupId: "",
   });
-  const router = useRouter(); 
+  const router = useRouter();
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
@@ -50,7 +50,9 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
         ...formData,
         api_id: result.newSubscriberId,
       };
+       
 
+   
       const addedBuyer = await addBuyer(newBuyerWithMailerSubId);
       if (!addedBuyer?.[0]?.id) {
         throw new Error("Failed to add buyer to database.");
@@ -61,7 +63,6 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
         tag_id: selectedTagId,
       });
 
-
       setSaveMessage("Buyer created successfully!");
 
       // Clear form
@@ -69,17 +70,17 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
         first_name: "",
         last_name: "",
         email: "",
-        phone: "",
+        phone:"",
         groupId: "",
       });
 
-      router.push('/dashboard/');
+      router.push("/dashboard/");
     } catch (error: any) {
       console.error("Submission error:", error);
 
       const duplicateKey = "duplicate key value violates unique constraint";
       const isDuplicate = error.message?.includes(duplicateKey);
-    
+
       setError(true);
       setSaveMessage(
         isDuplicate
@@ -90,7 +91,7 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
       setIsSaving(false);
       setTimeout(() => {
         setSaveMessage("");
-        setError(false)
+        setError(false);
       }, 4000);
     }
   };
@@ -203,7 +204,7 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
               required
               onChange={(e) => {
                 const selectedTag = tags?.find(
-                  (tags:any) => tags.api_id === e.target.value
+                  (tags: any) => tags.api_id === e.target.value
                 );
                 setSelectedTagId(selectedTag.id);
                 setFormData((prev) => ({
@@ -213,7 +214,7 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
               }}
             >
               <option value="">Select a tag</option>
-              {tags?.map((tag:any) => (
+              {tags?.map((tag: any) => (
                 <option key={tag.id} value={tag.api_id}>
                   {tag.name}
                 </option>
@@ -222,17 +223,17 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
           </div>
 
           {saveMessage && (
-            <div 
-            className={`mb-4 p-2 rounded-md ${
-              error ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"
-            }`}
-        
+            <div
+              className={`mb-4 p-2 rounded-md ${
+                error
+                  ? "bg-red-100 text-red-800"
+                  : "bg-green-100 text-green-800"
+              }`}
             >
               {saveMessage}
             </div>
           )}
 
-    
           <div className="flex justify-end gap-3">
             <Link
               href="/dashboard"
