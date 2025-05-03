@@ -10,6 +10,7 @@ import {
   linkBuyerToTag,
   addBuyer,
 } from "@/app/actions/action";
+import { useRouter } from "next/navigation";
 
 export default function AddBuyerForm({ tags }: { tags: any }) {
   const [error, setError] = useState(false);
@@ -20,6 +21,7 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
     phone: "",
     groupId: "",
   });
+  const router = useRouter(); 
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
@@ -39,6 +41,7 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
 
     try {
       const result = await addBuyerToMailerLit(formData);
+
       if (!result?.status || !result?.newSubscriberId) {
         throw new Error("Failed to add buyer to MailerLite.");
       }
@@ -58,7 +61,6 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
         tag_id: selectedTagId,
       });
 
-      console.log("Linked buyer and tag:", linkResult);
 
       setSaveMessage("Buyer created successfully!");
 
@@ -70,6 +72,8 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
         phone: "",
         groupId: "",
       });
+
+      router.push('/dashboard/');
     } catch (error: any) {
       console.error("Submission error:", error);
 
