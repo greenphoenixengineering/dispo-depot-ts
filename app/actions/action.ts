@@ -80,13 +80,11 @@ export async function getTagsWithCounts() {
   const wholesalerData = await getCurrentWholesaler();
 
   if (!wholesalerData.id) {
-    console.error('Server Action: wholesalerId is required.');
     return { tags: [], error: { message: 'Wholesaler ID is required.' } };
   }
 
 
   try {
-    console.log(`Calling RPC get_tags_with_buyer_count for wholesaler: ${wholesalerData.id}`);
 
     
     const { data, error } = await supabase.rpc(
@@ -94,14 +92,11 @@ export async function getTagsWithCounts() {
       { wholesaler_id_input: wholesalerData.id } 
     );
 
-    console.log('my data',data)
 
     if (error) {
-      console.error('Error calling RPC get_tags_with_buyer_count:', error);
       throw new Error(`Database error: ${error.message}`); // Throw to be caught below
     }
 
-    console.log(`Successfully fetched ${data?.length || 0} tags with counts.`);
 
 
 
@@ -109,7 +104,6 @@ export async function getTagsWithCounts() {
     return data;
 
   } catch (error: any) {
-    console.error('Server Action Error in getTagsWithCounts:', error);
     return { tags: [], error: { message: error.message || 'Failed to fetch tags with counts.' } };
   }
 }
@@ -132,8 +126,6 @@ export async function addTagToMailerlit(payload:any) {
   
       const result = await response.json();
   
-
-      console.log('tag creation result',result)
   
       if (response.ok) {
         return { status: true,tagApiId:result?.data?.id};
