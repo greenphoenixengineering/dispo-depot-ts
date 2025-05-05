@@ -8,17 +8,11 @@ import { ArrowLeft, Plus, X, Check, Edit, Trash } from "lucide-react"
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal"
 import { TagChip } from "@/components/tag-ship"
 import { addTagToMailerlit, addTagToSupabase } from "@/app/actions/action"
+import { useRouter } from "next/navigation"
 
-// Mock data for tags
-const mockTags = [
-  { id: 1, name: "Retail", color: "green", buyerCount: 42 },
-  { id: 2, name: "VIP", color: "purple", buyerCount: 15 },
-  { id: 3, name: "New", color: "blue", buyerCount: 23 },
-  { id: 4, name: "Wholesale", color: "yellow", buyerCount: 18 },
-  { id: 5, name: "Inactive", color: "red", buyerCount: 7 },
-]
 
 export default function TagWithBuyerTable({tagsList}:{tagsList:any}) {
+  const router=useRouter()
   const [tags, setTags] = useState(tagsList)
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [newTagName, setNewTagName] = useState("")
@@ -29,6 +23,9 @@ export default function TagWithBuyerTable({tagsList}:{tagsList:any}) {
   // Delete tag state
   const [deletingTag, setDeletingTag] = useState<{ id: number; name: string } | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+
+
+  console.log("tag list",tagsList)
 
   const handleCreateTag = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,43 +42,32 @@ export default function TagWithBuyerTable({tagsList}:{tagsList:any}) {
         name: newTagName.trim(), // Use trimmed name
       };
 
-      // --- 1. Call MailerLite ---
       const addTagResult = await addTagToMailerlit(newTagPayload);
-      console.log('MailerLite Result:', addTagResult);
 
-      // --- 2. Check MailerLite Result ---
       if (addTagResult.status && addTagResult.tagApiId) {
-        // MailerLite Success, proceed to Supabase
-        console.log("MailerLite success. Calling addTagToSupabase...");
 
-        // --- 3. Call Supabase ---
         const addTagToSupabaseResult = await addTagToSupabase({
           name: newTagPayload.name,
-          api_id: addTagResult.tagApiId // Use the ID received
+          api_id: addTagResult.tagApiId 
         });
-        console.log('Supabase Result:', addTagToSupabaseResult);
 
-        // --- 4. Handle Overall Success ---
-        console.log("Tag created successfully in MailerLite and Supabase:", newTagPayload.name);
+        router.refresh();
+
+
         setCreateMessage("Tag created successfully!");
-        setNewTagName(""); // Clear input on success
+        setNewTagName("");
 
-        // Hide form after successful creation (optional)
         setTimeout(() => {
           setShowCreateForm(false);
           setCreateMessage("");
         }, 2000);
 
       } else {
-        // MailerLite Failed
-        console.error("Failed to add tag to MailerLite.");
-        // Use the error message from the result if available
+    
         setCreateMessage(`Error: 'Failed to create tag in MailerLite.'}`);
       }
 
     } catch (error: any) {
-      // --- 5. Handle Errors (Network, Supabase Error, etc.) ---
-      console.error("An error occurred during the tag creation process:", error);
       setCreateMessage(`Error: ${error.message || 'An unexpected error occurred.'}`);
 
     } finally {
@@ -104,6 +90,8 @@ export default function TagWithBuyerTable({tagsList}:{tagsList:any}) {
 
   const confirmDeleteTag = async () => {
     if (!deletingTag) return
+
+    console.log("deleting",deletingTag)
 
     setIsDeleting(true)
 
@@ -245,10 +233,10 @@ export default function TagWithBuyerTable({tagsList}:{tagsList:any}) {
                    <div className="text-sm text-gray-500">{tag.buyer_count} buyers</div>
                  </td>
                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                   <button className="text-gray-600 hover:text-gray-900 mr-3">
+                   <button   className="text-gray-600 hover:text-gray-900 mr-3">
                      <Edit className="w-4 h-4" />
                    </button>
-                   <button className="text-red-600 hover:text-red-900">
+                   <button onClick={() => startDeleteTag(tag)} className="text-red-600 hover:text-red-900">
                      <Trash className="w-4 h-4" />
                    </button>
                  </td>

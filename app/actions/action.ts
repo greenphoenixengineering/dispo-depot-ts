@@ -3,6 +3,7 @@
 import { authOptions } from "@/libs/next-auth";
 import { supabase } from "@/libs/supabase";
 import { getServerSession } from "next-auth";
+import { revalidatePath } from "next/cache";
 
 export async function getBuyersWithTags() {
   const wholesalerData = await getCurrentWholesaler();
@@ -73,99 +74,6 @@ export async function getWholesalerTags() {
   return tags;
 }
 
-export async function addBuyerToMailerLit(newBuyer: any) {
-  // 1. Destructure necessary data from the input object
-  const { first_name, last_name, email, phone, groupId } = newBuyer;
-
-
-  const MAILERLITE_API_URL = "https://connect.mailerlite.com/api/subscribers";
-
-  // 3. Prepare MailerLite Payload using destructured variables
-  const payload: any = {
-    email: email,
-    fields: {
-      name: first_name,
-      ...(last_name && { last_name: last_name }),
-      phone,
-    },
-    groups: [""], 
-    status: "active", 
-  };
-
-  // 4. Make the API Call
-  try {
-    const response = await fetch(MAILERLITE_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-  
-        Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
-      },
-      body: JSON.stringify(payload),
-    });
-
-    const result = await response.json();
-
-
-    if (response.ok) {
-      return { status: true, newSubscriberId: result?.data?.id };
-    } else {
-      return { status: false };
-    }
-  } catch (e) {
-    throw new Error("something went wrong")
-  }
-}
-
-export  async function addBuyer(newBuyer: any) {
-  const wholesalerData = await getCurrentWholesaler();
-
-  const { first_name, last_name, email, phone, api_id } = newBuyer;
-
-  const { data, error } = await supabase
-    .from("buyer")
-    .insert([
-      {
-        first_name: first_name,
-        last_name: last_name,
-        email: email,
-        phone_num: phone,
-        api_id,
-        wholesaler_id: wholesalerData.id,
-      },
-    ])
-    .select();
-
-  if (error) {
-    throw new Error(`Failed to add buyer: ${error.message}`);
-  }
-
-  return data;
-}
-
-
-export  async function linkBuyerToTag(buyerAndTagData: any) {
-
-  const {buyer_id,tag_id } = buyerAndTagData;
-
-
-  const { data, error } = await supabase
-    .from("buyer_tags")
-    .insert([
-      {
-       buyer_id,
-       tag_id
-      },
-    ])
-    .select();
-
-  if (error) {
-    throw new Error(`something went wrong: ${error.message}`);
-  }
-
-  return data;
-}
 
 
 export async function getTagsWithCounts() {
@@ -256,9 +164,12 @@ export  async function addTagToSupabase(payload: any) {
     ])
     .select();
 
+
   if (error) {
     throw new Error(`something went wrong: ${error.message}`);
   }
+  revalidatePath('/dashboard/tags')
+
 
   return data;
 }
