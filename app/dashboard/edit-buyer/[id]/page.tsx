@@ -10,7 +10,6 @@ export default async function EditBuyerPage({
     const WholesaleerTags=await getWholesalerTags()
     const currentBuyer=await getSingleBuyer(id)
 
-    console.log("current buyer",currentBuyer)
   
   return <div>
     <EditBuyerForm buyer={currentBuyer[0]} availableTags={WholesaleerTags} />
