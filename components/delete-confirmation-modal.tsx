@@ -65,7 +65,7 @@ export function DeleteConfirmationModal({
                 </button>
               </div>
               <p className="text-gray-600 mb-4">
-                {description} <span className="font-medium">"{itemName}"</span>?
+                {description} <span className="font-medium">{itemName}</span>?
               </p>
               <p className="text-gray-600 mb-4">This action cannot be undone.</p>
 

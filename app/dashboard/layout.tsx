@@ -1,11 +1,9 @@
 import Link from "next/link"
 import type { ReactNode } from "react"
-import { Tag, LogOut, Mail, Home } from "lucide-react"
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/libs/next-auth";
 import { redirect } from "next/navigation";
 import config from "@/config";
-import { signOut } from "next-auth/react";
 import DashboardSideBar from "@/components/DashboardSideBar";
 
 export default async function DashboardLayout({

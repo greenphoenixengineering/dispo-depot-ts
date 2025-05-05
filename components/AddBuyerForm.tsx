@@ -58,7 +58,7 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
         throw new Error("Failed to add buyer to database.");
       }
 
-      const linkResult = await linkBuyerToTag({
+    await linkBuyerToTag({
         buyer_id: addedBuyer[0].id,
         tag_id: selectedTagId,
       });
