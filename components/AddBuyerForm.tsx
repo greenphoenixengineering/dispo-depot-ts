@@ -18,7 +18,7 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
     first_name: "",
     last_name: "",
     email: "",
-    phone: "",
+    phone_num: "",
     groupId: "",
   });
   const router = useRouter();
@@ -70,7 +70,7 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
         first_name: "",
         last_name: "",
         email: "",
-        phone:"",
+        phone_num:"",
         groupId: "",
       });
 
@@ -183,7 +183,7 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 placeholder="(555) 123-4567"
-                value={formData.phone}
+                value={formData.phone_num}
                 onChange={handleChange}
               />
             </div>

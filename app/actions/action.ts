@@ -2,7 +2,7 @@
 
 import { authOptions } from "@/libs/next-auth";
 import { supabase } from "@/libs/supabase";
-import { NewBuyer, NewBuyerInSupa } from "@/libs/types";
+import { NewBuyer, NewBuyerInSupa, UpdateBuyer } from "@/libs/types";
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
 
@@ -76,7 +76,7 @@ export async function getWholesalerTags() {
 
 export async function addBuyerToMailerLit(newBuyer: NewBuyer) {
   // 1. Destructure necessary data from the input object
-  const { first_name, last_name, email, phone, groupId } = newBuyer;
+  const { first_name, last_name, email, phone_num, groupId } = newBuyer;
 
 
   const MAILERLITE_API_URL = "https://connect.mailerlite.com/api/subscribers";
@@ -87,7 +87,7 @@ export async function addBuyerToMailerLit(newBuyer: NewBuyer) {
     fields: {
       name: first_name,
       ...(last_name && { last_name: last_name }),
-      phone,
+      phone:phone_num,
     },
     groups: [groupId], 
     status: "active", 
@@ -123,7 +123,7 @@ export async function addBuyerToMailerLit(newBuyer: NewBuyer) {
 export  async function addBuyer(newBuyer: NewBuyerInSupa) {
   const wholesalerData = await getCurrentWholesaler();
 
-  const { first_name, last_name, email, phone, api_id } = newBuyer;
+  const { first_name, last_name, email, phone_num, api_id } = newBuyer;
 
   const { data, error } = await supabase
     .from("buyer")
@@ -132,7 +132,7 @@ export  async function addBuyer(newBuyer: NewBuyerInSupa) {
         first_name: first_name,
         last_name: last_name,
         email: email,
-        phone_num: phone,
+        phone_num: phone_num,
         api_id,
         wholesaler_id: wholesalerData.id,
       },
@@ -144,6 +144,113 @@ export  async function addBuyer(newBuyer: NewBuyerInSupa) {
   }
 
   return data;
+}
+
+
+// GET A SINGLE BUYER
+ 
+export async function getSingleBuyer(buyerId: string) {
+  const { data, error } = await supabase
+    .from("buyer")
+    .select(
+      `
+    *,
+    buyer_tags (
+      tags:tag_id (
+        id,
+        name,
+        api_id
+
+      )
+    )
+  `
+    )
+    .eq("id", buyerId);
+
+  console.log("fetched buyer", buyerId);
+  if (error) {
+    console.log("error", error.message);
+  } else {
+    return data;
+  }
+}
+export async function updateBuyerAndTagsAction(payload:UpdateBuyer) {
+  const { buyerId, updates, tags, buyerApiId } = payload;
+  const tagIds = tags.map((tagInfo: any) => tagInfo.id);
+
+  const mailerLiteGroupIds = tags
+  .map((tagInfo:any) => tagInfo.api_id)            
+
+
+
+  // --- Call the Supabase RPC Function ---
+  const { error: rpcError } = await supabase.rpc("update_buyer_and_sync_tags", {
+    p_buyer_id: buyerId,
+    p_first_name: updates.first_name,
+    p_last_name: updates.last_name,
+    p_email: updates.email,
+    p_phone_num: updates.phone,
+    p_tag_ids: tagIds,
+  });
+
+  if (rpcError) {
+    console.error(
+      "[Action Error] RPC call 'update_buyer_and_sync_tags' failed:",
+      rpcError
+    );
+
+    return {
+      success: false,
+      message: `Failed to update buyer`,
+      error: rpcError,
+    };
+  }
+
+  try {
+
+    const MAILERLITE_API_URL = `https://connect.mailerlite.com/api/subscribers/${buyerApiId}`;
+
+
+    // 3. Prepare MailerLite Payload using destructured variables
+    const payload: any = {
+      email: updates.email,
+      fields: {
+        name: updates.first_name, // M
+        last_name: updates.last_name,
+        phone: updates.phone_num,
+      },
+      groups:mailerLiteGroupIds,
+      status: "active",
+    };
+
+    const response = await fetch(MAILERLITE_API_URL, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+
+        Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+     if(!response.ok){
+      return { success: false, message: "Error updating buyer!" };
+  
+     }
+    const result = await response.json();
+    console.log("update on mailerlit result",result)
+
+  } catch (revalidateError) {
+    console.warn(
+      "[Action Warning] Failed to revalidate path:",
+      revalidateError
+    );
+  return { success: false, message: "Error updating buyer!" };
+
+  }
+
+  return { success: true, message: "Buyer updated successfully!" };
 }
 
 

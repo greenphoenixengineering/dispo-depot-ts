@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { ArrowLeft, Save, Trash, X, ChevronDown } from "lucide-react";
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal";
-import { deleteBuyer, updateBuyerAndTagsAction } from "@/app/actions/action";
+import { updateBuyerAndTagsAction } from "@/app/actions/action";
 
 interface Tag {
   id: number | string;
@@ -36,7 +36,7 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
     first_name: "",
     last_name: "",
     email: "",
-    phone: "",
+    phone_num: "",
   });
 
 
@@ -63,7 +63,7 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
         first_name: buyer.first_name || "",
         last_name: buyer.last_name || "",
         email: buyer.email || "",
-        phone: buyer.phone_num || "",
+        phone_num: buyer.phone_num || "",
       });
 
       const initialSelectedTags = buyer.buyer_tags
@@ -141,6 +141,8 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
       api_id: tag.api_id,
     }));
    
+
+    console.log("tags payload",tagsPayload)
     const payload = {
       buyerId: buyer.id,
       updates: formData,
@@ -271,7 +273,7 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 placeholder="(555) 123-4567"
-                value={formData.phone}
+                value={formData.phone_num}
                 onChange={handleChange}
               />
             </div>
