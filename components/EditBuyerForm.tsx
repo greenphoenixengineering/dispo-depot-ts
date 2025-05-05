@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { ArrowLeft, Save, Trash, X, ChevronDown } from "lucide-react";
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal";
-import { updateBuyerAndTagsAction } from "@/app/actions/action";
+import { deleteBuyer, updateBuyerAndTagsAction } from "@/app/actions/action";
 
 interface Tag {
   id: number | string;

@@ -2,7 +2,7 @@
 
 import { authOptions } from "@/libs/next-auth";
 import { supabase } from "@/libs/supabase";
-import { NewBuyer, NewBuyerInSupa, UpdateBuyer } from "@/libs/types";
+import { DeleteBuyer, NewBuyer, NewBuyerInSupa, UpdateBuyer } from "@/libs/types";
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
 
@@ -189,7 +189,7 @@ export async function updateBuyerAndTagsAction(payload:UpdateBuyer) {
     p_first_name: updates.first_name,
     p_last_name: updates.last_name,
     p_email: updates.email,
-    p_phone_num: updates.phone,
+    p_phone_num: updates.phone_num,
     p_tag_ids: tagIds,
   });
 
@@ -280,3 +280,31 @@ export  async function linkBuyerToTag(buyerAndTagData: any) {
 }
 
 
+export async function deleteBuyer(DeletePayload: DeleteBuyer) {
+  const { error: deleteError } = await supabase
+    .from("buyer") 
+    .delete()
+    .eq("id", DeletePayload.buyerId); 
+
+  if (deleteError) {
+    return { success: false, message: "Error deleting buyer!" };
+  }
+
+  const MAILERLITE_API_URL = `https://connect.mailerlite.com/api/subscribers/${DeletePayload.buyerApiId}`;
+
+  const response = await fetch(MAILERLITE_API_URL, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+
+      Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
+    },
+  });
+
+  if (!response.ok) {
+    return { success: false, message: "Error deleting buyer!" };
+  }
+
+  return { success: true, message: "Buyer deleted successfully!" };
+}

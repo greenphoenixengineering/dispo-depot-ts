@@ -41,3 +41,11 @@ export interface UpdateBuyer {
   tags:any
   buyerApiId:string
 }
+
+
+
+// {buyerId:buyer.id,buyerApiId:buyer.api_id}
+export interface DeleteBuyer{
+buyerId:string
+buyerApiId:string
+}
