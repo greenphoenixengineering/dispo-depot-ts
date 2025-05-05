@@ -76,7 +76,6 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
 
       router.push("/dashboard/");
     } catch (error: any) {
-      console.error("Submission error:", error);
 
       const duplicateKey = "duplicate key value violates unique constraint";
       const isDuplicate = error.message?.includes(duplicateKey);
@@ -178,8 +177,8 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
               </label>
               <input
                 type="tel"
-                id="phone"
-                name="phone"
+                id="phone_num"
+                name="phone_num"
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 placeholder="(555) 123-4567"

@@ -416,7 +416,6 @@ const FeaturesListicle = () => {
       const observer = new IntersectionObserver(
         ([entry]) => {
           if (entry.isIntersecting) {
-            console.log("STOP AUTO CHANGE");
             clearInterval(interval);
           }
         },

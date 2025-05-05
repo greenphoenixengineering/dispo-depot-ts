@@ -165,9 +165,8 @@ export async function getSingleBuyer(buyerId: string) {
     )
     .eq("id", buyerId);
 
-  console.log("fetched buyer", buyerId);
   if (error) {
-    console.log("error", error.message);
+    throw new Error("something went wrong")
   } else {
     return data;
   }
