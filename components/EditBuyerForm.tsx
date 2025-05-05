@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { ArrowLeft, Save, Trash, X, ChevronDown } from "lucide-react";
+import { ArrowLeft, Save, Trash, X } from "lucide-react";
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal";
 import { deleteBuyer, updateBuyerAndTagsAction } from "@/app/actions/action";
 
@@ -28,7 +28,7 @@ interface Buyer {
 
 interface Props {
   buyer: Buyer;
-  availableTags: Tag[]; // Expecting a flat array of {id, name} for all possible tags
+  availableTags: Tag[]; 
 }
 
 export default function EditBuyerForm({ buyer, availableTags }: Props) {
@@ -71,7 +71,6 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
         : [];
       setSelectedTags(initialSelectedTags);
 
-      console.log("inital tags",initialSelectedTags)
     }
   }, [buyer]);
 
@@ -85,7 +84,6 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
     tag.name.toLowerCase().includes(tagSearchTerm.toLowerCase())
   );
 
-  // --- Handlers (operate on the flat Tag[] state) ---
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
@@ -97,7 +95,6 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
   };
 
   const handleAddTag = (tagToAdd: Tag) => {
-    // Add the Tag object directly if not already present
     if (!selectedTags.some((t) => t.id === tagToAdd.id)) {
       setSelectedTags((prevTags) => [...prevTags, tagToAdd]);
     }
@@ -116,7 +113,6 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
   }, []);
 
 
-  console.log("buyer",buyer)
   useEffect(() => {
     if (isTagDropdownOpen) {
       document.addEventListener("mousedown", handleClickOutsideTags);
@@ -135,14 +131,12 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
     setIsSaving(true);
     setSaveMessage("");
 
-    // Map the flat Tag[] state to IDs for submission
     const tagsPayload = selectedTags.map((tag) => ({
       id: tag.id,
       api_id: tag.api_id,
     }));
    
 
-    console.log("tags payload",tagsPayload)
     const payload = {
       buyerId: buyer.id,
       updates: formData,
@@ -161,7 +155,6 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
         setBuyerUpdatedSuccessfuly(false)
         setSaveMessage("error updating buyer");
     }
-   console.log("result",result.success)
 
     setIsSaving(false);
     setTimeout(() => setSaveMessage(""), 3000);
@@ -170,9 +163,8 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
   const handleDelete = async () => {
     setIsDeleting(true);
 
-    const deleteBuyerResult=await deleteBuyer({buyerId:buyer.id,buyerApiId:buyer.api_id})
+    await deleteBuyer({buyerId:buyer.id,buyerApiId:buyer.api_id})
 
-    console.log("dlete buyer result",deleteBuyerResult)
     setIsDeleting(false);
     setShowDeleteModal(false);
     window.location.href = "/dashboard";
@@ -180,9 +172,7 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
 
   return (
     <div>
-      {/* Header */}
       <div className="mb-6">
-        {/* ... Header content ... */}
         <Link
           href="/dashboard"
           className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 mb-4"
@@ -198,10 +188,8 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
 
       <div className="bg-white rounded-lg shadow-sm p-6">
         <form onSubmit={handleSubmit}>
-          {/* Buyer Info Inputs */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            {/* ... Input fields for first_name, last_name, email, phone ... */}
-            {/* First Name */}
+
             <div>
               <label
                 htmlFor="first_name"
@@ -268,8 +256,8 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
               </label>
               <input
                 type="tel"
-                id="phone"
-                name="phone"
+                id="phone_num"
+                name="phone_num"
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 placeholder="(555) 123-4567"

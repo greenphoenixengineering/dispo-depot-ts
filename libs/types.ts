@@ -27,13 +27,7 @@ export interface NewBuyerInSupa extends NewBuyer {
 }
 
 
- 
-// const payload = {
-//   buyerId: buyer.id,
-//   updates: formData,
-//   tags: tagsPayload,
-//   buyerApiId: buyer.api_id,
-// };
+
 
 export interface UpdateBuyer {
   buyerId:string
@@ -44,7 +38,6 @@ export interface UpdateBuyer {
 
 
 
-// {buyerId:buyer.id,buyerApiId:buyer.api_id}
 export interface DeleteBuyer{
 buyerId:string
 buyerApiId:string

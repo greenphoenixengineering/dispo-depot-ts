@@ -26,7 +26,8 @@ export async function getBuyersWithTags() {
 
 
   if (error) {
-    console.log("error", error.message);
+   
+    throw new Error("something went wrong")
   } else {
     return data;
   }
@@ -75,13 +76,11 @@ export async function getWholesalerTags() {
 }
 
 export async function addBuyerToMailerLit(newBuyer: NewBuyer) {
-  // 1. Destructure necessary data from the input object
   const { first_name, last_name, email, phone_num, groupId } = newBuyer;
 
 
   const MAILERLITE_API_URL = "https://connect.mailerlite.com/api/subscribers";
 
-  // 3. Prepare MailerLite Payload using destructured variables
   const payload: any = {
     email: email,
     fields: {
@@ -93,7 +92,6 @@ export async function addBuyerToMailerLit(newBuyer: NewBuyer) {
     status: "active", 
   };
 
-  // 4. Make the API Call
   try {
     const response = await fetch(MAILERLITE_API_URL, {
       method: "POST",
@@ -211,7 +209,6 @@ export async function updateBuyerAndTagsAction(payload:UpdateBuyer) {
     const MAILERLITE_API_URL = `https://connect.mailerlite.com/api/subscribers/${buyerApiId}`;
 
 
-    // 3. Prepare MailerLite Payload using destructured variables
     const payload: any = {
       email: updates.email,
       fields: {
@@ -239,7 +236,6 @@ export async function updateBuyerAndTagsAction(payload:UpdateBuyer) {
   
      }
     const result = await response.json();
-    console.log("update on mailerlit result",result)
 
   } catch (revalidateError) {
     console.warn(
