@@ -133,7 +133,7 @@ export default function BuyersTable({
                 <tr key={buyer.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">
-                      {buyer.first_name}
+                      {buyer.first_name}  {buyer.last_name }
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">

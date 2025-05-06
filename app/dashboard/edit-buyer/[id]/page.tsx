@@ -1,17 +1,16 @@
-import { getSingleBuyer, getWholesalerTags } from "@/app/actions/action"
-import EditBuyerForm from "@/components/EditBuyerForm"
+import { getSingleBuyer, getWholesalerTags } from "@/app/actions/action";
+import EditBuyerForm from "@/components/EditBuyerForm";
 
 export default async function EditBuyerPage({
   params,
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string }>;
 }) {
-  const { id } = await params
-    const WholesaleerTags=await getWholesalerTags()
-    const currentBuyer=await getSingleBuyer(id)
+  const { id } = await params;
+  const wholesalerTags = await getWholesalerTags();
+  const currentBuyer = await getSingleBuyer(id);
 
-  
-  return <div>
-    <EditBuyerForm buyer={currentBuyer[0]} availableTags={WholesaleerTags} />
-  </div>
+  return (
+    <EditBuyerForm buyer={currentBuyer[0]} availableTags={wholesalerTags} />
+  );
 }

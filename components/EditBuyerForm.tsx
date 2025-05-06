@@ -5,11 +5,12 @@ import Link from "next/link";
 import { ArrowLeft, Save, Trash, X } from "lucide-react";
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal";
 import { deleteBuyer, updateBuyerAndTagsAction } from "@/app/actions/action";
+import { useRouter } from "next/navigation";
 
 interface Tag {
   id: number | string;
   name: string;
-  api_id:string
+  api_id: string;
 }
 
 interface BuyerTagLink {
@@ -23,12 +24,12 @@ interface Buyer {
   email: string;
   phone_num: string;
   buyer_tags: BuyerTagLink[];
-  api_id:string
+  api_id: string;
 }
 
 interface Props {
   buyer: Buyer;
-  availableTags: Tag[]; 
+  availableTags: Tag[];
 }
 
 export default function EditBuyerForm({ buyer, availableTags }: Props) {
@@ -39,9 +40,8 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
     phone_num: "",
   });
 
-
-  const [buyerUpdatedSuccessfuly,setBuyerUpdatedSuccessfuly]=useState(false)
-
+  const router = useRouter();
+  const [buyerUpdatedSuccessfuly, setBuyerUpdatedSuccessfuly] = useState(false);
 
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
 
@@ -54,8 +54,6 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
   const [saveMessage, setSaveMessage] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-
-
 
   useEffect(() => {
     if (buyer) {
@@ -70,7 +68,6 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
         ? buyer.buyer_tags.map((link) => link.tags).filter((tag) => tag != null)
         : [];
       setSelectedTags(initialSelectedTags);
-
     }
   }, [buyer]);
 
@@ -78,7 +75,6 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
   const tagsAvailableToAdd = availableTags.filter(
     (availTag) => !selectedTags.some((selTag) => selTag.id === availTag.id) // Direct comparison works now
   );
-
 
   const filteredTagsForDropdown = tagsAvailableToAdd.filter((tag) =>
     tag.name.toLowerCase().includes(tagSearchTerm.toLowerCase())
@@ -112,7 +108,6 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
     }
   }, []);
 
-
   useEffect(() => {
     if (isTagDropdownOpen) {
       document.addEventListener("mousedown", handleClickOutsideTags);
@@ -124,8 +119,6 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
     };
   }, [isTagDropdownOpen, handleClickOutsideTags]);
 
-
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
@@ -135,7 +128,6 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
       id: tag.id,
       api_id: tag.api_id,
     }));
-   
 
     const payload = {
       buyerId: buyer.id,
@@ -144,16 +136,17 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
       buyerApiId: buyer.api_id,
     };
 
-
     // --- Call the Server Action ---
     const result = await updateBuyerAndTagsAction(payload);
-  
-    if(result.success) {
-        setBuyerUpdatedSuccessfuly(true)
-        setSaveMessage("Buyer updated successfully");
-    }else{
-        setBuyerUpdatedSuccessfuly(false)
-        setSaveMessage("error updating buyer");
+
+
+    if (result.success) {
+      setBuyerUpdatedSuccessfuly(true);
+      setSaveMessage("Buyer updated successfully");
+      router.push("/dashboard/");
+    } else {
+      setBuyerUpdatedSuccessfuly(false);
+      setSaveMessage("error updating buyer");
     }
 
     setIsSaving(false);
@@ -163,7 +156,7 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
   const handleDelete = async () => {
     setIsDeleting(true);
 
-    await deleteBuyer({buyerId:buyer.id,buyerApiId:buyer.api_id})
+    await deleteBuyer({ buyerId: buyer.id, buyerApiId: buyer.api_id });
 
     setIsDeleting(false);
     setShowDeleteModal(false);
@@ -189,7 +182,6 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
       <div className="bg-white rounded-lg shadow-sm p-6">
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-
             <div>
               <label
                 htmlFor="first_name"
@@ -347,16 +339,19 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
 
           {/* Save Message */}
           {saveMessage && (
-            <div   className={`mb-4 p-2 rounded-md ${
-                !buyerUpdatedSuccessfuly ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"
-              }`}>
+            <div
+              className={`mb-4 p-2 rounded-md ${
+                !buyerUpdatedSuccessfuly
+                  ? "bg-red-100 text-red-800"
+                  : "bg-green-100 text-green-800"
+              }`}
+            >
               {saveMessage}
             </div>
           )}
 
           {/* Action Buttons */}
           <div className="flex justify-between items-center mt-8">
-            {/* ... Action buttons ... */}
             {/* Delete Button */}
             <button
               type="button"

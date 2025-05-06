@@ -3,9 +3,9 @@ import AddBuyerForm from "@/components/AddBuyerForm";
 import React from "react";
 
 const NewBuyerPage = async () => {
-  const WholesaleerTags = await getWholesalerTags();
+  const WholesalerTags = await getWholesalerTags();
 
-  return <AddBuyerForm tags={WholesaleerTags} />;
+  return <AddBuyerForm tags={WholesalerTags} />;
 };
 
 export default NewBuyerPage;

@@ -125,7 +125,7 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
                 name="first_name"
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                placeholder="John Smith"
+                placeholder="John"
                 value={formData.first_name}
                 onChange={handleChange}
               />
@@ -143,7 +143,7 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
                 name="last_name"
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                placeholder="John Smith"
+                placeholder="Smith"
                 value={formData.last_name}
                 onChange={handleChange}
               />
