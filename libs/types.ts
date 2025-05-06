@@ -1,6 +1,6 @@
 export interface Buyer {
   id: number;
-  first_name: string
+  first_name: string;
   email: string;
   phone_num?: string;
   buyer_tags?: {
@@ -21,24 +21,16 @@ export interface buyerFormData {
 export interface NewBuyer extends buyerFormData {
   groupId: string;
 }
-
 export interface NewBuyerInSupa extends NewBuyer {
   api_id: string;
 }
-
-
-
-
 export interface UpdateBuyer {
-  buyerId:string
-  updates: buyerFormData
-  tags:any
-  buyerApiId:string
+  buyerId: string;
+  updates: buyerFormData;
+  tags: any;
+  buyerApiId: string;
 }
-
-
-
-export interface DeleteBuyer{
-buyerId:string
-buyerApiId:string
+export interface DeleteBuyer {
+  buyerId: string;
+  buyerApiId: string;
 }
