@@ -32,7 +32,7 @@ export async function getBuyersWithTags() {
     .eq("wholesaler_id", wholesalerData.id);
 
   if (error) {
-    throw new Error("something went wrong");
+    throw new Error("error getting wholesaler with tags");
   } else {
     return data;
   }
@@ -114,7 +114,7 @@ export async function addBuyerToMailerLit(newBuyer: NewBuyer) {
       return { status: false };
     }
   } catch (e) {
-    throw new Error("something went wrong");
+    throw new Error("error adding buyer to mailerlit");
   }
 }
 
