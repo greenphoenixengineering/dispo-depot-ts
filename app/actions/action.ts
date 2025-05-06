@@ -2,9 +2,16 @@
 
 import { authOptions } from "@/libs/next-auth";
 import { supabase } from "@/libs/supabase";
-import { DeleteBuyer, NewBuyer, NewBuyerInSupa, UpdateBuyer } from "@/libs/types";
+import {
+  DeleteBuyer,
+  NewBuyer,
+  NewBuyerInSupa,
+  UpdateBuyer,
+} from "@/libs/types";
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
+
+const BASE_URL = "https://connect.mailerlite.com/api";
 
 export async function getBuyersWithTags() {
   const wholesalerData = await getCurrentWholesaler();
@@ -24,10 +31,8 @@ export async function getBuyersWithTags() {
     )
     .eq("wholesaler_id", wholesalerData.id);
 
-
   if (error) {
-   
-    throw new Error("something went wrong")
+    throw new Error("something went wrong");
   } else {
     return data;
   }
@@ -44,7 +49,7 @@ export async function getCurrentWholesaler() {
     .from("wholesaler")
     .select("*")
     .eq("user_id", session.user.id)
-    .single(); 
+    .single();
 
   if (error) {
     throw new Error(`Failed to fetch wholesaler: ${error.message}`);
@@ -78,27 +83,24 @@ export async function getWholesalerTags() {
 export async function addBuyerToMailerLit(newBuyer: NewBuyer) {
   const { first_name, last_name, email, phone_num, groupId } = newBuyer;
 
-
-  const MAILERLITE_API_URL = "https://connect.mailerlite.com/api/subscribers";
-
   const payload: any = {
     email: email,
     fields: {
       name: first_name,
       ...(last_name && { last_name: last_name }),
-      phone:phone_num,
+      phone: phone_num,
     },
-    groups: [groupId], 
-    status: "active", 
+    groups: [groupId],
+    status: "active",
   };
 
   try {
-    const response = await fetch(MAILERLITE_API_URL, {
+    const response = await fetch(`${BASE_URL}/subscribers`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
-  
+
         Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
       },
       body: JSON.stringify(payload),
@@ -106,19 +108,17 @@ export async function addBuyerToMailerLit(newBuyer: NewBuyer) {
 
     const result = await response.json();
 
-
     if (response.ok) {
       return { status: true, newSubscriberId: result?.data?.id };
     } else {
       return { status: false };
     }
   } catch (e) {
-    throw new Error("something went wrong")
+    throw new Error("something went wrong");
   }
 }
 
-
-export  async function addBuyer(newBuyer: NewBuyerInSupa) {
+export async function addBuyer(newBuyer: NewBuyerInSupa) {
   const wholesalerData = await getCurrentWholesaler();
 
   const { first_name, last_name, email, phone_num, api_id } = newBuyer;
@@ -144,9 +144,8 @@ export  async function addBuyer(newBuyer: NewBuyerInSupa) {
   return data;
 }
 
-
 // GET A SINGLE BUYER
- 
+
 export async function getSingleBuyer(buyerId: string) {
   const { data, error } = await supabase
     .from("buyer")
@@ -166,19 +165,16 @@ export async function getSingleBuyer(buyerId: string) {
     .eq("id", buyerId);
 
   if (error) {
-    throw new Error("something went wrong")
+    throw new Error("error getting a single buyer");
   } else {
     return data;
   }
 }
-export async function updateBuyerAndTagsAction(payload:UpdateBuyer) {
+export async function updateBuyerAndTagsAction(payload: UpdateBuyer) {
   const { buyerId, updates, tags, buyerApiId } = payload;
   const tagIds = tags.map((tagInfo: any) => tagInfo.id);
 
-  const mailerLiteGroupIds = tags
-  .map((tagInfo:any) => tagInfo.api_id)            
-
-
+  const mailerLiteGroupIds = tags.map((tagInfo: any) => tagInfo.api_id);
 
   // --- Call the Supabase RPC Function ---
   const { error: rpcError } = await supabase.rpc("update_buyer_and_sync_tags", {
@@ -204,22 +200,18 @@ export async function updateBuyerAndTagsAction(payload:UpdateBuyer) {
   }
 
   try {
-
-    const MAILERLITE_API_URL = `https://connect.mailerlite.com/api/subscribers/${buyerApiId}`;
-
-
-    const payload: any = {
+    const payload = {
       email: updates.email,
       fields: {
         name: updates.first_name, // M
         last_name: updates.last_name,
         phone: updates.phone_num,
       },
-      groups:mailerLiteGroupIds,
+      groups: mailerLiteGroupIds,
       status: "active",
     };
 
-    const response = await fetch(MAILERLITE_API_URL, {
+    const response = await fetch(`${BASE_URL}/subscribers/${buyerApiId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -230,72 +222,65 @@ export async function updateBuyerAndTagsAction(payload:UpdateBuyer) {
       body: JSON.stringify(payload),
     });
 
-     if(!response.ok){
+    if (!response.ok) {
       return { success: false, message: "Error updating buyer!" };
-  
-     }
+    }
     const result = await response.json();
-
   } catch (revalidateError) {
     console.warn(
       "[Action Warning] Failed to revalidate path:",
       revalidateError
     );
-  return { success: false, message: "Error updating buyer!" };
-
+    return { success: false, message: "Error updating buyer!" };
   }
 
   return { success: true, message: "Buyer updated successfully!" };
 }
 
-
-export  async function linkBuyerToTag(buyerAndTagData: any) {
-
-  const {buyer_id,tag_id } = buyerAndTagData;
-
+export async function linkBuyerToTag(buyerAndTagData: any) {
+  const { buyer_id, tag_id } = buyerAndTagData;
 
   const { data, error } = await supabase
     .from("buyer_tags")
     .insert([
       {
-       buyer_id,
-       tag_id
+        buyer_id,
+        tag_id,
       },
     ])
     .select();
-  
 
   if (error) {
-    throw new Error(`something went wrong: ${error.message}`);
+    throw new Error(`error linking a buyer with tag: ${error.message}`);
   }
 
-  revalidatePath('/dashboard')
+  revalidatePath("/dashboard");
 
   return data;
 }
 
-
 export async function deleteBuyer(DeletePayload: DeleteBuyer) {
   const { error: deleteError } = await supabase
-    .from("buyer") 
+    .from("buyer")
     .delete()
-    .eq("id", DeletePayload.buyerId); 
+    .eq("id", DeletePayload.buyerId);
 
   if (deleteError) {
     return { success: false, message: "Error deleting buyer!" };
   }
 
-  const MAILERLITE_API_URL = `https://connect.mailerlite.com/api/subscribers/${DeletePayload.buyerApiId}`;
+  const response = await fetch(
+    `${BASE_URL}/subscribers/${DeletePayload.buyerApiId}`,
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
 
-  const response = await fetch(MAILERLITE_API_URL, {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-
-      Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
-    },
-  });
+        Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
+      },
+    }
+  );
 
   if (!response.ok) {
     return { success: false, message: "Error deleting buyer!" };
