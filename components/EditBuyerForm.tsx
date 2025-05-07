@@ -138,8 +138,7 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
 
     // --- Call the Server Action ---
     const result = await updateBuyerAndTagsAction(payload);
-
-
+    console.log("update result", result);
     if (result.success) {
       setBuyerUpdatedSuccessfuly(true);
       setSaveMessage("Buyer updated successfully");
@@ -221,21 +220,33 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
             </div>
             {/* Email */}
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Email Address *
-              </label>
+              <div className="flex items-center gap-1">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Email Address *
+                </label>
+                <div className="relative group">
+                  <div className="cursor-help text-gray-400 text-xs rounded-full border border-gray-300 h-4 w-4 flex items-center justify-center">
+                    ?
+                  </div>
+                  <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-60 p-2 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                    Emails cannot be updated at this time. Re-add Buyer if
+                    needed.
+                    <div className="absolute left-1/2 -translate-x-1/2 top-full border-4 border-transparent border-t-gray-800"></div>
+                  </div>
+                </div>
+              </div>
               <input
                 type="email"
                 id="email"
                 name="email"
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                disabled
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed"
                 placeholder="john@example.com"
                 value={formData.email}
-                onChange={handleChange}
               />
             </div>
             {/* Phone */}

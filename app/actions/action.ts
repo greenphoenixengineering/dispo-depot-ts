@@ -203,7 +203,7 @@ export async function updateBuyerAndTagsAction(payload: UpdateBuyer) {
     const payload = {
       email: updates.email,
       fields: {
-        name: updates.first_name, // M
+        name: updates.first_name,
         last_name: updates.last_name,
         phone: updates.phone_num,
       },
@@ -221,7 +221,6 @@ export async function updateBuyerAndTagsAction(payload: UpdateBuyer) {
       },
       body: JSON.stringify(payload),
     });
-
     if (!response.ok) {
       return { success: false, message: "Error updating buyer!" };
     }
@@ -234,6 +233,7 @@ export async function updateBuyerAndTagsAction(payload: UpdateBuyer) {
     return { success: false, message: "Error updating buyer!" };
   }
 
+  revalidatePath("/dashboard");
   return { success: true, message: "Buyer updated successfully!" };
 }
 

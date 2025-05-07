@@ -50,15 +50,13 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
         ...formData,
         api_id: result.newSubscriberId,
       };
-       
 
-   
       const addedBuyer = await addBuyer(newBuyerWithMailerSubId);
       if (!addedBuyer?.[0]?.id) {
         throw new Error("Failed to add buyer to database.");
       }
 
-    await linkBuyerToTag({
+      await linkBuyerToTag({
         buyer_id: addedBuyer[0].id,
         tag_id: selectedTagId,
       });
@@ -70,13 +68,12 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
         first_name: "",
         last_name: "",
         email: "",
-        phone_num:"",
+        phone_num: "",
         groupId: "",
       });
 
       router.push("/dashboard/");
     } catch (error: any) {
-
       const duplicateKey = "duplicate key value violates unique constraint";
       const isDuplicate = error.message?.includes(duplicateKey);
 
