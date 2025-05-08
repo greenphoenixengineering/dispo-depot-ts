@@ -27,19 +27,7 @@ export const authOptions: NextAuthOptionsExtended = {
         };
       },
     }),
-    // CredentialsProvider({
-    //   credentials: {
-    //     email: { label: "Email", type: "email" },
-    //     password: { label: "Password", type: "password" },
-    //     mode: { label: "Mode", type: "text" }
-    //   },
-    //   async authorize(credentials) {
-       
-    //     console.log("user credentials",credentials)
-    //     return null;
-    //   }
-    // }),
- 
+
   ],
 
   adapter: SupabaseAdapter({
@@ -53,6 +41,7 @@ export const authOptions: NextAuthOptionsExtended = {
     session: async ({ session, token }) => {
       if (session?.user) {
         session.user.id = token.sub;
+
       }
       return session;
     },
