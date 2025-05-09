@@ -77,16 +77,16 @@ export async function getWholesalerTags() {
 
 // get single tag
 
-export async function getSingleTag(id:number) {
-    let { data: tag, error } = await supabase
+export async function getSingleTag(id: number) {
+  let { data: tag, error } = await supabase
     .from("tags")
     .select("*")
 
     .eq("id", id);
-   if(error){
-    throw new Error("error getting a single tag")
-   }
-    return tag
+  if (error) {
+    throw new Error("error getting a single tag");
+  }
+  return tag;
 }
 
 export async function getTagsWithCounts() {
@@ -166,9 +166,8 @@ export async function addTagToSupabase(payload: any) {
 
 export async function UpdateTag(payload: any) {
   const { tagId, tagApiId, newTagName } = payload;
-  
 
-  console.log("payload",payload)
+  console.log("payload", payload);
   try {
     const { error } = await supabase
       .from("tags")
@@ -180,7 +179,6 @@ export async function UpdateTag(payload: any) {
       return { success: false, message: "error updating tag on supabase" };
     }
 
-    // const name=newTagName
     const response = await fetch(`${BASE_URL}/groups/${tagApiId}`, {
       method: "PUT",
       headers: {
@@ -189,14 +187,11 @@ export async function UpdateTag(payload: any) {
 
         Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
       },
-      body: JSON.stringify({name:newTagName}),
+      body: JSON.stringify({ name: newTagName }),
     });
     if (!response.ok) {
       return { success: false, message: "Error updating tag on mailerlit!" };
     }
-    const result = await response.json();
-
-    console.log("response",response)
 
     return { success: true };
   } catch {
@@ -207,7 +202,6 @@ export async function UpdateTag(payload: any) {
 export async function deleteTag(payload: any) {
   const { tagId, tagApiId } = payload;
 
-  console.log("tag api id", tagApiId);
 
   try {
     // delete tag from tags table

@@ -7,7 +7,6 @@ import Link from "next/link";
 import { ArrowLeft, Save } from "lucide-react";
 import { getSingleTag, UpdateTag } from "@/app/actions/action";
 
-
 interface Props {
   params: { id: string };
 }
@@ -17,26 +16,25 @@ export default function EditTagPage({ params }: Props) {
   const [isLoading, setIsLoading] = useState(true);
   const [tagName, setTagName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const [saveMessage, setSaveMessage] = useState("")
-  const [tag,setTag]=useState(undefined)
-
+  const [saveMessage, setSaveMessage] = useState("");
+  const [tag, setTag] = useState(undefined);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-
     const fetchTagData = async () => {
-    if (tagId === null || typeof tagId === "undefined") {
-        setIsLoading(false); 
+      if (tagId === null || typeof tagId === "undefined") {
+        setIsLoading(false);
         setTagName("");
         return;
       }
 
-      setIsLoading(true); 
+      setIsLoading(true);
       try {
         const tagsArray = await getSingleTag(tagId);
         if (tagsArray && tagsArray.length > 0) {
           const singleTag = tagsArray[0];
           setTagName(singleTag.name);
-          setTag(tagsArray[0])
+          setTag(tagsArray[0]);
         } else {
           console.warn(
             `Tag with ID ${tagId} not found or getSingleTag returned no data.`
@@ -55,26 +53,44 @@ export default function EditTagPage({ params }: Props) {
   }, [tagId]);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!tagId || !tag || !tag.api_id) {
+      setSaveMessage("Error: Missing tag information. Cannot update.");
+      console.error("Missing critical data for tag update:", { tagId, tag });
+      return;
+    }
+
     setIsSaving(true);
+    setSaveMessage("");
+    try {
+      const updatePayload = {
+        tagId: tagId,
+        tagApiId: tag.api_id,
+        newTagName: tagName,
+      };
 
-     
-    const updateResult=await UpdateTag({tagId,tagApiId:tag.api_id,newTagName:tagName})
+      const updateResult = await UpdateTag(updatePayload);
 
-    console.log("update result",updateResult)
-    // In a real app, you would send the data to your API
-    console.log("Tag updated:", { id: tagId, name: tagName });
+      if (updateResult && updateResult.success) {
+        setSaveMessage("Tag updated successfully!");
+      } else {
+        setError(true);
+        setSaveMessage("error updating tag");
+      }
+    } catch (error: any) {
+      setSaveMessage(
+        `Error: ${
+          error.message || "An unexpected error occurred while updating."
+        }`
+      );
+    } finally {
+      setIsSaving(false);
+    }
 
-    setIsSaving(false);
-    setSaveMessage("Tag updated successfully!");
-
-    // Clear message after 3 seconds
     setTimeout(() => {
       setSaveMessage("");
     }, 3000);
   };
-
-
-  console.log("tag",tag)
 
   if (isLoading) {
     return (
@@ -126,14 +142,20 @@ export default function EditTagPage({ params }: Props) {
           </div>
 
           {saveMessage && (
-            <div className="mb-4 p-2 bg-green-100 text-green-800 rounded-md">
+            <div
+              className={`p-3 rounded-md text-sm font-medium ${
+                // Added some basic padding/styling for visibility
+                error
+                  ? "bg-red-100 border border-red-300 text-red-700"
+                  : "bg-green-100 border border-green-300 text-green-700"
+              }`}
+              role="alert" // Good for accessibility
+            >
               {saveMessage}
             </div>
           )}
 
           <div className="flex justify-between">
-          
-
             <div className="flex gap-3">
               <Link
                 href="/dashboard/tags"
