@@ -1,117 +1,96 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { ArrowLeft, Save } from "lucide-react"
-import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal"
-import { getSingleTag } from "@/app/actions/action"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { ArrowLeft, Save } from "lucide-react";
+import { getSingleTag, UpdateTag } from "@/app/actions/action";
 
-// Mock data for tags (same as in tags/page.tsx)
-const mockTags = [
-  { id: 1, name: "Retail", color: "green", buyerCount: 42 },
-  { id: 2, name: "VIP", color: "purple", buyerCount: 15 },
-  { id: 3, name: "New", color: "blue", buyerCount: 23 },
-  { id: 4, name: "Wholesale", color: "yellow", buyerCount: 18 },
-  { id: 5, name: "Inactive", color: "red", buyerCount: 7 },
-]
 
 interface Props {
-  params: { id: string }
+  params: { id: string };
 }
 
 export default function EditTagPage({ params }: Props) {
-  const tagId = Number.parseInt(params.id)
-  const [isLoading, setIsLoading] = useState(true)
-  const [tagName, setTagName] = useState("")
-  const [isSaving, setIsSaving] = useState(false)
+  const tagId = Number.parseInt(params.id);
+  const [isLoading, setIsLoading] = useState(true);
+  const [tagName, setTagName] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState("")
+  const [tag,setTag]=useState(undefined)
 
-  // Delete modal state
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
-useEffect(() => {
-  // Define an async function inside useEffect
-  const fetchTagData = async () => {
-    // 1. Handle cases where tagId might not be valid yet
-    if (tagId === null || typeof tagId === 'undefined') {
-      setIsLoading(false); // Stop loading if no ID
-      setTagName(''); // Optionally reset tag name
-      return;
-    }
 
-    setIsLoading(true); // Set loading true before the fetch
+  useEffect(() => {
 
-    try {
-      const tagsArray = await getSingleTag(tagId); 
-      if (tagsArray && tagsArray.length > 0) {
-        const singleTag = tagsArray[0]; 
-        setTagName(singleTag.name);
-      } else {
-        console.warn(`Tag with ID ${tagId} not found or getSingleTag returned no data.`);
-        setTagName(''); 
+    const fetchTagData = async () => {
+    if (tagId === null || typeof tagId === "undefined") {
+        setIsLoading(false); 
+        setTagName("");
+        return;
       }
-    } catch (error) {
-      console.error("Error fetching single tag:", error);
-      setTagName(''); 
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
-  fetchTagData(); // Call the async function
+      setIsLoading(true); 
+      try {
+        const tagsArray = await getSingleTag(tagId);
+        if (tagsArray && tagsArray.length > 0) {
+          const singleTag = tagsArray[0];
+          setTagName(singleTag.name);
+          setTag(tagsArray[0])
+        } else {
+          console.warn(
+            `Tag with ID ${tagId} not found or getSingleTag returned no data.`
+          );
+          setTagName("");
+        }
+      } catch (error) {
+        console.error("Error fetching single tag:", error);
+        setTagName("");
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  
-  // };
-}, [tagId]); 
+    fetchTagData();
+  }, [tagId]);
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSaving(true)
+    e.preventDefault();
+    setIsSaving(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+     
+    const updateResult=await UpdateTag({tagId,tagApiId:tag.api_id,newTagName:tagName})
 
+    console.log("update result",updateResult)
     // In a real app, you would send the data to your API
-    console.log("Tag updated:", { id: tagId, name: tagName })
+    console.log("Tag updated:", { id: tagId, name: tagName });
 
-    setIsSaving(false)
-    setSaveMessage("Tag updated successfully!")
+    setIsSaving(false);
+    setSaveMessage("Tag updated successfully!");
 
     // Clear message after 3 seconds
     setTimeout(() => {
-      setSaveMessage("")
-    }, 3000)
-  }
+      setSaveMessage("");
+    }, 3000);
+  };
 
-  const handleDelete = async () => {
-    setIsDeleting(true)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // In a real app, you would send a delete request to your API
-    console.log("Tag deleted:", tagId)
-
-    setIsDeleting(false)
-    setShowDeleteModal(false)
-
-    // Redirect to tags page
-    window.location.href = "/dashboard/tags"
-  }
+  console.log("tag",tag)
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
       </div>
-    )
+    );
   }
 
   return (
     <div>
       <div className="mb-6">
-        <Link href="/dashboard/tags" className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 mb-4">
+        <Link
+          href="/dashboard/tags"
+          className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 mb-4"
+        >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Tags</span>
         </Link>
@@ -123,7 +102,10 @@ useEffect(() => {
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Tag Name *
               </label>
               <input
@@ -136,20 +118,21 @@ useEffect(() => {
                 value={tagName}
                 onChange={(e) => setTagName(e.target.value)}
               />
-              <p className="mt-2 text-sm text-gray-500"> buyers are currently using this tag</p>
+              <p className="mt-2 text-sm text-gray-500">
+                {" "}
+                buyers are currently using this tag
+              </p>
             </div>
           </div>
 
-          {saveMessage && <div className="mb-4 p-2 bg-green-100 text-green-800 rounded-md">{saveMessage}</div>}
+          {saveMessage && (
+            <div className="mb-4 p-2 bg-green-100 text-green-800 rounded-md">
+              {saveMessage}
+            </div>
+          )}
 
           <div className="flex justify-between">
-            <button
-              type="button"
-              onClick={() => setShowDeleteModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 border border-red-300 text-red-700 rounded-md hover:bg-red-50 transition-colors"
-            >
-              Delete Tag
-            </button>
+          
 
             <div className="flex gap-3">
               <Link
@@ -179,17 +162,6 @@ useEffect(() => {
           </div>
         </form>
       </div>
-
-      {/* Delete Confirmation Modal */}
-      <DeleteConfirmationModal
-        isOpen={showDeleteModal}
-        title="Delete Tag"
-        description="Are you sure you want to delete the tag"
-        itemName={tagName}
-        isDeleting={isDeleting}
-        onConfirm={handleDelete}
-        onCancel={() => setShowDeleteModal(false)}
-      />
     </div>
-  )
+  );
 }

@@ -166,7 +166,9 @@ export async function addTagToSupabase(payload: any) {
 
 export async function UpdateTag(payload: any) {
   const { tagId, tagApiId, newTagName } = payload;
+  
 
+  console.log("payload",payload)
   try {
     const { error } = await supabase
       .from("tags")
@@ -178,6 +180,7 @@ export async function UpdateTag(payload: any) {
       return { success: false, message: "error updating tag on supabase" };
     }
 
+    // const name=newTagName
     const response = await fetch(`${BASE_URL}/groups/${tagApiId}`, {
       method: "PUT",
       headers: {
@@ -186,12 +189,14 @@ export async function UpdateTag(payload: any) {
 
         Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({name:newTagName}),
     });
     if (!response.ok) {
       return { success: false, message: "Error updating tag on mailerlit!" };
     }
     const result = await response.json();
+
+    console.log("response",response)
 
     return { success: true };
   } catch {
