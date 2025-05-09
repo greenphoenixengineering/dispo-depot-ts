@@ -7,7 +7,7 @@ interface DeleteConfirmationModalProps {
   isOpen: boolean
   title: string
   description: string
-  itemName: string
+  itemName?: string
   isDeleting: boolean
   onConfirm: () => void
   onCancel: () => void
@@ -65,9 +65,9 @@ export function DeleteConfirmationModal({
                 </button>
               </div>
               <p className="text-gray-600 mb-4">
-                {description} <span className="font-medium">"{itemName}"</span>?
+                {description} <span className="font-medium">{itemName}</span>?
               </p>
-              <p className="text-gray-600 mb-4">This action cannot be undone.</p>
+              <p className="text-gray-600 mb-4">This action cannot be undone</p>
 
               <div className="flex justify-end gap-3">
                 <button
