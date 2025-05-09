@@ -3,9 +3,8 @@
 import { authOptions } from "@/libs/next-auth";
 import { supabase } from "@/libs/supabase";
 import { getServerSession } from "next-auth";
-import { revalidatePath } from "next/cache";
-import { idea } from "react-syntax-highlighter/dist/esm/styles/hljs";
-
+import { revalidatePath, revalidateTag } from "next/cache";
+const dynamic = "force-dynamic";
 const BASE_URL = "https://connect.mailerlite.com/api";
 export async function getBuyersWithTags() {
   const wholesalerData = await getCurrentWholesaler();
@@ -74,6 +73,20 @@ export async function getWholesalerTags() {
   }
 
   return tags;
+}
+
+// get single tag
+
+export async function getSingleTag(id:number) {
+    let { data: tag, error } = await supabase
+    .from("tags")
+    .select("*")
+
+    .eq("id", id);
+   if(error){
+    throw new Error("error getting a single tag")
+   }
+    return tag
 }
 
 export async function getTagsWithCounts() {
@@ -149,11 +162,47 @@ export async function addTagToSupabase(payload: any) {
 
   return data;
 }
+// update tag
+
+export async function UpdateTag(payload: any) {
+  const { tagId, tagApiId, newTagName } = payload;
+
+  try {
+    const { error } = await supabase
+      .from("tags")
+      .update({ name: newTagName })
+      .eq("id", tagId)
+      .select();
+
+    if (error) {
+      return { success: false, message: "error updating tag on supabase" };
+    }
+
+    const response = await fetch(`${BASE_URL}/groups/${tagApiId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+
+        Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      return { success: false, message: "Error updating tag on mailerlit!" };
+    }
+    const result = await response.json();
+
+    return { success: true };
+  } catch {
+    throw new Error("unexptected error happens during updating a tag");
+  }
+}
 
 export async function deleteTag(payload: any) {
   const { tagId, tagApiId } = payload;
 
-  console.log("tag api id",tagApiId)
+  console.log("tag api id", tagApiId);
 
   try {
     // delete tag from tags table
@@ -175,10 +224,7 @@ export async function deleteTag(payload: any) {
       },
     });
 
-
-
     if (response.ok) {
-      revalidatePath('/dashboard/tags')
       return { success: true };
     } else {
       return { success: false };

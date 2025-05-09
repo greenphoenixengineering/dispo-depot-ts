@@ -14,6 +14,7 @@ import {
 } from "@/app/actions/action";
 import { useRouter } from "next/navigation";
 
+export const dynamic = 'force-dynamic';
 export default function TagWithBuyerTable({ tagsList }: { tagsList: any }) {
   const router = useRouter();
   const [tags, setTags] = useState(tagsList);
@@ -57,7 +58,7 @@ export default function TagWithBuyerTable({ tagsList }: { tagsList: any }) {
           api_id: addTagResult.tagApiId,
         });
 
-        router.refresh();
+        
 
         setCreateMessage("Tag created successfully!");
         setNewTagName("");
@@ -96,28 +97,25 @@ export default function TagWithBuyerTable({ tagsList }: { tagsList: any }) {
   const confirmDeleteTag = async () => {
     if (!deletingTag) return;
 
-    console.log("deleting", deletingTag);
-
     setIsDeleting(true);
     await deleteTag({ tagId: deletingTag.id, tagApiId: deletingTag.api_id });
-
     setIsDeleting(false);
     setDeletingTag(null);
   };
 
-  let description = "Are you sure you want to delete this tag? This action cannot be undone.";
+  let description =
+    "Are you sure you want to delete this tag? This action cannot be undone.";
 
-if (deletingTag) {
-  const tagName = deletingTag.name || 'this tag';
-  description = `Are you sure you want to delete the tag "${tagName}"?`;
+  if (deletingTag) {
+    const tagName = deletingTag.name || "this tag";
+    description = `Are you sure you want to delete the tag "${tagName}"?`;
 
-  if (deletingTag.buyer_count > 0) {
-    description += ` This will break its link to ${deletingTag.buyer_count} buyers.`;
+    if (deletingTag.buyer_count > 0) {
+      description += ` This will break its link to ${deletingTag.buyer_count} buyers.`;
+    }
+
+    description += ` This action cannot be undone.`;
   }
-
-  description += ` This action cannot be undone.`;
-}
-
 
   return (
     <div>
@@ -256,9 +254,11 @@ if (deletingTag) {
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button className="text-gray-600 hover:text-gray-900 mr-3">
-                    <Edit className="w-4 h-4" />
-                  </button>
+                  <Link href={`tags/edit/${tag.id}?buyer_count=${tag.buyer_count}`}>
+                    <button className="text-gray-600 hover:text-gray-900 mr-3">
+                      <Edit className="w-4 h-4" />
+                    </button>
+                  </Link>
                   <button
                     onClick={() => startDeleteTag(tag)}
                     className="text-red-600 hover:text-red-900"

@@ -1,104 +1,195 @@
 "use client"
 
-import { AlertTriangle, X } from "lucide-react"
-import { useEffect, useRef } from "react"
+import type React from "react"
 
-interface DeleteConfirmationModalProps {
-  isOpen: boolean
-  title: string
-  description: string
-  itemName: string
-  isDeleting: boolean
-  onConfirm: () => void
-  onCancel: () => void
+import { useState, useEffect } from "react"
+import Link from "next/link"
+import { ArrowLeft, Save } from "lucide-react"
+import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal"
+import { getSingleTag } from "@/app/actions/action"
+
+// Mock data for tags (same as in tags/page.tsx)
+const mockTags = [
+  { id: 1, name: "Retail", color: "green", buyerCount: 42 },
+  { id: 2, name: "VIP", color: "purple", buyerCount: 15 },
+  { id: 3, name: "New", color: "blue", buyerCount: 23 },
+  { id: 4, name: "Wholesale", color: "yellow", buyerCount: 18 },
+  { id: 5, name: "Inactive", color: "red", buyerCount: 7 },
+]
+
+interface Props {
+  params: { id: string }
 }
 
- function DeleteConfirmationModal({
-  isOpen,
-  title,
-  description,
-  itemName,
-  isDeleting,
-  onConfirm,
-  onCancel,
-}: DeleteConfirmationModalProps) {
-  const modalRef = useRef<HTMLDivElement>(null)
+export default function EditTagPage({ params }: Props) {
+  const tagId = Number.parseInt(params.id)
+  const [isLoading, setIsLoading] = useState(true)
+  const [tagName, setTagName] = useState("")
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveMessage, setSaveMessage] = useState("")
 
-  // Close modal when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
-        onCancel()
+  // Delete modal state
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+useEffect(() => {
+  // Define an async function inside useEffect
+  const fetchTagData = async () => {
+    // 1. Handle cases where tagId might not be valid yet
+    if (tagId === null || typeof tagId === 'undefined') {
+      setIsLoading(false); // Stop loading if no ID
+      setTagName(''); // Optionally reset tag name
+      return;
+    }
+
+    setIsLoading(true); // Set loading true before the fetch
+
+    try {
+      const tagsArray = await getSingleTag(tagId); 
+      if (tagsArray && tagsArray.length > 0) {
+        const singleTag = tagsArray[0]; 
+        setTagName(singleTag.name);
+      } else {
+        console.warn(`Tag with ID ${tagId} not found or getSingleTag returned no data.`);
+        setTagName(''); 
       }
+    } catch (error) {
+      console.error("Error fetching single tag:", error);
+      setTagName(''); 
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside)
-      // Prevent scrolling when modal is open
-      document.body.style.overflow = "hidden"
-    }
+  fetchTagData(); // Call the async function
 
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-      document.body.style.overflow = "auto"
-    }
-  }, [isOpen, onCancel])
+  
+  // };
+}, [tagId]); 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSaving(true)
 
-  if (!isOpen) return null
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
+    // In a real app, you would send the data to your API
+    console.log("Tag updated:", { id: tagId, name: tagName })
+
+    setIsSaving(false)
+    setSaveMessage("Tag updated successfully!")
+
+    // Clear message after 3 seconds
+    setTimeout(() => {
+      setSaveMessage("")
+    }, 3000)
+  }
+
+  const handleDelete = async () => {
+    setIsDeleting(true)
+
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
+    // In a real app, you would send a delete request to your API
+    console.log("Tag deleted:", tagId)
+
+    setIsDeleting(false)
+    setShowDeleteModal(false)
+
+    // Redirect to tags page
+    window.location.href = "/dashboard/tags"
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+      </div>
+    )
+  }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div
-        ref={modalRef}
-        className="bg-white rounded-lg shadow-lg max-w-md w-full border-l-4 border-red-500 overflow-hidden"
-      >
-        <div className="p-6">
-          <div className="flex items-start gap-4">
-            <div className="bg-red-100 p-2 rounded-full">
-              <AlertTriangle className="w-6 h-6 text-red-600" />
-            </div>
-            <div className="flex-1">
-              <div className="flex justify-between items-start">
-                <h2 className="text-lg font-semibold mb-2">{title}</h2>
-                <button onClick={onCancel} className="text-gray-500 hover:text-gray-700">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-              <p className="text-gray-600 mb-4">
-                {description} <span className="font-medium">"{itemName}"</span>?
-              </p>
-              <p className="text-gray-600 mb-4">This action cannot be undone.</p>
+    <div>
+      <div className="mb-6">
+        <Link href="/dashboard/tags" className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 mb-4">
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to Tags</span>
+        </Link>
+        <h1 className="text-2xl font-bold mb-2">Edit Tag</h1>
+        <p className="text-gray-600">Update tag information</p>
+      </div>
 
-              <div className="flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={onCancel}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={onConfirm}
-                  disabled={isDeleting}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-50"
-                >
-                  {isDeleting ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
-                      <span>Deleting...</span>
-                    </>
-                  ) : (
-                    <span>Delete</span>
-                  )}
-                </button>
-              </div>
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                Tag Name *
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                placeholder="Tag Name"
+                value={tagName}
+                onChange={(e) => setTagName(e.target.value)}
+              />
+              <p className="mt-2 text-sm text-gray-500"> buyers are currently using this tag</p>
             </div>
           </div>
-        </div>
+
+          {saveMessage && <div className="mb-4 p-2 bg-green-100 text-green-800 rounded-md">{saveMessage}</div>}
+
+          <div className="flex justify-between">
+            <button
+              type="button"
+              onClick={() => setShowDeleteModal(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 border border-red-300 text-red-700 rounded-md hover:bg-red-50 transition-colors"
+            >
+              Delete Tag
+            </button>
+
+            <div className="flex gap-3">
+              <Link
+                href="/dashboard/tags"
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </Link>
+              <button
+                type="submit"
+                disabled={isSaving}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors disabled:opacity-50"
+              >
+                {isSaving ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    <span>Save Changes</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </form>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={showDeleteModal}
+        title="Delete Tag"
+        description="Are you sure you want to delete the tag"
+        itemName={tagName}
+        isDeleting={isDeleting}
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteModal(false)}
+      />
     </div>
   )
 }
-
-export default DeleteConfirmationModal
