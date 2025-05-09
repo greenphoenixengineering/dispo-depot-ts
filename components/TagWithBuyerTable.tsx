@@ -7,7 +7,7 @@ import { useState } from "react"
 import { ArrowLeft, Plus, X, Check, Edit, Trash } from "lucide-react"
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal"
 import { TagChip } from "@/components/tag-ship"
-import { addTagToMailerlit, addTagToSupabase } from "@/app/actions/action"
+import { addTagToMailerlit, addTagToSupabase, deleteTag } from "@/app/actions/action"
 import { useRouter } from "next/navigation"
 
 
@@ -21,7 +21,7 @@ export default function TagWithBuyerTable({tagsList}:{tagsList:any}) {
   const [createMessage, setCreateMessage] = useState("")
 
   // Delete tag state
-  const [deletingTag, setDeletingTag] = useState<{ id: number; name: string } | null>(null)
+  const [deletingTag, setDeletingTag] = useState<{ id: number; name: string,api_id:string } | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
 
 
@@ -85,6 +85,7 @@ export default function TagWithBuyerTable({tagsList}:{tagsList:any}) {
     setDeletingTag({
       id: tag.id,
       name: tag.name,
+      api_id:tag.api_id
     })
   }
 
@@ -94,15 +95,7 @@ export default function TagWithBuyerTable({tagsList}:{tagsList:any}) {
     console.log("deleting",deletingTag)
 
     setIsDeleting(true)
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // Remove the tag from the local state
-    const updatedTags = tags.filter((tag) => tag.id !== deletingTag.id)
-    setTags(updatedTags)
-
-    console.log("Tag deleted:", deletingTag)
+  await deleteTag({tagId:deletingTag.id , tagApiId:deletingTag.api_id})
 
     setIsDeleting(false)
     setDeletingTag(null)

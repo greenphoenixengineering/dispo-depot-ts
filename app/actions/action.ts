@@ -4,7 +4,9 @@ import { authOptions } from "@/libs/next-auth";
 import { supabase } from "@/libs/supabase";
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
+import { idea } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
+const BASE_URL = "https://connect.mailerlite.com/api";
 export async function getBuyersWithTags() {
   const wholesalerData = await getCurrentWholesaler();
 
@@ -43,7 +45,7 @@ export async function getCurrentWholesaler() {
     .from("wholesaler")
     .select("*")
     .eq("user_id", session.user.id)
-    .single(); 
+    .single();
 
   if (error) {
     throw new Error(`Failed to fetch wholesaler: ${error.message}`);
@@ -74,96 +76,114 @@ export async function getWholesalerTags() {
   return tags;
 }
 
-
-
 export async function getTagsWithCounts() {
   const wholesalerData = await getCurrentWholesaler();
 
   if (!wholesalerData.id) {
-    return { tags: [], error: { message: 'Wholesaler ID is required.' } };
+    return { tags: [], error: { message: "Wholesaler ID is required." } };
   }
 
-
   try {
-
-    
-    const { data, error } = await supabase.rpc(
-      'get_tags_with_buyer_count', 
-      { wholesaler_id_input: wholesalerData.id } 
-    );
-
+    const { data, error } = await supabase.rpc("get_tags_with_buyer_count", {
+      wholesaler_id_input: wholesalerData.id,
+    });
 
     if (error) {
       throw new Error(`Database error: ${error.message}`); // Throw to be caught below
     }
 
-
-
-
-
     return data;
-
   } catch (error: any) {
-    return { tags: [], error: { message: error.message || 'Failed to fetch tags with counts.' } };
+    return {
+      tags: [],
+      error: { message: error.message || "Failed to fetch tags with counts." },
+    };
   }
 }
 
-export async function addTagToMailerlit(payload:any) {
-  // add tag to mailerlit and get the tag id
-  const MAILERLITE_API_URL = "https://connect.mailerlite.com/api/groups";
+export async function addTagToMailerlit(payload: any) {
+  try {
+    const response = await fetch(`${BASE_URL}/groups`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
 
-    try {
-      const response = await fetch(MAILERLITE_API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-    
-          Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
-        },
-        body: JSON.stringify(payload),
-      });
-  
-      const result = await response.json();
-  
-  
-      if (response.ok) {
-        return { status: true,tagApiId:result?.data?.id};
-      } else {
-        return { status: false };
-      }
-    } catch (e) {
-      throw new Error("something went wrong")
+        Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      return { status: true, tagApiId: result?.data?.id };
+    } else {
+      return { status: false };
     }
+  } catch (e) {
+    throw new Error("something went wrong");
+  }
 }
 
-
-export  async function addTagToSupabase(payload: any) {
-
+export async function addTagToSupabase(payload: any) {
   const wholesalerData = await getCurrentWholesaler();
 
-  const {name,api_id} = payload;
-
+  const { name, api_id } = payload;
 
   const { data, error } = await supabase
     .from("tags")
     .insert([
       {
-       name,
-       api_id,
-       wholesaler_id:wholesalerData.id
+        name,
+        api_id,
+        wholesaler_id: wholesalerData.id,
       },
     ])
     .select();
 
-
   if (error) {
     throw new Error(`something went wrong: ${error.message}`);
   }
-  revalidatePath('/dashboard/tags')
-
+  revalidatePath("/dashboard/tags");
 
   return data;
 }
 
+export async function deleteTag(payload: any) {
+  const { tagId, tagApiId } = payload;
 
+  console.log("tag api id",tagApiId)
+
+  try {
+    // delete tag from tags table
+    const { error } = await supabase.from("tags").delete().eq("id", tagId);
+    console.log("payload", payload);
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    // DELETE GROUP FROM MAILERLIT
+    const response = await fetch(`${BASE_URL}/groups/${tagApiId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+
+        Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
+      },
+    });
+
+
+
+    if (response.ok) {
+      revalidatePath('/dashboard/tags')
+      return { success: true };
+    } else {
+      return { success: false };
+    }
+  } catch (e) {
+    throw new Error("error deleting tag");
+  }
+}
