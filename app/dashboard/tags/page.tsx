@@ -5,6 +5,8 @@ import React from 'react'
 export const dynamic = 'force-dynamic';
 const ManageTagPage =async () => {
   const tags=await getTagsWithCounts()
+
+
   return (
     <TagWithBuyerTable tagsList={tags} />
   )

@@ -3,7 +3,7 @@
 import type React from "react";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, Plus, X, Check, Edit, Trash } from "lucide-react";
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal";
 import { TagChip } from "@/components/tag-ship";
@@ -24,6 +24,15 @@ export default function TagWithBuyerTable({ tagsList }: { tagsList: any }) {
   const [isCreating, setIsCreating] = useState(false);
   const [createMessage, setCreateMessage] = useState("");
 
+    useEffect(() => {
+    setTags(tagsList);
+  }, [tagsList]); // This effect runs when tagsList prop changes
+
+
+    console.log("TagWithBuyerTable received tagsList:", tagsList);
+  console.log("TagWithBuyerTable internal tags state:", tags);
+
+
   // Delete tag state
   const [deletingTag, setDeletingTag] = useState<{
     id: number;
@@ -33,7 +42,6 @@ export default function TagWithBuyerTable({ tagsList }: { tagsList: any }) {
   } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  console.log("tag list", tagsList);
 
   const handleCreateTag = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,7 +67,7 @@ export default function TagWithBuyerTable({ tagsList }: { tagsList: any }) {
         });
 
         
-
+       router.refresh()
         setCreateMessage("Tag created successfully!");
         setNewTagName("");
 
