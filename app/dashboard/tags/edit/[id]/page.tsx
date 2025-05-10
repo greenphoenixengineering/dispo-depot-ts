@@ -25,7 +25,6 @@ export default function EditTagPage({ params }: Props) {
 
   const router = useRouter();
 
-  console.log("tag buyer count", TagbuyerCount);
   useEffect(() => {
     const fetchTagData = async () => {
       if (tagId === null || typeof tagId === "undefined") {
@@ -79,7 +78,7 @@ export default function EditTagPage({ params }: Props) {
 
       if (updateResult && updateResult.success) {
         setSaveMessage("Tag updated successfully!");
-
+         router.prefetch("/dashboard/tags")
         router.push("/dashboard/tags");
       } else {
         setError(true);

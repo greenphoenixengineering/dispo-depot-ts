@@ -1,16 +1,13 @@
-import { getTagsWithCounts } from '@/app/actions/action'
-import TagWithBuyerTable from '@/components/TagWithBuyerTable'
-import { TagWithBuyerCount } from '@/libs/tagTypes';
-import React from 'react'
+import { getTagsWithCounts } from "@/app/actions/action";
+import TagWithBuyerTable from "@/components/TagWithBuyerTable";
+import { TagWithBuyerCount } from "@/libs/tagTypes";
+import React from "react";
 
-export const dynamic = 'force-dynamic';
-const ManageTagPage =async () => {
-  const tags:TagWithBuyerCount[]=await getTagsWithCounts()
+export const dynamic = "force-dynamic";
+const ManageTagPage = async () => {
+  const tags: TagWithBuyerCount[] = await getTagsWithCounts();
 
+  return <TagWithBuyerTable tagsList={tags} />;
+};
 
-  return (
-    <TagWithBuyerTable tagsList={tags} />
-  )
-}
-
-export default ManageTagPage
+export default ManageTagPage;

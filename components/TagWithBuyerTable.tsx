@@ -114,6 +114,8 @@ export default function TagWithBuyerTable({
         tagApiId: deletingTag.api_id,
       });
 
+      console.log("delete result",deleteResult)
+
       if (deleteResult.success) {
         setDeletingTag(null);
         router.refresh();

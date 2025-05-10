@@ -193,7 +193,7 @@ export async function UpdateTag(payload: any) {
     if (!response.ok) {
       return { success: false, message: "Error updating tag on mailerlit!" };
     }
-
+    revalidatePath('/dashboard/tags')
     return { success: true };
   } catch {
     throw new Error("unexptected error happens during updating a tag");
@@ -205,7 +205,7 @@ export async function deleteTag(payload: DeletedTag) {
 
   try {
     // delete tag from tags table
-    const { error } = await supabase.from("tag").delete().eq("id", tagId);
+    const { error } = await supabase.from("tags").delete().eq("id", tagId);
 
     if (error) {
       return { success: false, error: error.message };
