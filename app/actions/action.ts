@@ -205,7 +205,7 @@ export async function deleteTag(payload: any) {
 
   try {
     // delete tag from tags table
-    const { error } = await supabase.from("tags").delete().eq("id", tagId);
+    const { error } = await supabase.from("tag").delete().eq("id", tagId);
     console.log("payload", payload);
 
     if (error) {

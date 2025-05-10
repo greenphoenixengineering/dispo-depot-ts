@@ -14,24 +14,23 @@ import {
 } from "@/app/actions/action";
 import { useRouter } from "next/navigation";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 export default function TagWithBuyerTable({ tagsList }: { tagsList: any }) {
   const router = useRouter();
   const [tags, setTags] = useState(tagsList);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newTagName, setNewTagName] = useState("");
+  const [isErrorDeleting, setIsErrorDeleting] = useState(false);
   // No longer need newTagColor state since it will be randomly selected
   const [isCreating, setIsCreating] = useState(false);
   const [createMessage, setCreateMessage] = useState("");
 
-    useEffect(() => {
+  useEffect(() => {
     setTags(tagsList);
   }, [tagsList]); // This effect runs when tagsList prop changes
 
-
-    console.log("TagWithBuyerTable received tagsList:", tagsList);
+  console.log("TagWithBuyerTable received tagsList:", tagsList);
   console.log("TagWithBuyerTable internal tags state:", tags);
-
 
   // Delete tag state
   const [deletingTag, setDeletingTag] = useState<{
@@ -41,7 +40,6 @@ export default function TagWithBuyerTable({ tagsList }: { tagsList: any }) {
     buyer_count: number;
   } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-
 
   const handleCreateTag = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,8 +64,7 @@ export default function TagWithBuyerTable({ tagsList }: { tagsList: any }) {
           api_id: addTagResult.tagApiId,
         });
 
-        
-       router.refresh()
+        router.refresh();
         setCreateMessage("Tag created successfully!");
         setNewTagName("");
 
@@ -106,9 +103,31 @@ export default function TagWithBuyerTable({ tagsList }: { tagsList: any }) {
     if (!deletingTag) return;
 
     setIsDeleting(true);
-    await deleteTag({ tagId: deletingTag.id, tagApiId: deletingTag.api_id });
-    setIsDeleting(false);
-    setDeletingTag(null);
+
+    try {
+      const deleteResult = await deleteTag({
+        tagId: deletingTag.id,
+        tagApiId: deletingTag.api_id,
+      });
+
+      if (deleteResult.success) {
+        setDeletingTag(null);
+        router.refresh();
+      } else {
+        setIsErrorDeleting(true);
+        setTimeout(() => {
+          setIsErrorDeleting(false);
+        }, 3000);
+      }
+    } catch (error: any) {
+      console.error("Unexpected error during tag deletion:", error);
+      setIsErrorDeleting(true);
+      setTimeout(() => {
+        setIsErrorDeleting(null);
+      }, 3000);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   let description =
@@ -262,7 +281,9 @@ export default function TagWithBuyerTable({ tagsList }: { tagsList: any }) {
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <Link href={`tags/edit/${tag.id}?buyer_count=${tag.buyer_count}`}>
+                  <Link
+                    href={`tags/edit/${tag.id}?buyer_count=${tag.buyer_count}`}
+                  >
                     <button className="text-gray-600 hover:text-gray-900 mr-3">
                       <Edit className="w-4 h-4" />
                     </button>
@@ -286,6 +307,7 @@ export default function TagWithBuyerTable({ tagsList }: { tagsList: any }) {
         title="Delete Tag"
         description={description}
         isDeleting={isDeleting}
+        isErrorDeleting={isErrorDeleting}
         onConfirm={confirmDeleteTag}
         onCancel={() => setDeletingTag(null)}
       />

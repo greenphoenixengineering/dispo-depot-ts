@@ -1,6 +1,6 @@
 "use client"
 
-import { AlertTriangle, X } from "lucide-react"
+import { AlertTriangle, Check, X, XIcon } from "lucide-react"
 import { useEffect, useRef } from "react"
 
 interface DeleteConfirmationModalProps {
@@ -8,6 +8,7 @@ interface DeleteConfirmationModalProps {
   title: string
   description: string
   itemName?: string
+  isErrorDeleting?:boolean
   isDeleting: boolean
   onConfirm: () => void
   onCancel: () => void
@@ -19,6 +20,7 @@ export function DeleteConfirmationModal({
   description,
   itemName,
   isDeleting,
+  isErrorDeleting,
   onConfirm,
   onCancel,
 }: DeleteConfirmationModalProps) {
@@ -69,7 +71,7 @@ export function DeleteConfirmationModal({
               </p>
               <p className="text-gray-600 mb-4">This action cannot be undone</p>
 
-              <div className="flex justify-end gap-3">
+              <div className="flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={onCancel}
@@ -92,9 +94,20 @@ export function DeleteConfirmationModal({
                     <span>Delete</span>
                   )}
                 </button>
-              </div>
+                 {isErrorDeleting &&  (
+            <div className="mb-4 p-2 bg-red-100 w-fit  mt-4 text-red-800 rounded-md flex items-center gap-2">
+              <XIcon className="w-4 h-4" />
+              <span className="capitalize text-xs">error deleting tag </span>
             </div>
+          )}
+              </div>
+       
+            </div>
+           
+                 
+        
           </div>
+             
         </div>
       </div>
     </div>

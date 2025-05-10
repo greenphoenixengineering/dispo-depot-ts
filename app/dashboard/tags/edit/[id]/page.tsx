@@ -21,7 +21,7 @@ export default function EditTagPage({ params }: Props) {
   const [tag, setTag] = useState(undefined);
   const [error, setError] = useState(false);
 
-  const router=useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     const fetchTagData = async () => {
@@ -76,7 +76,8 @@ export default function EditTagPage({ params }: Props) {
 
       if (updateResult && updateResult.success) {
         setSaveMessage("Tag updated successfully!");
-        router.push('/dashboard/tags')
+
+        router.push("/dashboard/tags");
       } else {
         setError(true);
         setSaveMessage("error updating tag");
@@ -152,7 +153,7 @@ export default function EditTagPage({ params }: Props) {
                   ? "bg-red-100 border border-red-300 text-red-700"
                   : "bg-green-100 border border-green-300 text-green-700"
               }`}
-              role="alert" 
+              role="alert"
             >
               {saveMessage}
             </div>
