@@ -4,7 +4,7 @@ import { authOptions } from "@/libs/next-auth";
 import { supabase } from "@/libs/supabase";
 import { getServerSession } from "next-auth";
 import { revalidatePath, revalidateTag } from "next/cache";
-const dynamic = "force-dynamic";
+
 const BASE_URL = "https://connect.mailerlite.com/api";
 export async function getBuyersWithTags() {
   const wholesalerData = await getCurrentWholesaler();

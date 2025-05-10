@@ -147,13 +147,12 @@ export default function EditTagPage({ params }: Props) {
 
           {saveMessage && (
             <div
-              className={`p-3 rounded-md text-sm font-medium ${
-                // Added some basic padding/styling for visibility
+              className={`p-3 my-2 rounded-md text-sm font-medium ${
                 error
                   ? "bg-red-100 border border-red-300 text-red-700"
                   : "bg-green-100 border border-green-300 text-green-700"
               }`}
-              role="alert" // Good for accessibility
+              role="alert" 
             >
               {saveMessage}
             </div>
