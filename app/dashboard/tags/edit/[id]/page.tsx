@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, Save } from "lucide-react";
 import { getSingleTag, UpdateTag } from "@/app/actions/action";
+import { useRouter } from "next/navigation";
 
 interface Props {
   params: { id: string };
@@ -19,6 +20,8 @@ export default function EditTagPage({ params }: Props) {
   const [saveMessage, setSaveMessage] = useState("");
   const [tag, setTag] = useState(undefined);
   const [error, setError] = useState(false);
+
+  const router=useRouter()
 
   useEffect(() => {
     const fetchTagData = async () => {
@@ -73,6 +76,7 @@ export default function EditTagPage({ params }: Props) {
 
       if (updateResult && updateResult.success) {
         setSaveMessage("Tag updated successfully!");
+        router.push('/dashboard/tags')
       } else {
         setError(true);
         setSaveMessage("error updating tag");
