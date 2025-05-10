@@ -81,7 +81,6 @@ export default function EditBuyerPage({ params }: Props) {
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
     // In a real app, you would send the data to your API
-    console.log("Form submitted:", { ...formData, tags, id: buyerId })
 
     setIsSaving(false)
     setSaveMessage("Buyer updated successfully!")

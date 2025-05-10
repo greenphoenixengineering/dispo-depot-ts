@@ -2,6 +2,7 @@
 
 import { authOptions } from "@/libs/next-auth";
 import { supabase } from "@/libs/supabase";
+import { DeletedTag, NewTag } from "@/libs/tagTypes";
 import { getServerSession } from "next-auth";
 import { revalidatePath, revalidateTag } from "next/cache";
 
@@ -24,10 +25,8 @@ export async function getBuyersWithTags() {
     )
     .eq("wholesaler_id", wholesalerData.id);
 
-  console.log("data from action", data);
-
   if (error) {
-    console.log("error", error.message);
+    throw new Error("there was an error getting buyer with tags");
   } else {
     return data;
   }
@@ -114,7 +113,7 @@ export async function getTagsWithCounts() {
   }
 }
 
-export async function addTagToMailerlit(payload: any) {
+export async function addTagToMailerlit(payload: NewTag) {
   try {
     const response = await fetch(`${BASE_URL}/groups`, {
       method: "POST",
@@ -156,18 +155,20 @@ export async function addTagToSupabase(payload: any) {
     .select();
 
   if (error) {
-    throw new Error(`something went wrong: ${error.message}`);
+    return {
+      success: false,
+      error: "there was an error adding tag to supabase",
+    };
   }
   revalidatePath("/dashboard/tags");
 
-  return data;
+  return { success: true };
 }
 // update tag
 
 export async function UpdateTag(payload: any) {
   const { tagId, tagApiId, newTagName } = payload;
 
-  console.log("payload", payload);
   try {
     const { error } = await supabase
       .from("tags")
@@ -199,14 +200,12 @@ export async function UpdateTag(payload: any) {
   }
 }
 
-export async function deleteTag(payload: any) {
+export async function deleteTag(payload: DeletedTag) {
   const { tagId, tagApiId } = payload;
-
 
   try {
     // delete tag from tags table
     const { error } = await supabase.from("tag").delete().eq("id", tagId);
-    console.log("payload", payload);
 
     if (error) {
       return { success: false, error: error.message };

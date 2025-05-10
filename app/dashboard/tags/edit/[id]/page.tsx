@@ -6,13 +6,15 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, Save } from "lucide-react";
 import { getSingleTag, UpdateTag } from "@/app/actions/action";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface Props {
   params: { id: string };
 }
 
 export default function EditTagPage({ params }: Props) {
+  const searchParams = useSearchParams();
+  const TagbuyerCount = searchParams.get("buyer_count");
   const tagId = Number.parseInt(params.id);
   const [isLoading, setIsLoading] = useState(true);
   const [tagName, setTagName] = useState("");
@@ -23,6 +25,7 @@ export default function EditTagPage({ params }: Props) {
 
   const router = useRouter();
 
+  console.log("tag buyer count", TagbuyerCount);
   useEffect(() => {
     const fetchTagData = async () => {
       if (tagId === null || typeof tagId === "undefined") {
@@ -140,8 +143,7 @@ export default function EditTagPage({ params }: Props) {
                 onChange={(e) => setTagName(e.target.value)}
               />
               <p className="mt-2 text-sm text-gray-500">
-                {" "}
-                buyers are currently using this tag
+                {TagbuyerCount} buyers are currently using this tag
               </p>
             </div>
           </div>

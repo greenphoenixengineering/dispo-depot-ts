@@ -58,7 +58,6 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
         tag_id: selectedTagId,
       });
 
-      console.log("Linked buyer and tag:", linkResult);
 
       setSaveMessage("Buyer created successfully!");
 

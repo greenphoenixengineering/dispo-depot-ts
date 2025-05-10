@@ -13,24 +13,25 @@ import {
   deleteTag,
 } from "@/app/actions/action";
 import { useRouter } from "next/navigation";
+import { TagWithBuyerCount } from "@/libs/tagTypes";
 
 export const dynamic = "force-dynamic";
-export default function TagWithBuyerTable({ tagsList }: { tagsList: any }) {
+export default function TagWithBuyerTable({
+  tagsList,
+}: {
+  tagsList: TagWithBuyerCount[];
+}) {
   const router = useRouter();
   const [tags, setTags] = useState(tagsList);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newTagName, setNewTagName] = useState("");
   const [isErrorDeleting, setIsErrorDeleting] = useState(false);
-  // No longer need newTagColor state since it will be randomly selected
   const [isCreating, setIsCreating] = useState(false);
   const [createMessage, setCreateMessage] = useState("");
 
   useEffect(() => {
     setTags(tagsList);
-  }, [tagsList]); // This effect runs when tagsList prop changes
-
-  console.log("TagWithBuyerTable received tagsList:", tagsList);
-  console.log("TagWithBuyerTable internal tags state:", tags);
+  }, [tagsList]);
 
   // Delete tag state
   const [deletingTag, setDeletingTag] = useState<{
@@ -49,11 +50,11 @@ export default function TagWithBuyerTable({ tagsList }: { tagsList: any }) {
     }
 
     setIsCreating(true);
-    setCreateMessage(""); // Clear previous messages
+    setCreateMessage("");
 
     try {
       const newTagPayload = {
-        name: newTagName.trim(), // Use trimmed name
+        name: newTagName.trim(),
       };
 
       const addTagResult = await addTagToMailerlit(newTagPayload);
@@ -64,9 +65,12 @@ export default function TagWithBuyerTable({ tagsList }: { tagsList: any }) {
           api_id: addTagResult.tagApiId,
         });
 
-        router.refresh();
-        setCreateMessage("Tag created successfully!");
-        setNewTagName("");
+
+        if(addTagToSupabaseResult.success){
+          router.refresh();
+          setCreateMessage("Tag created successfully!");
+          setNewTagName("");
+        }
 
         setTimeout(() => {
           setShowCreateForm(false);
@@ -301,7 +305,6 @@ export default function TagWithBuyerTable({ tagsList }: { tagsList: any }) {
         </table>
       </div>
 
-      {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal
         isOpen={deletingTag !== null}
         title="Delete Tag"
