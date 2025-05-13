@@ -52,12 +52,12 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
       };
 
       const addedBuyer = await addBuyer(newBuyerWithMailerSubId);
-      if (!addedBuyer?.[0]?.id) {
+      if (!addedBuyer[0]?.id) {
         throw new Error("Failed to add buyer to database.");
       }
 
       await linkBuyerToTag({
-        buyer_id: addedBuyer[0].id,
+        buyer_id: addedBuyer[0]?.id,
         tag_id: selectedTagId,
       });
 

@@ -11,7 +11,7 @@ import {
 
 import { DeletedTag, NewTag } from "@/libs/tagTypes";
 import { getServerSession } from "next-auth";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 
 const BASE_URL = "https://connect.mailerlite.com/api";
 export async function getBuyersWithTags() {
@@ -81,6 +81,74 @@ export async function getWholesalerTags() {
   return tags;
 }
 
+
+export async function updateBuyerAndTagsAction(payload: UpdateBuyer) {
+  const { buyerId, updates, tags, buyerApiId } = payload;
+  const tagIds = tags.map((tagInfo: any) => tagInfo.id);
+
+  const mailerLiteGroupIds = tags.map((tagInfo: any) => tagInfo.api_id);
+
+  // --- Call the Supabase RPC Function ---
+  const { error: rpcError } = await supabase.rpc("update_buyer_and_sync_tags", {
+    p_buyer_id: buyerId,
+    p_first_name: updates.first_name,
+    p_last_name: updates.last_name,
+    p_email: updates.email,
+    p_phone_num: updates.phone_num,
+    p_tag_ids: tagIds,
+  });
+
+  if (rpcError) {
+    console.error(
+      "[Action Error] RPC call 'update_buyer_and_sync_tags' failed:",
+      rpcError
+    );
+
+    return {
+      success: false,
+      message: `Failed to update buyer`,
+      error: rpcError,
+    };
+  }
+
+  try {
+    const payload = {
+      email: updates.email,
+      fields: {
+        name: updates.first_name,
+        last_name: updates.last_name,
+        phone: updates.phone_num,
+      },
+      groups: mailerLiteGroupIds,
+      status: "active",
+    };
+
+    const response = await fetch(`${BASE_URL}/subscribers/${buyerApiId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+
+        Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      return { success: false, message: "Error updating buyer!" };
+    }
+    const result = await response.json();
+  } catch (revalidateError) {
+    console.warn(
+      "[Action Warning] Failed to revalidate path:",
+      revalidateError
+    );
+    return { success: false, message: "Error updating buyer!" };
+  }
+
+  revalidatePath("/dashboard");
+  return { success: true, message: "Buyer updated successfully!" };
+}
+
 export async function linkBuyerToTag(buyerAndTagData: any) {
   const { buyer_id, tag_id } = buyerAndTagData;
 
@@ -140,7 +208,6 @@ export async function addBuyerToMailerLit(newBuyer: NewBuyer) {
     throw new Error("error adding buyer to mailerlit");
   }
 }
-
 
 export async function getSingleBuyer(buyerId: string) {
   const { data, error } = await supabase
@@ -205,6 +272,33 @@ export async function getTagsWithCounts() {
   }
 }
 
+export async function addTagToSupabase(payload: any) {
+  const wholesalerData = await getCurrentWholesaler();
+
+  const { name, api_id } = payload;
+
+  const { data, error } = await supabase
+    .from("tags")
+    .insert([
+      {
+        name,
+        api_id,
+        wholesaler_id: wholesalerData.id,
+      },
+    ])
+    .select();
+
+  if (error) {
+    return {
+      success: false,
+      error: "there was an error adding tag to supabase",
+    };
+  }
+  revalidatePath("/dashboard/tags");
+
+  return { success: true };
+}
+
 export async function addTagToMailerlit(payload: NewTag) {
   try {
     const response = await fetch(`${BASE_URL}/groups`, {
@@ -229,21 +323,19 @@ export async function addTagToMailerlit(payload: NewTag) {
     throw new Error("error adding buyer to mailerlit");
   }
 }
-
 export async function addBuyer(newBuyer: NewBuyerInSupa) {
   const wholesalerData = await getCurrentWholesaler();
 
   const { first_name, last_name, email, phone_num, api_id } = newBuyer;
 
   const { data, error } = await supabase
-    .from("tags")
+    .from("buyer")
     .insert([
       {
         first_name: first_name,
         last_name: last_name,
         email: email,
         phone_num: phone_num,
-        name,
         api_id,
         wholesaler_id: wholesalerData.id,
       },
@@ -251,14 +343,10 @@ export async function addBuyer(newBuyer: NewBuyerInSupa) {
     .select();
 
   if (error) {
-    return {
-      success: false,
-      error: "there was an error adding tag to supabase",
-    };
+    throw new Error(`Failed to add buyer: ${error.message}`);
   }
-  revalidatePath("/dashboard/tags");
 
-  return { success: true };
+  return data;
 }
 // update tag
 
@@ -289,7 +377,7 @@ export async function UpdateTag(payload: any) {
     if (!response.ok) {
       return { success: false, message: "Error updating tag on mailerlit!" };
     }
-    revalidatePath('/dashboard/tags')
+    revalidatePath("/dashboard/tags");
     return { success: true };
   } catch {
     throw new Error("unexptected error happens during updating a tag");

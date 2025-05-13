@@ -1,25 +1,17 @@
-"use client"
+"use client";
 
-<<<<<<< HEAD
-import { AlertTriangle, X } from "lucide-react"
-=======
-import { AlertTriangle, Check, X, XIcon } from "lucide-react"
->>>>>>> tagmanagments
-import { useEffect, useRef } from "react"
+import { AlertTriangle, Check, X, XIcon } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 interface DeleteConfirmationModalProps {
-  isOpen: boolean
-  title: string
-  description: string
-<<<<<<< HEAD
-  itemName: string
-=======
-  itemName?: string
-  isErrorDeleting?:boolean
->>>>>>> tagmanagments
-  isDeleting: boolean
-  onConfirm: () => void
-  onCancel: () => void
+  isOpen: boolean;
+  title: string;
+  description: string;
+  itemName?: string;
+  isErrorDeleting?: boolean;
+  isDeleting: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
 }
 
 export function DeleteConfirmationModal({
@@ -28,36 +20,36 @@ export function DeleteConfirmationModal({
   description,
   itemName,
   isDeleting,
-<<<<<<< HEAD
-=======
   isErrorDeleting,
->>>>>>> tagmanagments
   onConfirm,
   onCancel,
 }: DeleteConfirmationModalProps) {
-  const modalRef = useRef<HTMLDivElement>(null)
+  const modalRef = useRef<HTMLDivElement>(null);
 
   // Close modal when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
-        onCancel()
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
+        onCancel();
       }
     }
 
     if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside)
+      document.addEventListener("mousedown", handleClickOutside);
       // Prevent scrolling when modal is open
-      document.body.style.overflow = "hidden"
+      document.body.style.overflow = "hidden";
     }
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-      document.body.style.overflow = "auto"
-    }
-  }, [isOpen, onCancel])
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.body.style.overflow = "auto";
+    };
+  }, [isOpen, onCancel]);
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -73,22 +65,19 @@ export function DeleteConfirmationModal({
             <div className="flex-1">
               <div className="flex justify-between items-start">
                 <h2 className="text-lg font-semibold mb-2">{title}</h2>
-                <button onClick={onCancel} className="text-gray-500 hover:text-gray-700">
+                <button
+                  onClick={onCancel}
+                  className="text-gray-500 hover:text-gray-700"
+                >
                   <X className="w-5 h-5" />
                 </button>
               </div>
               <p className="text-gray-600 mb-4">
                 {description} <span className="font-medium">{itemName}</span>?
               </p>
-<<<<<<< HEAD
-              <p className="text-gray-600 mb-4">This action cannot be undone.</p>
-
-              <div className="flex justify-end gap-3">
-=======
               <p className="text-gray-600 mb-4">This action cannot be undone</p>
 
               <div className="flex items-center justify-end gap-3">
->>>>>>> tagmanagments
                 <button
                   type="button"
                   onClick={onCancel}
@@ -111,28 +100,19 @@ export function DeleteConfirmationModal({
                     <span>Delete</span>
                   )}
                 </button>
-<<<<<<< HEAD
+                {isErrorDeleting && (
+                  <div className="mb-4 p-2 bg-red-100 w-fit  mt-4 text-red-800 rounded-md flex items-center gap-2">
+                    <XIcon className="w-4 h-4" />
+                    <span className="capitalize text-xs">
+                      error deleting tag{" "}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
-=======
-                 {isErrorDeleting &&  (
-            <div className="mb-4 p-2 bg-red-100 w-fit  mt-4 text-red-800 rounded-md flex items-center gap-2">
-              <XIcon className="w-4 h-4" />
-              <span className="capitalize text-xs">error deleting tag </span>
-            </div>
-          )}
-              </div>
-       
-            </div>
-           
-                 
-        
-          </div>
-             
->>>>>>> tagmanagments
         </div>
       </div>
     </div>
-  )
+  );
 }
