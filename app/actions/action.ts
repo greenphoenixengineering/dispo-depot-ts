@@ -81,6 +81,67 @@ export async function getWholesalerTags() {
   return tags;
 }
 
+export async function linkBuyerToTag(buyerAndTagData: any) {
+  const { buyer_id, tag_id } = buyerAndTagData;
+
+  const { data, error } = await supabase
+    .from("buyer_tags")
+    .insert([
+      {
+        buyer_id,
+        tag_id,
+      },
+    ])
+    .select();
+
+  if (error) {
+    throw new Error(`error linking a buyer with tag: ${error.message}`);
+  }
+
+  revalidatePath("/dashboard");
+
+  return data;
+}
+
+export async function addBuyerToMailerLit(newBuyer: NewBuyer) {
+  const { first_name, last_name, email, phone_num, groupId } = newBuyer;
+
+  const payload: any = {
+    email: email,
+    fields: {
+      name: first_name,
+      ...(last_name && { last_name: last_name }),
+      phone: phone_num,
+    },
+    groups: [groupId],
+    status: "active",
+  };
+
+  try {
+    const response = await fetch(`${BASE_URL}/subscribers`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+
+        Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      return { status: true, newSubscriberId: result?.data?.id };
+    } else {
+      return { status: false };
+    }
+  } catch (e) {
+    throw new Error("error adding buyer to mailerlit");
+  }
+}
+
+
 export async function getSingleBuyer(buyerId: string) {
   const { data, error } = await supabase
     .from("buyer")
