@@ -1,13 +1,22 @@
 "use client"
 
+<<<<<<< HEAD
 import { AlertTriangle, X } from "lucide-react"
+=======
+import { AlertTriangle, Check, X, XIcon } from "lucide-react"
+>>>>>>> tagmanagments
 import { useEffect, useRef } from "react"
 
 interface DeleteConfirmationModalProps {
   isOpen: boolean
   title: string
   description: string
+<<<<<<< HEAD
   itemName: string
+=======
+  itemName?: string
+  isErrorDeleting?:boolean
+>>>>>>> tagmanagments
   isDeleting: boolean
   onConfirm: () => void
   onCancel: () => void
@@ -19,6 +28,10 @@ export function DeleteConfirmationModal({
   description,
   itemName,
   isDeleting,
+<<<<<<< HEAD
+=======
+  isErrorDeleting,
+>>>>>>> tagmanagments
   onConfirm,
   onCancel,
 }: DeleteConfirmationModalProps) {
@@ -67,9 +80,15 @@ export function DeleteConfirmationModal({
               <p className="text-gray-600 mb-4">
                 {description} <span className="font-medium">{itemName}</span>?
               </p>
+<<<<<<< HEAD
               <p className="text-gray-600 mb-4">This action cannot be undone.</p>
 
               <div className="flex justify-end gap-3">
+=======
+              <p className="text-gray-600 mb-4">This action cannot be undone</p>
+
+              <div className="flex items-center justify-end gap-3">
+>>>>>>> tagmanagments
                 <button
                   type="button"
                   onClick={onCancel}
@@ -92,9 +111,26 @@ export function DeleteConfirmationModal({
                     <span>Delete</span>
                   )}
                 </button>
+<<<<<<< HEAD
               </div>
             </div>
           </div>
+=======
+                 {isErrorDeleting &&  (
+            <div className="mb-4 p-2 bg-red-100 w-fit  mt-4 text-red-800 rounded-md flex items-center gap-2">
+              <XIcon className="w-4 h-4" />
+              <span className="capitalize text-xs">error deleting tag </span>
+            </div>
+          )}
+              </div>
+       
+            </div>
+           
+                 
+        
+          </div>
+             
+>>>>>>> tagmanagments
         </div>
       </div>
     </div>
