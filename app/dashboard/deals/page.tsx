@@ -1,7 +1,11 @@
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
+import { getWholesalerTags } from "@/app/actions/action"
 
-export default function SendDealsPage() {
+export default async function SendDealsPage() {
+  const tags=await getWholesalerTags()
+
+  console.log("tags",tags)
   return (
     <div>
       <div className="mb-6">
@@ -17,46 +21,21 @@ export default function SendDealsPage() {
         <p className="text-gray-500 mb-4">Select tags to target specific buyer groups:</p>
 
         <div className="flex flex-wrap gap-2 mb-6">
-          <div className="flex items-center">
-            <input
-              id="tag-retail"
-              type="checkbox"
-              className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-            />
-            <label htmlFor="tag-retail" className="ml-2 block text-sm text-gray-900">
-              Retail
-            </label>
-          </div>
-          <div className="flex items-center">
-            <input
-              id="tag-wholesale"
-              type="checkbox"
-              className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-            />
-            <label htmlFor="tag-wholesale" className="ml-2 block text-sm text-gray-900">
-              Wholesale
-            </label>
-          </div>
-          <div className="flex items-center">
-            <input
-              id="tag-vip"
-              type="checkbox"
-              className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-            />
-            <label htmlFor="tag-vip" className="ml-2 block text-sm text-gray-900">
-              VIP
-            </label>
-          </div>
-          <div className="flex items-center">
-            <input
-              id="tag-new"
-              type="checkbox"
-              className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-            />
-            <label htmlFor="tag-new" className="ml-2 block text-sm text-gray-900">
-              New
-            </label>
-          </div>
+       {tags.map(({ name, id }) => {
+  return (
+    <div key={id} className="flex items-center">
+      <input
+        id={`tag-${id}`}
+        type="checkbox"
+        className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+      />
+      <label htmlFor={`tag-${id}`} className="ml-2 block text-sm text-gray-900">
+        {name}
+      </label>
+    </div>
+  );
+})}
+
         </div>
 
         <div className="mb-4">
