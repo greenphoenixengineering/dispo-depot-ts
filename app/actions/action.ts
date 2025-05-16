@@ -53,6 +53,8 @@ export async function getCurrentWholesaler() {
     .eq("user_id", session.user.id)
     .single();
 
+    console.log("current wholesaler",data)
+
   if (error) {
     throw new Error(`Failed to fetch wholesaler: ${error.message}`);
   }
@@ -484,6 +486,8 @@ export async function sendDealsAction(
   const day = String(today.getDate()).padStart(2, "0");
   const formattedDate = `${year}-${month}-${day}`;
   const campaignName = `${subject}_${formattedDate}`;
+  const currentWholesaler=await getCurrentWholesaler()
+
 
   const mailerLitePayload = {
     name: campaignName,
@@ -491,8 +495,8 @@ export async function sendDealsAction(
     emails: [
       {
         subject: subject,
-        from_name: "Your Company Name", 
-        from: "your-verified-sender@example.com", 
+        from_name: currentWholesaler.first_name + currentWholesaler.last_name ,
+        from: "mike@greenphoenixengineering.com" , 
         // html_content: `<p>${messageContent.replace(/\n/g, "<br>")}</p>`,
         // plain_content: messageContent,
       },
@@ -503,7 +507,7 @@ export async function sendDealsAction(
   console.log("Attempting to send MailerLite Payload:", mailerLitePayload);
 
   try {
-    const response = await fetch(
+    const createCampaignResponse = await fetch(
       `${BASE_URL}/campaigns`,
       {
         method: "POST",
@@ -516,18 +520,38 @@ export async function sendDealsAction(
       }
     );
 
-    const result = await response.json();
+       const createCampaignResult = await createCampaignResponse.json();
 
-    if (!response.ok) {
-      console.error("MailerLite API Error:", result);
+    if (!createCampaignResponse.ok) {
+      console.error("MailerLite API Error:", createCampaignResult);
       return {
-        errors: { api: result.message || `API request failed: ${response.status}` },
+        errors: { api: createCampaignResult.message || `API request failed: ${createCampaignResponse.status}` },
         success: false,
       };
     }
 
-    console.log("MailerLite API Success:", result);
+    // SAVE CAMPAIGN ID  TO SUPABASE WHOLESALER_CAMPAIGN TABLE
+      const { error: supabaseInsertError } = await supabase
+      .from('wholesaler_campaign')
+      .insert({
+        campaign_id: createCampaignResult?.data?.id,
+        wholesaler_id: currentWholesaler?.id, 
+     
+      });
+
+    if (supabaseInsertError) {
+      console.error("Supabase Insert Error:", supabaseInsertError);
+
+      return {
+        errors: { api: `Failed to save campaign to DB: ${supabaseInsertError.message}` },
+        success: false,
+      };
+    }
+    console.log("Step 2 Success: Campaign saved to Supabase.");
+
+    
     return { message: "Deal sent successfully!", success: true };
+
   } catch (error: any) {
     console.error("Error in sendDeals action:", error);
     return {
