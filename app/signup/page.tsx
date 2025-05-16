@@ -5,10 +5,10 @@ export default function SignUp() {
   return (
     <main>
       <Header />
-      <section className="py-16">
+      <section className="py-12 md:py-16">
         <div className="container mx-auto px-4 max-w-md">
-          <h1 className="text-3xl font-bold mb-6 text-center">Create your account</h1>
-          <div className="bg-white p-8 rounded-lg border border-gray-200">
+          <h1 className="text-2xl md:text-3xl font-bold mb-6 text-center">Create your account</h1>
+          <div className="bg-white p-6 md:p-8 rounded-lg border border-gray-200 shadow-sm">
             <form className="space-y-4">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
@@ -55,7 +55,7 @@ export default function SignUp() {
             </form>
             <div className="mt-6 text-center text-sm text-gray-600">
               Already have an account?{" "}
-              <Link href="/signin" className="text-green-500 hover:underline">
+              <Link href="/login" className="text-green-500 hover:underline">
                 Log in
               </Link>
             </div>
