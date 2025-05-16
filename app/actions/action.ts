@@ -12,6 +12,7 @@ import {
 import { DeletedTag, NewTag } from "@/libs/tagTypes";
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
+import { SendDealsState } from "@/libs/sendDealTypes";
 
 const BASE_URL = "https://connect.mailerlite.com/api";
 export async function getBuyersWithTags() {
@@ -444,4 +445,94 @@ export async function deleteBuyer(DeletePayload: DeleteBuyer) {
   }
 
   return { success: true, message: "Buyer deleted successfully!" };
+}
+
+
+
+// SEND DEAL ACTION
+
+
+export async function sendDealsAction(
+  prevState: SendDealsState,
+  formData: FormData
+): Promise<SendDealsState> {
+  
+
+  const subject = formData.get("subject") as string;
+  const messageContent = formData.get("message") as string; 
+  const selectedApiIds = formData.getAll("selectedApiIds") as string[];
+
+  const errors: SendDealsState["errors"] = {};
+
+  if (selectedApiIds.length === 0) {
+    errors.tags = "Please select at least one buyer group.";
+  }
+  if (!subject) {
+    errors.subject = "Subject line is required.";
+  }
+  if (!messageContent) {
+    errors.message = "Message is required.";
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return { errors, success: false };
+  }
+
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  const formattedDate = `${year}-${month}-${day}`;
+  const campaignName = `${subject}_${formattedDate}`;
+
+  const mailerLitePayload = {
+    name: campaignName,
+    type: "regular",
+    emails: [
+      {
+        subject: subject,
+        from_name: "Your Company Name", 
+        from: "your-verified-sender@example.com", 
+        // html_content: `<p>${messageContent.replace(/\n/g, "<br>")}</p>`,
+        // plain_content: messageContent,
+      },
+    ],
+    groups: selectedApiIds,
+  };
+
+  console.log("Attempting to send MailerLite Payload:", mailerLitePayload);
+
+  try {
+    const response = await fetch(
+      `${BASE_URL}/campaigns`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`, 
+        },
+        body: JSON.stringify(mailerLitePayload),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      console.error("MailerLite API Error:", result);
+      return {
+        errors: { api: result.message || `API request failed: ${response.status}` },
+        success: false,
+      };
+    }
+
+    console.log("MailerLite API Success:", result);
+    return { message: "Deal sent successfully!", success: true };
+  } catch (error: any) {
+    console.error("Error in sendDeals action:", error);
+    return {
+      errors: { api: error.message || "An unexpected error occurred." },
+      success: false,
+    };
+  }
 }
