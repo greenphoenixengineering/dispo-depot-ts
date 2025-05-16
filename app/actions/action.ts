@@ -53,7 +53,7 @@ export async function getCurrentWholesaler() {
     .eq("user_id", session.user.id)
     .single();
 
-    console.log("current wholesaler",data)
+  console.log("current wholesaler", data);
 
   if (error) {
     throw new Error(`Failed to fetch wholesaler: ${error.message}`);
@@ -83,7 +83,6 @@ export async function getWholesalerTags() {
 
   return tags;
 }
-
 
 export async function updateBuyerAndTagsAction(payload: UpdateBuyer) {
   const { buyerId, updates, tags, buyerApiId } = payload;
@@ -449,19 +448,14 @@ export async function deleteBuyer(DeletePayload: DeleteBuyer) {
   return { success: true, message: "Buyer deleted successfully!" };
 }
 
-
-
 // SEND DEAL ACTION
-
 
 export async function sendDealsAction(
   prevState: SendDealsState,
   formData: FormData
 ): Promise<SendDealsState> {
-  
-
   const subject = formData.get("subject") as string;
-  const messageContent = formData.get("message") as string; 
+  const messageContent = formData.get("message") as string;
   const selectedApiIds = formData.getAll("selectedApiIds") as string[];
 
   const errors: SendDealsState["errors"] = {};
@@ -486,8 +480,7 @@ export async function sendDealsAction(
   const day = String(today.getDate()).padStart(2, "0");
   const formattedDate = `${year}-${month}-${day}`;
   const campaignName = `${subject}_${formattedDate}`;
-  const currentWholesaler=await getCurrentWholesaler()
-
+  const currentWholesaler = await getCurrentWholesaler();
 
   const mailerLitePayload = {
     name: campaignName,
@@ -495,8 +488,8 @@ export async function sendDealsAction(
     emails: [
       {
         subject: subject,
-        from_name: currentWholesaler.first_name + currentWholesaler.last_name ,
-        from: "mike@greenphoenixengineering.com" , 
+        from_name: currentWholesaler.first_name + currentWholesaler.last_name,
+        from: "mike@greenphoenixengineering.com",
         // html_content: `<p>${messageContent.replace(/\n/g, "<br>")}</p>`,
         // plain_content: messageContent,
       },
@@ -507,51 +500,113 @@ export async function sendDealsAction(
   console.log("Attempting to send MailerLite Payload:", mailerLitePayload);
 
   try {
-    const createCampaignResponse = await fetch(
-      `${BASE_URL}/campaigns`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`, 
-        },
-        body: JSON.stringify(mailerLitePayload),
-      }
-    );
+    const createCampaignResponse = await fetch(`${BASE_URL}/campaigns`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
+      },
+      body: JSON.stringify(mailerLitePayload),
+    });
 
-       const createCampaignResult = await createCampaignResponse.json();
+    const createCampaignResult = await createCampaignResponse.json();
 
     if (!createCampaignResponse.ok) {
       console.error("MailerLite API Error:", createCampaignResult);
       return {
-        errors: { api: createCampaignResult.message || `API request failed: ${createCampaignResponse.status}` },
+        errors: {
+          api:
+            createCampaignResult.message ||
+            `API request failed: ${createCampaignResponse.status}`,
+        },
         success: false,
       };
     }
 
     // SAVE CAMPAIGN ID  TO SUPABASE WHOLESALER_CAMPAIGN TABLE
-      const { error: supabaseInsertError } = await supabase
-      .from('wholesaler_campaign')
+    const { error: supabaseInsertError } = await supabase
+      .from("wholesaler_campaign")
       .insert({
         campaign_id: createCampaignResult?.data?.id,
-        wholesaler_id: currentWholesaler?.id, 
-     
+        wholesaler_id: currentWholesaler?.id,
       });
 
     if (supabaseInsertError) {
       console.error("Supabase Insert Error:", supabaseInsertError);
 
       return {
-        errors: { api: `Failed to save campaign to DB: ${supabaseInsertError.message}` },
+        errors: {
+          api: `Failed to save campaign to DB: ${supabaseInsertError.message}`,
+        },
         success: false,
       };
     }
     console.log("Step 2 Success: Campaign saved to Supabase.");
 
-    
-    return { message: "Deal sent successfully!", success: true };
+    // ----- STEP 3: Schedule / send the campaign (Mailerlite) -----
+    console.log(
+      `Step 3: Sending Mailerlite Campaign ID: ${createCampaignResult?.data?.id}...`
+    );
+    const sendCampaignResponse = await fetch(
+      `${BASE_URL}/campaigns/${createCampaignResult?.data?.id}/actions/send`,
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json", // Mailerlite often wants Accept for POST actions too
+          Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
+          // 'Content-Type': 'application/json' // Usually not needed if body is empty
+        },
+        // body: JSON.stringify({}) // Send an empty JSON object if API requires a body for POST
+      }
+    );
 
+    const sendCampaignResult = await sendCampaignResponse.json();
+    console.log("send campaing result", sendCampaignResult);
+    if (!sendCampaignResponse.ok) {
+      console.error(
+        "Mailerlite API Error (Send Campaign):",
+        sendCampaignResult
+      );
+      const errorMessage =
+        sendCampaignResult.message ||
+        (sendCampaignResult.errors
+          ? JSON.stringify(sendCampaignResult.errors)
+          : `Send action failed: ${sendCampaignResponse.status}`);
+
+      return {
+        errors: { api: `Failed to send campaign: ${errorMessage}` },
+        success: false,
+      };
+    }
+
+    console.log(
+      "Step 3 Success: Mailerlite Campaign Sent.",
+      sendCampaignResult
+    );
+    // ----- STEP 4: On send update wholesaler_campaign with sent time (Supabase) -----
+    console.log("Step 4: Updating Supabase with sent time...");
+    const { error: supabaseUpdateError } = await supabase
+      .from("wholesaler_campaign")
+      .update({
+        sent_at: new Date().toISOString(),
+      })
+      .eq("campaign_id", createCampaignResult?.data?.id);
+
+    if (supabaseUpdateError) {
+      console.error("Supabase Update Error (sent_at):", supabaseUpdateError);
+      // Campaign was sent, but DB update failed. Log this critically.
+      // The overall operation might still be considered a partial success.
+      return {
+        message:
+          "Campaign sent, but failed to update sent time in DB. Please check logs.",
+        errors: { api: `DB Update Error: ${supabaseUpdateError.message}` },
+        success: true, // Or false depending on how critical this update is
+      };
+    }
+    console.log("Step 4 Success: Supabase updated with sent time.");
+
+    return { message: "Deal sent successfully!", success: true };
   } catch (error: any) {
     console.error("Error in sendDeals action:", error);
     return {
