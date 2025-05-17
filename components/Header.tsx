@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { Menu, X } from "lucide-react"
+import ButtonSignin from "./ButtonSignin"
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -22,12 +23,8 @@ export function Header() {
           <Link href="/pricing" className="text-gray-700 hover:text-gray-900 font-medium">
             Pricing
           </Link>
-          <Link
-            href="/signup"
-            className="bg-green-500 text-white px-4 py-2 rounded-full font-medium hover:bg-green-600 transition-colors"
-          >
-            Sign Up
-          </Link>
+                  <ButtonSignin  extraStyle="bg-green-500 text-white px-4 py-2 rounded-full font-medium hover:bg-green-600 transition-colors" text="sign up"/>
+
         </div>
 
         {/* Mobile Menu Button */}
