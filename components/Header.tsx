@@ -41,7 +41,7 @@ export function Header() {
             <Link href="/pricing" className="text-xl font-medium" onClick={() => setMobileMenuOpen(false)}>
               Pricing
             </Link>
-                      <ButtonSignin  extraStyle="bg-green-500 text-white px-4 py-2 rounded-full font-medium hover:bg-green-600 transition-colors" text="sign up"/>
+              <ButtonSignin  extraStyle="bg-green-500 text-white px-4 py-2 rounded-full font-medium hover:bg-green-600 transition-colors" text="sign up"/>
 
           </div>
         )}
