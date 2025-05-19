@@ -23,8 +23,7 @@ export function Header() {
           <Link href="/pricing" className="text-gray-700 hover:text-gray-900 font-medium">
             Pricing
           </Link>
-                  <ButtonSignin  extraStyle="bg-green-500 text-white px-4 py-2 rounded-full font-medium hover:bg-green-600 transition-colors" text="sign up"/>
-
+          <ButtonSignin  extraStyle="bg-green-500 text-white px-4 py-2 rounded-full font-medium hover:bg-green-600 transition-colors" text="sign up"/>
         </div>
 
         {/* Mobile Menu Button */}
@@ -42,13 +41,8 @@ export function Header() {
             <Link href="/pricing" className="text-xl font-medium" onClick={() => setMobileMenuOpen(false)}>
               Pricing
             </Link>
-            <Link
-              href="/signup"
-              className="bg-green-500 text-white px-6 py-3 rounded-full font-medium text-xl"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Sign Up
-            </Link>
+                      <ButtonSignin  extraStyle="bg-green-500 text-white px-4 py-2 rounded-full font-medium hover:bg-green-600 transition-colors" text="sign up"/>
+
           </div>
         )}
       </div>
