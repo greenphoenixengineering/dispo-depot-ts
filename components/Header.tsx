@@ -1,12 +1,27 @@
-"use client"
+'use client'
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Menu, X } from "lucide-react"
 import ButtonSignin from "./ButtonSignin"
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768 && mobileMenuOpen) {
+        setMobileMenuOpen(false)
+      }
+    }
+
+   window.addEventListener("resize", handleResize) 
+
+   return () => {
+     window.removeEventListener("resize", handleResize)
+   }
+
+  }, [mobileMenuOpen])
 
   return (
     <header className="border-b border-gray-200">
@@ -23,7 +38,7 @@ export function Header() {
           <Link href="/pricing" className="text-gray-700 hover:text-gray-900 font-medium">
             Pricing
           </Link>
-          <ButtonSignin  extraStyle="bg-green-500 text-white px-4 py-2 rounded-full font-medium hover:bg-green-600 transition-colors" text="sign up"/>
+          <ButtonSignin extraStyle="bg-green-500 text-white px-4 py-2 rounded-full font-medium hover:bg-green-600 transition-colors" text="sign up"/>
         </div>
 
         {/* Mobile Menu Button */}
@@ -41,8 +56,7 @@ export function Header() {
             <Link href="/pricing" className="text-xl font-medium" onClick={() => setMobileMenuOpen(false)}>
               Pricing
             </Link>
-              <ButtonSignin  extraStyle="bg-green-500 text-white px-4 py-2 rounded-full font-medium hover:bg-green-600 transition-colors" text="sign up"/>
-
+            <ButtonSignin extraStyle="bg-green-500 text-white px-4 py-2 rounded-full font-medium hover:bg-green-600 transition-colors" text="sign up"/>
           </div>
         )}
       </div>
