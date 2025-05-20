@@ -136,7 +136,7 @@ export async function updateBuyerAndTagsAction(payload: UpdateBuyer) {
     if (!response.ok) {
       return { success: false, message: "Error updating buyer!" };
     }
-    const result = await response.json();
+   await response.json();
   } catch (revalidateError) {
     console.warn(
       "[Action Warning] Failed to revalidate path:",
@@ -277,7 +277,7 @@ export async function addTagToSupabase(payload: any) {
 
   const { name, api_id } = payload;
 
-  const { data, error } = await supabase
+  const {  error } = await supabase
     .from("tags")
     .insert([
       {
