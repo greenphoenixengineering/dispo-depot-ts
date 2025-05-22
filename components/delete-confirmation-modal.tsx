@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, Check, X, XIcon } from "lucide-react";
+import { AlertTriangle, X, XIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 interface DeleteConfirmationModalProps {

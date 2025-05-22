@@ -13,7 +13,7 @@ export function PricingFAQ() {
           <div className="bg-white p-4 md:p-6 rounded-lg border border-gray-100 shadow-sm">
             <h3 className="text-base md:text-lg font-semibold mb-2">What happens if I exceed my plan limits?</h3>
             <p className="text-gray-600">
-              We'll notify you when you're approaching your plan limits. If you exceed them, you'll have the option to
+              We&lsquo;ll notify you when you&lsquo;re approaching your plan limits. If you exceed them, you&lsquo;ll have the option to
               upgrade to a higher tier or wait until the next billing cycle.
             </p>
           </div>
