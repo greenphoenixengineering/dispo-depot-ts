@@ -5,7 +5,7 @@ export interface SendDealsState {
     tags?: string;
     subject?: string;
     message?: string;
-    api?: string; // For general API errors
+    api?: string; 
   };
   success?: boolean;
 }

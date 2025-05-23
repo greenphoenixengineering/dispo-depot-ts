@@ -546,7 +546,7 @@ export async function sendDealsAction(
     // ----- STEP 3: Schedule / send the campaign (Mailerlite) -----
     const sendDealActionPayload = { delivery: "instant" };
     const sendCampaignResponse = await fetch(
-      `${BASE_URL}/campaigns/${campaignId}/schedul`,
+      `${BASE_URL}/campaigns/${campaignId}/schedule`,
       {
         method: "POST",
         headers: {
