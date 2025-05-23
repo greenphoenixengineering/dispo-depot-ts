@@ -53,8 +53,6 @@ export async function getCurrentWholesaler() {
     .eq("user_id", session.user.id)
     .single();
 
-  console.log("current wholesaler", data);
-
   if (error) {
     throw new Error(`Failed to fetch wholesaler: ${error.message}`);
   }
@@ -455,7 +453,7 @@ export async function sendDealsAction(
   formData: FormData
 ): Promise<SendDealsState> {
   const subject = formData.get("subject") as string;
-  const messageContent = formData.get("message") as string; // This is your email body
+  const messageContent = formData.get("message") as string;
   const selectedApiIds = formData.getAll("selectedApiIds") as string[];
 
   const errors: SendDealsState["errors"] = {};
@@ -467,7 +465,7 @@ export async function sendDealsAction(
     errors.subject = "Subject line is required.";
   }
   if (!messageContent) {
-    errors.message = "Message is required."; // This is for your form validation
+    errors.message = "Message is required.";
   }
 
   if (Object.keys(errors).length > 0) {
@@ -489,16 +487,13 @@ export async function sendDealsAction(
     emails: [
       {
         subject: subject,
-        from_name: `${currentWholesaler.first_name} ${currentWholesaler.last_name}`, // Added space
+        from_name: `${currentWholesaler.first_name} ${currentWholesaler.last_name}`,
         from: "mike@greenphoenixengineering.com",
-        content:"field is NOT part of this payload for MailerLite API v2 create campaign"
+        content: messageContent,
       },
     ],
     groups: selectedApiIds,
-    // language_id: "4" // You might want to explicitly set this if it's always English, or make it dynamic
   };
-
-  console.log("Attempting to create MailerLite Campaign with payload:", JSON.stringify(mailerLitePayload, null, 2));
 
   try {
     const createCampaignResponse = await fetch(`${BASE_URL}/campaigns`, {
@@ -513,12 +508,16 @@ export async function sendDealsAction(
 
     const createCampaignResult = await createCampaignResponse.json();
 
-    console.log("create campaing result",createCampaignResult)
-    // console.log("Create campaign result:", JSON.stringify(createCampaignResult, null, 2));
-
-    if (!createCampaignResponse.ok || !createCampaignResult.data || !createCampaignResult.data.id) {
-      console.error("MailerLite API Error (Create Campaign):", createCampaignResult);
-      const apiErrorMsg = createCampaignResult.message || (createCampaignResult.errors ? JSON.stringify(createCampaignResult.errors) : `API request failed: ${createCampaignResponse.status}`);
+    if (
+      !createCampaignResponse.ok ||
+      !createCampaignResult.data ||
+      !createCampaignResult.data.id
+    ) {
+      const apiErrorMsg =
+        createCampaignResult.message ||
+        (createCampaignResult.errors
+          ? JSON.stringify(createCampaignResult.errors)
+          : `API request failed: ${createCampaignResponse.status}`);
       return {
         errors: { api: `Failed to create campaign: ${apiErrorMsg}` },
         success: false,
@@ -526,12 +525,6 @@ export async function sendDealsAction(
     }
 
     const campaignId = createCampaignResult.data.id;
-    console.log(`Step 1 Success: Mailerlite Campaign Shell Created. ID: ${campaignId}`);
-
-    // ----- STEP 1.5: Set Campaign Content (Mailerlite) -----
-    console.log(`Step 1.5: Setting content for Mailerlite Campaign ID: ${campaignId}...`);
- 
-   
 
     // ----- STEP 2: SAVE CAMPAIGN ID TO SUPABASE -----
     const { error: supabaseInsertError } = await supabase
@@ -542,17 +535,16 @@ export async function sendDealsAction(
       });
 
     if (supabaseInsertError) {
-      console.error("Supabase Insert Error:", supabaseInsertError);
       return {
-        errors: { api: `Failed to save campaign to DB: ${supabaseInsertError.message}` },
+        errors: {
+          api: `Failed to save campaign to DB: ${supabaseInsertError.message}`,
+        },
         success: false,
       };
     }
-    console.log("Step 2 Success: Campaign saved to Supabase.");
 
     // ----- STEP 3: Schedule / send the campaign (Mailerlite) -----
-    console.log(`Step 3: Sending Mailerlite Campaign ID: ${campaignId}...`);
-    const sendDealActionPayload = { delivery: "instant" }; // Corrected variable name
+    const sendDealActionPayload = { delivery: "instant" };
     const sendCampaignResponse = await fetch(
       `${BASE_URL}/campaigns/${campaignId}/schedul`,
       {
@@ -567,21 +559,22 @@ export async function sendDealsAction(
     );
 
     const sendCampaignResult = await sendCampaignResponse.json();
-    console.log("Send campaign result:", JSON.stringify(sendCampaignResult, null, 2));
 
     if (!sendCampaignResponse.ok) {
-      console.error("Mailerlite API Error (Send Campaign):", sendCampaignResult);
+      console.error(
+        "Mailerlite API Error (Send Campaign):",
+        sendCampaignResult
+      );
       const errorMessage =
         sendCampaignResult.message ||
-        (sendCampaignResult.errors ? JSON.stringify(sendCampaignResult.errors) : `Send action failed: ${sendCampaignResponse.status}`);
+        (sendCampaignResult.errors
+          ? JSON.stringify(sendCampaignResult.errors)
+          : `Send action failed: ${sendCampaignResponse.status}`);
       return {
         errors: { api: `Failed to send campaign: ${errorMessage}` },
         success: false,
       };
     }
-    console.log("Step 3 Success: Mailerlite Campaign Sent.", sendCampaignResult);
-
-
 
     return { message: "Deal sent successfully!", success: true };
   } catch (error: any) {
