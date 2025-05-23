@@ -455,7 +455,7 @@ export async function sendDealsAction(
   formData: FormData
 ): Promise<SendDealsState> {
   const subject = formData.get("subject") as string;
-  const messageContent = formData.get("message") as string;
+  const messageContent = formData.get("message") as string; // This is your email body
   const selectedApiIds = formData.getAll("selectedApiIds") as string[];
 
   const errors: SendDealsState["errors"] = {};
@@ -467,7 +467,7 @@ export async function sendDealsAction(
     errors.subject = "Subject line is required.";
   }
   if (!messageContent) {
-    errors.message = "Message is required.";
+    errors.message = "Message is required."; // This is for your form validation
   }
 
   if (Object.keys(errors).length > 0) {
@@ -482,22 +482,23 @@ export async function sendDealsAction(
   const campaignName = `${subject}_${formattedDate}`;
   const currentWholesaler = await getCurrentWholesaler();
 
+  // ----- STEP 1: Create Campaign Shell (Mailerlite) -----
   const mailerLitePayload = {
     name: campaignName,
     type: "regular",
     emails: [
       {
         subject: subject,
-        from_name: currentWholesaler.first_name + currentWholesaler.last_name,
+        from_name: `${currentWholesaler.first_name} ${currentWholesaler.last_name}`, // Added space
         from: "mike@greenphoenixengineering.com",
-        // html_content: `<p>${messageContent.replace(/\n/g, "<br>")}</p>`,
-        // plain_content: messageContent,
+        content:"field is NOT part of this payload for MailerLite API v2 create campaign"
       },
     ],
     groups: selectedApiIds,
+    // language_id: "4" // You might want to explicitly set this if it's always English, or make it dynamic
   };
 
-  console.log("Attempting to send MailerLite Payload:", mailerLitePayload);
+  console.log("Attempting to create MailerLite Campaign with payload:", JSON.stringify(mailerLitePayload, null, 2));
 
   try {
     const createCampaignResponse = await fetch(`${BASE_URL}/campaigns`, {
@@ -512,99 +513,75 @@ export async function sendDealsAction(
 
     const createCampaignResult = await createCampaignResponse.json();
 
-    if (!createCampaignResponse.ok) {
-      console.error("MailerLite API Error:", createCampaignResult);
+    console.log("create campaing result",createCampaignResult)
+    // console.log("Create campaign result:", JSON.stringify(createCampaignResult, null, 2));
+
+    if (!createCampaignResponse.ok || !createCampaignResult.data || !createCampaignResult.data.id) {
+      console.error("MailerLite API Error (Create Campaign):", createCampaignResult);
+      const apiErrorMsg = createCampaignResult.message || (createCampaignResult.errors ? JSON.stringify(createCampaignResult.errors) : `API request failed: ${createCampaignResponse.status}`);
       return {
-        errors: {
-          api:
-            createCampaignResult.message ||
-            `API request failed: ${createCampaignResponse.status}`,
-        },
+        errors: { api: `Failed to create campaign: ${apiErrorMsg}` },
         success: false,
       };
     }
 
-    // SAVE CAMPAIGN ID  TO SUPABASE WHOLESALER_CAMPAIGN TABLE
+    const campaignId = createCampaignResult.data.id;
+    console.log(`Step 1 Success: Mailerlite Campaign Shell Created. ID: ${campaignId}`);
+
+    // ----- STEP 1.5: Set Campaign Content (Mailerlite) -----
+    console.log(`Step 1.5: Setting content for Mailerlite Campaign ID: ${campaignId}...`);
+ 
+   
+
+    // ----- STEP 2: SAVE CAMPAIGN ID TO SUPABASE -----
     const { error: supabaseInsertError } = await supabase
       .from("wholesaler_campaign")
       .insert({
-        campaign_id: createCampaignResult?.data?.id,
+        campaign_id: campaignId, // Use the campaignId from createCampaignResult
         wholesaler_id: currentWholesaler?.id,
       });
 
     if (supabaseInsertError) {
       console.error("Supabase Insert Error:", supabaseInsertError);
-
       return {
-        errors: {
-          api: `Failed to save campaign to DB: ${supabaseInsertError.message}`,
-        },
+        errors: { api: `Failed to save campaign to DB: ${supabaseInsertError.message}` },
         success: false,
       };
     }
     console.log("Step 2 Success: Campaign saved to Supabase.");
 
     // ----- STEP 3: Schedule / send the campaign (Mailerlite) -----
-    console.log(
-      `Step 3: Sending Mailerlite Campaign ID: ${createCampaignResult?.data?.id}...`
-    );
+    console.log(`Step 3: Sending Mailerlite Campaign ID: ${campaignId}...`);
+    const sendDealActionPayload = { delivery: "instant" }; // Corrected variable name
     const sendCampaignResponse = await fetch(
-      `${BASE_URL}/campaigns/${createCampaignResult?.data?.id}/actions/send`,
+      `${BASE_URL}/campaigns/${campaignId}/schedule`,
       {
         method: "POST",
         headers: {
-          Accept: "application/json", // Mailerlite often wants Accept for POST actions too
+          Accept: "application/json",
+          "Content-Type": "application/json",
           Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
-          // 'Content-Type': 'application/json' // Usually not needed if body is empty
         },
-        // body: JSON.stringify({}) // Send an empty JSON object if API requires a body for POST
+        body: JSON.stringify(sendDealActionPayload),
       }
     );
 
     const sendCampaignResult = await sendCampaignResponse.json();
-    console.log("send campaing result", sendCampaignResult);
+    console.log("Send campaign result:", JSON.stringify(sendCampaignResult, null, 2));
+
     if (!sendCampaignResponse.ok) {
-      console.error(
-        "Mailerlite API Error (Send Campaign):",
-        sendCampaignResult
-      );
+      console.error("Mailerlite API Error (Send Campaign):", sendCampaignResult);
       const errorMessage =
         sendCampaignResult.message ||
-        (sendCampaignResult.errors
-          ? JSON.stringify(sendCampaignResult.errors)
-          : `Send action failed: ${sendCampaignResponse.status}`);
-
+        (sendCampaignResult.errors ? JSON.stringify(sendCampaignResult.errors) : `Send action failed: ${sendCampaignResponse.status}`);
       return {
         errors: { api: `Failed to send campaign: ${errorMessage}` },
         success: false,
       };
     }
+    console.log("Step 3 Success: Mailerlite Campaign Sent.", sendCampaignResult);
 
-    console.log(
-      "Step 3 Success: Mailerlite Campaign Sent.",
-      sendCampaignResult
-    );
-    // ----- STEP 4: On send update wholesaler_campaign with sent time (Supabase) -----
-    console.log("Step 4: Updating Supabase with sent time...");
-    const { error: supabaseUpdateError } = await supabase
-      .from("wholesaler_campaign")
-      .update({
-        sent_at: new Date().toISOString(),
-      })
-      .eq("campaign_id", createCampaignResult?.data?.id);
 
-    if (supabaseUpdateError) {
-      console.error("Supabase Update Error (sent_at):", supabaseUpdateError);
-      // Campaign was sent, but DB update failed. Log this critically.
-      // The overall operation might still be considered a partial success.
-      return {
-        message:
-          "Campaign sent, but failed to update sent time in DB. Please check logs.",
-        errors: { api: `DB Update Error: ${supabaseUpdateError.message}` },
-        success: true, // Or false depending on how critical this update is
-      };
-    }
-    console.log("Step 4 Success: Supabase updated with sent time.");
 
     return { message: "Deal sent successfully!", success: true };
   } catch (error: any) {
