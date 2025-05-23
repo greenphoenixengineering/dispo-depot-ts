@@ -28,7 +28,7 @@ export default function SendDealsPage() {
   const [tags, setTags] = useState<{id: string | number; name: string; api_id: string}[]>([]);
   useEffect(() => {
     async function fetchData() {
-      const fetchedTags = await getWholesalerTags(); // Assuming getWholesalerTags can be called like this
+      const fetchedTags = await getWholesalerTags(); 
       setTags(fetchedTags);
     }
     fetchData();
@@ -37,13 +37,20 @@ export default function SendDealsPage() {
 
   const initialState: SendDealsState = { message: null, errors: {}, success: false };
   const [state, formAction] = useFormState(sendDealsAction, initialState);
+  const [messageVisible,setMessageVisible]=useState(false)
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
+    setMessageVisible(true)
     if (state.success) {
       formRef.current?.reset();
+      
+    
     }
-  }, [state.success, state.message]);
+      setTimeout(() => {
+       setMessageVisible(false)
+      }, 4000);
+  }, [state.success, state.message,state.errors]);
 
   return (
     <div>
@@ -61,12 +68,12 @@ export default function SendDealsPage() {
         </p>
       </div>
 
-      {state.message && state.success && (
+      {state.message && state.success && messageVisible && (
         <div className="mb-4 p-3 bg-green-100 text-green-700 border border-green-300 rounded">
           {state.message}
         </div>
       )}
-      {state.errors?.api && (
+      {state.errors?.api && messageVisible && (
          <div className="mb-4 p-3 bg-red-100 text-red-700 border border-red-300 rounded">
            {state.errors.api}
          </div>

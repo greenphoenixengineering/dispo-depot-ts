@@ -554,7 +554,7 @@ export async function sendDealsAction(
     console.log(`Step 3: Sending Mailerlite Campaign ID: ${campaignId}...`);
     const sendDealActionPayload = { delivery: "instant" }; // Corrected variable name
     const sendCampaignResponse = await fetch(
-      `${BASE_URL}/campaigns/${campaignId}/schedule`,
+      `${BASE_URL}/campaigns/${campaignId}/schedul`,
       {
         method: "POST",
         headers: {
