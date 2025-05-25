@@ -1,63 +1,84 @@
 "use client";
 import React from "react";
-import { Tag, LogOut, Mail, Home } from "lucide-react";
+import { Tag, LogOut, Mail, Home, X } from "lucide-react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 
-const DashboardSideBar = () => {
+interface DashboardSideBarProps {
+  open?: boolean;
+  onClose?: () => void;
+}
+
+const DashboardSideBar = ({ open = false, onClose }: DashboardSideBarProps) => {
   const handleSignOut = () => {
     signOut({ callbackUrl: "/" });
   };
 
+  // Mobile: overlay, slide-in
+  // Desktop: static sidebar
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 hidden md:block">
-      <div className="p-6">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
-            <div className="w-4 h-4 rounded-full border-2 border-white"></div>
+    <>
+      {/* Mobile sidebar overlay */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 md:static md:translate-x-0 md:block ${
+          open ? "translate-x-0" : "-translate-x-full md:translate-x-0 hidden"
+        }`}
+        aria-label="Sidebar"
+      >
+        {/* Close button on mobile */}
+        <div className="md:hidden flex justify-end p-4">
+          <button onClick={onClose} aria-label="Close sidebar">
+            <X className="w-6 h-6 text-gray-500" />
+          </button>
+        </div>
+        <div className="p-6">
+          <Link href="/dashboard" className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+              <div className="w-4 h-4 rounded-full border-2 border-white"></div>
+            </div>
+            <span className="font-bold text-xl">Dispo Depot</span>
+          </Link>
+        </div>
+        <nav className="mt-6">
+          <div className="px-4 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            Main
           </div>
-          <span className="font-bold text-xl">Dispo Depot</span>
-        </Link>
-      </div>
-      <nav className="mt-6">
-        <div className="px-4 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
-          Main
-        </div>
-        <Link
-          href="/dashboard"
-          className="flex items-center gap-2 px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-green-500"
-        >
-          <Home className="w-5 h-5" />
-          <span>Dashboard</span>
-        </Link>
-        <Link
-          href="/dashboard/tags"
-          className="flex items-center gap-2 px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-green-500"
-        >
-          <Tag className="w-5 h-5" />
-          <span>Manage Tags</span>
-        </Link>
-        <Link
-          href="/dashboard/deals"
-          className="flex items-center gap-2 px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-green-500"
-        >
-          <Mail className="w-5 h-5" />
-          <span>Send Deals</span>
-        </Link>
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-2 px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-green-500"
+          >
+            <Home className="w-5 h-5" />
+            <span>Dashboard</span>
+          </Link>
+          <Link
+            href="/dashboard/tags"
+            className="flex items-center gap-2 px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-green-500"
+          >
+            <Tag className="w-5 h-5" />
+            <span>Manage Tags</span>
+          </Link>
+          <Link
+            href="/dashboard/deals"
+            className="flex items-center gap-2 px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-green-500"
+          >
+            <Mail className="w-5 h-5" />
+            <span>Send Deals</span>
+          </Link>
 
-        <div className="px-4 mt-6 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
-          Account
-        </div>
-        <Link
-          href="/logout"
-          onClick={handleSignOut}
-          className="flex items-center gap-2 px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-red-500"
-        >
-          <LogOut className="w-5 h-5" />
-          <span>Logout</span>
-        </Link>
-      </nav>
-    </aside>
+          <div className="px-4 mt-6 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            Account
+          </div>
+          <Link
+            href="/logout"
+            onClick={handleSignOut}
+            className="flex items-center gap-2 px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-red-500"
+          >
+            <LogOut className="w-5 h-5" />
+            <span>Logout</span>
+          </Link>
+        </nav>
+      </aside>
+    </>
   );
 };
 

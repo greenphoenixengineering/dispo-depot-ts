@@ -2,51 +2,55 @@ import BuyersTable from '@/components/BuyersTable'
 import React from 'react'
 import { getBuyersWithTags } from '../actions/action'
 import Link from 'next/link'
-import { Edit } from 'lucide-react'
+import { Edit, Mail, Plus, Tag } from 'lucide-react'
 import { TagChip } from '@/components/tag-ship'
 import { Buyer } from '@/libs/types'
+import BuyersCardList from '@/components/BuyersCardList'
 
 const Dashboard = async () => {
   const buyersWithTags = await getBuyersWithTags()
 
   return (
     <div>
+      <div className="mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold mb-2">Dashboard</h1>
+        <p className="text-sm sm:text-base text-gray-600">
+          Manage your buyers and send targeted deals
+        </p>
+      </div>
+      
+      {/* Action buttons */}
+      <div className="flex flex-col w-full gap-3 mb-6 sm:flex-row sm:w-auto sm:items-center">
+        <Link
+          href="/dashboard/deals"
+          className="inline-flex items-center gap-2 bg-green-500 text-white rounded-md px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base hover:bg-green-600 transition-colors w-full sm:w-auto"
+        >
+          <Mail className="w-4 h-4" />
+          <span>Send Deals to Tags</span>
+        </Link>
+        <Link
+          href="/dashboard/tags"
+          className="inline-flex items-center gap-2 bg-white border border-gray-300 text-gray-700 rounded-md px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base hover:bg-gray-50 transition-colors w-full sm:w-auto"
+        >
+          <Tag className="w-4 h-4" />
+          <span>Manage Tags</span>
+        </Link>
+        <Link
+          href="/dashboard/buyer/new"
+          className="inline-flex items-center gap-2 bg-white border border-gray-300 text-gray-700 rounded-md px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base hover:bg-gray-50 transition-colors w-full sm:w-auto"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Add Buyer</span>
+        </Link>
+      </div>
+      
       {/* Mobile card layout */}
-      <div className="space-y-4 sm:hidden">
-        {buyersWithTags?.map((buyer) => (
-          <div key={buyer.id} className="p-4 border rounded shadow bg-white">
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="text-lg font-medium">
-                {buyer.first_name} {buyer.last_name}
-              </h3>
-              <Link
-                href={`/dashboard/edit-buyer/${buyer.id}`}
-                className="text-gray-600 hover:text-gray-900"
-              >
-                <Edit className="w-4 h-4" />
-              </Link>
-            </div>
-            <div className="space-y-2 text-sm text-gray-600">
-              <p>{buyer.email}</p>
-              {buyer.phone_num && <p>{buyer.phone_num}</p>}
-              {buyer.buyer_tags && buyer.buyer_tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {buyer.buyer_tags.map((tagLink: { tags: { id: number; name: string } }, index: number) => (
-                    <TagChip
-                      key={tagLink.tags.id}
-                      label={tagLink.tags.name}
-                      index={index}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
+      <div className="xl:hidden">
+        <BuyersCardList buyersWithTags={buyersWithTags || []} />
       </div>
 
       {/* Desktop table layout (hidden on small screens) */}
-      <div className="hidden sm:block">
+      <div className="hidden xl:block">
         <BuyersTable wholesaleBuyersWithTags={buyersWithTags || []} />
       </div>
     </div>
