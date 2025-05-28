@@ -489,6 +489,7 @@ export async function sendDealsAction(
         subject: subject,
         from_name: `${currentWholesaler.first_name} ${currentWholesaler.last_name}`,
         from: "mike@greenphoenixengineering.com",
+        reply_to:"bghanbi50@gmail.com",
         content: messageContent,
       },
     ],

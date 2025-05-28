@@ -1,7 +1,7 @@
 "use client"; 
 
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronDown, Search } from "lucide-react";
 import { getWholesalerTags, sendDealsAction } from "@/app/actions/action";
 import { useFormState, useFormStatus } from "react-dom";
 import { useEffect, useRef, useState } from "react"; 
@@ -26,6 +26,10 @@ function SubmitButton() {
 export default function SendDealsPage() {
 
   const [tags, setTags] = useState<{id: string | number; name: string; api_id: string}[]>([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
+
+
   useEffect(() => {
     async function fetchData() {
       const fetchedTags = await getWholesalerTags(); 
@@ -38,6 +42,7 @@ export default function SendDealsPage() {
   const initialState: SendDealsState = { message: null, errors: {}, success: false };
   const [state, formAction] = useFormState(sendDealsAction, initialState);
   const [messageVisible,setMessageVisible]=useState(false)
+    const [searchTerm, setSearchTerm] = useState("")
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -49,9 +54,43 @@ export default function SendDealsPage() {
     }
       setTimeout(() => {
        setMessageVisible(false)
-      }, 4000);
+      }, 9000);
   }, [state.success, state.message,state.errors]);
+    // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      const target = event.target as Node
+      const dropdown = document.querySelector('[data-dropdown="tags"]')
+      if (dropdown && !dropdown.contains(target)) {
+        setIsDropdownOpen(false)
+      }
+    }
 
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
+
+   const filteredTags = tags.filter(
+    (tag) => tag.name.toLowerCase().includes(searchTerm.toLowerCase()) && !selectedTags.includes(tag.name),
+  )
+
+
+    const toggleTag = (tag: string) => {
+    if (selectedTags.includes(tag)) {
+      setSelectedTags(selectedTags.filter((t) => t !== tag))
+    } else {
+      setSelectedTags([...selectedTags, tag])
+    }
+  }
+
+  const removeTag = (tag: string) => {
+    setSelectedTags(selectedTags.filter((t) => t !== tag))
+  }
+
+
+  console.log("selected tags",selectedTags)
   return (
     <div>
       <div className="mb-6">
@@ -85,7 +124,7 @@ export default function SendDealsPage() {
         </p>
 
         <div className="flex flex-wrap gap-2 mb-6">
-          {tags.map(({ name, id, api_id }) => {
+          {/* {tags.map(({ name, id, api_id }) => {
             return (
               <div key={id} className="flex items-center">
                 <input
@@ -103,7 +142,63 @@ export default function SendDealsPage() {
                 </label>
               </div>
             );
-          })}
+          })} */}
+            {/* Multi-Select Dropdown */}
+          <div className="relative" data-dropdown="tags">
+            <button
+              type="button"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-left focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 flex items-center justify-between"
+            >
+              <span className="text-gray-500">
+                {selectedTags.length === 0 ? "Select tags..." : `${selectedTags.length} tag(s) selected`}
+              </span>
+              <ChevronDown
+                className={`w-4 h-4 text-gray-400 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
+              />
+            </button>
+
+            {isDropdownOpen && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-hidden">
+                {/* Search Input */}
+                <div className="p-2 border-b border-gray-200">
+                  <div className="relative">
+                    <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Search tags..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pl-8 pr-3 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-green-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Tag Options */}
+                <div className="max-h-40 overflow-y-auto">
+                  {filteredTags.length > 0 ? (
+                    filteredTags.map((tag) => (
+                      <button
+                        key={tag.id}
+                        type="button"
+                        onClick={() => {
+                          toggleTag(tag.name)
+                          setSearchTerm("")
+                        }}
+                        className="w-full px-3 py-2 text-left hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                      >
+                        {tag.name}
+                      </button>
+                    ))
+                  ) : (
+                    <div className="px-3 py-2 text-gray-500 text-sm">
+                      {searchTerm ? "No tags found" : "All tags selected"}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
         {state.errors?.tags && (
           <p className="text-sm text-red-600 mt-[-1rem] mb-4">{state.errors.tags}</p>
