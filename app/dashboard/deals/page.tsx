@@ -44,6 +44,7 @@ export default function SendDealsPage() {
   const [messageVisible,setMessageVisible]=useState(false)
     const [searchTerm, setSearchTerm] = useState("")
   const formRef = useRef<HTMLFormElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMessageVisible(true)
@@ -59,18 +60,16 @@ export default function SendDealsPage() {
     // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      const target = event.target as Node
-      const dropdown = document.querySelector('[data-dropdown="tags"]')
-      if (dropdown && !dropdown.contains(target)) {
-        setIsDropdownOpen(false)
+      const target = event.target as Node;
+      if (dropdownRef.current && !dropdownRef.current.contains(target)) {
+        setIsDropdownOpen(false);
       }
     }
-
-    document.addEventListener("mousedown", handleClickOutside)
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [])
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
    const filteredTags = tags.filter(
     (tag) => tag.name.toLowerCase().includes(searchTerm.toLowerCase()) && !selectedTags.includes(tag.name),
@@ -123,28 +122,9 @@ export default function SendDealsPage() {
           Select tags to target specific buyer groups:
         </p>
 
-        <div className="flex flex-wrap gap-2 mb-6">
-          {/* {tags.map(({ name, id, api_id }) => {
-            return (
-              <div key={id} className="flex items-center">
-                <input
-                  id={`tag-${id}`}
-                  name="selectedApiIds"
-                  value={api_id}
-                  type="checkbox"
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                />
-                <label
-                  htmlFor={`tag-${id}`}
-                  className="ml-2 block text-sm text-gray-900"
-                >
-                  {name}
-                </label>
-              </div>
-            );
-          })} */}
-            {/* Multi-Select Dropdown */}
-          <div className="relative" data-dropdown="tags">
+        <div className="mb-6">
+          {/* Multi-Select Dropdown */}
+          <div className="relative w-full" data-dropdown="tags" ref={dropdownRef}>
             <button
               type="button"
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
