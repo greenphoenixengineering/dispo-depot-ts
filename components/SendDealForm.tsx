@@ -21,7 +21,6 @@ export default function SendDealForm({ tags }: { tags: Tag[] }) {
 
   const [selectedTagObjects, setSelectedTagObjects] = useState<any[]>([]);
 
-  // --- useEffect for form submission feedback (from previous logic, adapted) ---
   useEffect(() => {
     if (
       formState.message ||
