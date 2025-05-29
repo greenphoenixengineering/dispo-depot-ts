@@ -40,10 +40,6 @@ export default function DashboardShell({ children }: { children: React.ReactNode
               <span className="font-bold text-xl">Dispo Depot</span>
             </Link>
           </div>
-          {/* User avatar or right content */}
-          <div className="flex items-center justify-end w-10 h-10 rounded-full bg-gray-200">
-            <span className="text-gray-600 font-medium">JD</span>
-          </div>
         </header>
         {/* Page content */}
         <main className="flex-1 overflow-y-auto p-6 bg-gray-100">{children}</main>

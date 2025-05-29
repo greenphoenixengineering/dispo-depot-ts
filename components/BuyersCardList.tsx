@@ -32,7 +32,7 @@ export default function BuyersCardList({ buyersWithTags }: { buyersWithTags: Buy
                 <Edit className="w-4 h-4" />
               </Link>
             </div>
-            <div className="space-y-2 text-sm text-gray-600">
+            <div className="space-y-2 text-xs sm:text-sm text-gray-600">
               <p>{buyer.email}</p>
               {buyer.phone_num && <p>{buyer.phone_num}</p>}
               {buyer.buyer_tags && buyer.buyer_tags.length > 0 && (
