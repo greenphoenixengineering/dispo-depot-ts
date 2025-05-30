@@ -65,7 +65,7 @@ export default function SendDealForm({ tags }: { tags: Tag[] }) {
           <input
             key={`hidden-${tag.api_id}`}
             type="hidden"
-            name="selectedApiIds"
+            name="selectedTagsApiId"
             value={tag.api_id}
           />
         ))}
