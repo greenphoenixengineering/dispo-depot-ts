@@ -12,8 +12,11 @@ import {
 import { DeletedTag, NewTag } from "@/libs/tagTypes";
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
+import { Buffer } from 'buffer';
 
-const BASE_URL = "https://connect.mailerlite.com/api";
+const MAILERLITE_BASE_URL = "https://connect.mailerlite.com/api";
+const OPENAI_BASE_URL = "https://api.openai.com/v1";
+
 export async function getBuyersWithTags() {
   const wholesalerData = await getCurrentWholesaler();
 
@@ -123,7 +126,7 @@ export async function updateBuyerAndTagsAction(payload: UpdateBuyer) {
       status: "active",
     };
 
-    const response = await fetch(`${BASE_URL}/subscribers/${buyerApiId}`, {
+    const response = await fetch(`${MAILERLITE_BASE_URL}/subscribers/${buyerApiId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -186,7 +189,7 @@ export async function addBuyerToMailerLit(newBuyer: NewBuyer) {
   };
 
   try {
-    const response = await fetch(`${BASE_URL}/subscribers`, {
+    const response = await fetch(`${MAILERLITE_BASE_URL}/subscribers`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -301,7 +304,7 @@ export async function addTagToSupabase(payload: any) {
 
 export async function addTagToMailerlit(payload: NewTag) {
   try {
-    const response = await fetch(`${BASE_URL}/groups`, {
+    const response = await fetch(`${MAILERLITE_BASE_URL}/groups`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -364,7 +367,7 @@ export async function UpdateTag(payload: any) {
       return { success: false, message: "error updating tag on supabase" };
     }
 
-    const response = await fetch(`${BASE_URL}/groups/${tagApiId}`, {
+    const response = await fetch(`${MAILERLITE_BASE_URL}/groups/${tagApiId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -396,7 +399,7 @@ export async function deleteTag(payload: DeletedTag) {
     }
 
     // DELETE GROUP FROM MAILERLIT
-    const response = await fetch(`${BASE_URL}/groups/${tagApiId}`, {
+    const response = await fetch(`${MAILERLITE_BASE_URL}/groups/${tagApiId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -427,7 +430,7 @@ export async function deleteBuyer(DeletePayload: DeleteBuyer) {
   }
 
   const response = await fetch(
-    `${BASE_URL}/subscribers/${DeletePayload.buyerApiId}`,
+    `${MAILERLITE_BASE_URL}/subscribers/${DeletePayload.buyerApiId}`,
     {
       method: "DELETE",
       headers: {
@@ -444,4 +447,43 @@ export async function deleteBuyer(DeletePayload: DeleteBuyer) {
   }
 
   return { success: true, message: "Buyer deleted successfully!" };
+}
+
+export async function estimateWithOpenAI(imageFile: File, description: string) {
+  // Read the image as base64
+  const arrayBuffer = await imageFile.arrayBuffer();
+  const base64Image = Buffer.from(arrayBuffer).toString('base64');
+  const mimetype = imageFile.type;
+
+  const res = await fetch(`${OPENAI_BASE_URL}/chat/completions`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'gpt-4-vision-preview',
+      messages: [
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: description },
+            {
+              type: 'image_url',
+              image_url: {
+                url: `data:${mimetype};base64,${base64Image}`,
+              },
+            },
+          ],
+        },
+      ],
+      max_tokens: 1000,
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to get estimate from OpenAI');
+  }
+  const data = await res.json();
+  return data;
 }

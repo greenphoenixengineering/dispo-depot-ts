@@ -39,9 +39,7 @@ export default async function DashboardLayout({
             </Link>
           </div>
           <div className="flex items-center justify-end w-full">
-            <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-              <span className="text-gray-600 font-medium">JD</span>
-            </div>
+            <div className="w-10 h-10"></div>
           </div>
         </header>
 

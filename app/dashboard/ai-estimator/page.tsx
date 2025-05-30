@@ -1,10 +1,9 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
-import Link from "next/link"
-import { ArrowLeft, Upload, Send, DollarSign, Clock, Wrench } from "lucide-react"
+import { Upload, Send, DollarSign, Clock, Wrench } from "lucide-react"
+import { estimateWithOpenAI } from "@/app/actions/action"
 
 interface EstimateResponse {
   totalCost: string
@@ -27,6 +26,13 @@ export default function AIEstimatorPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [estimate, setEstimate] = useState<EstimateResponse | null>(null)
 
+  const promptPrefix = `You are a real estate construction estimator. 
+  You know how much building materials cost at today's rate by checking sites like homedepot.com for pricing.
+  You are trained to analyze the attached picture, which should be of a room, kitchen or some area in or
+  outside of a property. Based on the given image, you will analyze the image and the message below
+  to return an itemized estimate sheet.
+  The following description will provide a brief explanation of what needs to be estimated: `;
+
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
@@ -41,60 +47,23 @@ export default function AIEstimatorPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!selectedImage || !description.trim()) return
-
-    setIsSubmitting(true)
-
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 3000))
-
-    // Mock AI response based on description
-    const mockEstimate: EstimateResponse = {
-      totalCost: "$2,450 - $3,200",
-      laborCost: "$1,200 - $1,600",
-      materialCost: "$1,250 - $1,600",
-      timeEstimate: "2-3 days",
-      breakdown: [
-        {
-          item: "Drywall sheets (4x8 ft)",
-          quantity: "6",
-          unitCost: "$15",
-          totalCost: "$90",
-        },
-        {
-          item: "Joint compound",
-          quantity: "2 buckets",
-          unitCost: "$25",
-          totalCost: "$50",
-        },
-        {
-          item: "Paint (primer + finish)",
-          quantity: "2 gallons",
-          unitCost: "$45",
-          totalCost: "$90",
-        },
-        {
-          item: "Labor (skilled contractor)",
-          quantity: "16 hours",
-          unitCost: "$75",
-          totalCost: "$1,200",
-        },
-        {
-          item: "Tools & supplies",
-          quantity: "1 set",
-          unitCost: "$120",
-          totalCost: "$120",
-        },
-      ],
-      recommendations: [
-        "Consider using moisture-resistant drywall if this is a bathroom or kitchen area",
-        "Prime the wall before painting for better coverage and durability",
-        "Allow 24-48 hours between coats for proper curing",
-        "Get multiple quotes from licensed contractors in your area",
-      ],
+    if (!selectedImage) {
+      throw new Error("Please upload an image.");
+    }
+    if (!description.trim()) {
+      throw new Error("Please add a description of what you want to estimate.");
     }
 
-    setEstimate(mockEstimate)
+    setIsSubmitting(true)
+    try {
+      const estimate = await estimateWithOpenAI(selectedImage, promptPrefix + description)
+    } catch (error: any) {
+      setEstimate(null)
+      setIsSubmitting(false)
+      console.log(error);
+    }    
+
+    setEstimate(estimate)
     setIsSubmitting(false)
   }
 
