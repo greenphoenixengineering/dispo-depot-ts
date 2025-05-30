@@ -41,6 +41,8 @@ export default function SendDealForm({ tags }: { tags: Tag[] }) {
     }
   }, [formState]);
 
+  console.log("form state",formState)
+
   return (
     <div>
       {/* Form Submission Messages */}

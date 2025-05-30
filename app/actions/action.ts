@@ -454,7 +454,7 @@ export async function sendDealsAction(
 ): Promise<SendDealsState> {
   const subject = formData.get("subject") as string;
   const messageContent = formData.get("message") as string;
-  const selectedTagsApiId = formData.getAll("selectedApiIds") as string[];
+  const selectedTagsApiId = formData.getAll("selectedTagsApiId") as string[];
   // selectedApiIds
 
   const errors: SendDealsState["errors"] = {};

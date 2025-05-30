@@ -33,6 +33,8 @@ const MultiSelectTagsDropDown = ({
     );
   };
 
+  console.log("selected tags",selectedTagObjects)
+
   const removeTagFromSelection = (tagToRemove: any) => {
     setSelectedTagObjects((prevSelected) =>
       prevSelected.filter((t) => t.api_id !== tagToRemove.api_id)
@@ -76,7 +78,7 @@ const MultiSelectTagsDropDown = ({
         <div className="flex flex-wrap gap-2 mb-3">
           {selectedTagObjects.map((tag) => (
             <div
-              key={tag.api_id} // Use unique api_id or id
+              key={tag.api_id} 
               className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm"
             >
               <span>{tag.name}</span>
@@ -133,17 +135,16 @@ const MultiSelectTagsDropDown = ({
               {tagsAvailableInDropdown.length > 0 ? (
                 tagsAvailableInDropdown.map((tag) => (
                   <button
-                    key={tag.api_id} // Use unique api_id or id
+                    key={tag.api_id} 
                     type="button"
                     onClick={() => {
                       toggleTagInSelection(tag);
-                      // setSearchTerm(""); // Optional: Clear search on select
                     }}
                     className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
                     role="option"
                     aria-selected={selectedTagObjects.some(
                       (st) => st.api_id === tag.api_id
-                    )} // This indicates if it's conceptually selected, though it won't be in *this* list if selected
+                    )} 
                   >
                     {tag.name}
                   </button>
