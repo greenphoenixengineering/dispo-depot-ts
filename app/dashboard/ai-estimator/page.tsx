@@ -30,7 +30,8 @@ export default function AIEstimatorPage() {
   You know how much building materials cost at today's rate by checking sites like homedepot.com for pricing.
   You are trained to analyze the attached picture, which should be of a room, kitchen or some area in or
   outside of a property. Based on the given image, you will analyze the image and the message below
-  to return an itemized estimate sheet.
+  to return an itemized estimate sheet. You are also an expert in analyzing the dimensions
+  of sections in an image based off context clues such as lights, faucets, appliances, etc.
   The following description will provide a brief explanation of what needs to be estimated: `;
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
