@@ -153,13 +153,6 @@ export default function TagWithBuyerTable({
   return (
     <div>
       <div className="mb-6">
-        <Link
-          href="/dashboard"
-          className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 mb-4"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Dashboard</span>
-        </Link>
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold mb-2">Manage Tags</h1>

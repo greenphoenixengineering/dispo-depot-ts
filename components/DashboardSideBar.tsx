@@ -1,13 +1,38 @@
 "use client";
 import React from "react";
-import { Tag, LogOut, Mail, Home } from "lucide-react";
+import { Tag, LogOut, Mail, Home, Cpu } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 
 const DashboardSideBar = () => {
   const handleSignOut = () => {
     signOut({ callbackUrl: "/" });
   };
+  const pathname = usePathname();
+
+  const navItems = [
+    {
+      href: "/dashboard/ai-estimator",
+      icon: <Cpu className="w-5 h-5" />,
+      label: "AI Estimator",
+    },
+    {
+      href: "/dashboard",
+      icon: <Home className="w-5 h-5" />,
+      label: "Dashboard",
+    },
+    {
+      href: "/dashboard/tags",
+      icon: <Tag className="w-5 h-5" />,
+      label: "Manage Tags",
+    },
+    {
+      href: "/dashboard/deals",
+      icon: <Mail className="w-5 h-5" />,
+      label: "Send Deals",
+    },
+  ];
 
   return (
     <aside className="w-64 bg-white border-r border-gray-200 hidden md:block">
@@ -20,34 +45,18 @@ const DashboardSideBar = () => {
         </Link>
       </div>
       <nav className="mt-6">
-        <div className="px-4 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
-          Main
-        </div>
-        <Link
-          href="/dashboard"
-          className="flex items-center gap-2 px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-green-500"
-        >
-          <Home className="w-5 h-5" />
-          <span>Dashboard</span>
-        </Link>
-        <Link
-          href="/dashboard/tags"
-          className="flex items-center gap-2 px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-green-500"
-        >
-          <Tag className="w-5 h-5" />
-          <span>Manage Tags</span>
-        </Link>
-        <Link
-          href="/dashboard/deals"
-          className="flex items-center gap-2 px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-green-500"
-        >
-          <Mail className="w-5 h-5" />
-          <span>Send Deals</span>
-        </Link>
-
-        <div className="px-4 mt-6 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
-          Account
-        </div>
+        {navItems.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`flex items-center gap-2 px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-green-500 rounded transition-colors ${
+              pathname === item.href ? "bg-gray-100" : ""
+            }`}
+          >
+            {item.icon}
+            <span>{item.label}</span>
+          </Link>
+        ))}
         <Link
           href="/logout"
           onClick={handleSignOut}
