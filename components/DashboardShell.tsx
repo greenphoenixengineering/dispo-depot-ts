@@ -31,15 +31,17 @@ export default function DashboardShell({ children }: { children: React.ReactNode
           >
             <Menu className="w-7 h-7 text-gray-700" />
           </button>
+
           {/* Centered logo on mobile, left on desktop */}
           <div className="flex items-center justify-center w-full p-4 md:hidden">
-    <Link href="/dashboard" className="flex items-center gap-2">
-      <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
-        <div className="w-4 h-4 rounded-full border-2 border-white" />
-      </div>
-      <span className="font-bold text-xl">Dispo Depot</span>
-    </Link>
-  </div>
+            <Link href="/dashboard" className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+                <div className="w-4 h-4 rounded-full border-2 border-white" />
+              </div>
+              <span className="font-bold text-xl">Dispo Depot</span>
+            </Link>
+          </div>
+          <div className="w-10 h-10" />
         </header>
         {/* Page content */}
         <main className="flex-1 overflow-y-auto p-6 bg-gray-100">{children}</main>
