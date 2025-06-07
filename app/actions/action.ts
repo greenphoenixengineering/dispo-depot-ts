@@ -427,18 +427,9 @@ export async function deleteBuyer(DeletePayload: DeleteBuyer) {
     return { success: false, message: "Error deleting buyer!" };
   }
 
-  const response = await fetch(
-    `${BASE_URL}/subscribers/${DeletePayload.buyerApiId}`,
-    {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
+    const response = await mailerLiteFetch( `${BASE_URL}/subscribers/${DeletePayload.buyerApiId}`,"DELETE")
 
-        Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
-      },
-    }
-  );
+ 
 
   if (!response.ok) {
     return { success: false, message: "Error deleting buyer!" };
@@ -500,17 +491,9 @@ export async function sendDealsAction(
 
 
   try {
-    const createCampaignResponse = await fetch(`${BASE_URL}/campaigns`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
-      },
-      body: JSON.stringify(mailerLitePayload),
-    });
-
+    const createCampaignResponse = await mailerLiteFetch("/campaigns","POST",mailerLitePayload)
     const createCampaignResult = await createCampaignResponse.json();
+
 
     if (
       !createCampaignResponse.ok ||
@@ -549,18 +532,9 @@ export async function sendDealsAction(
 
     // ----- STEP 3: Schedule / send the campaign (Mailerlite) -----
     const sendDealActionPayload = { delivery: "instant" };
-    const sendCampaignResponse = await fetch(
-      `${BASE_URL}/campaigns/${campaignId}/schedule`,
-      {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
-        },
-        body: JSON.stringify(sendDealActionPayload),
-      }
-    );
+
+
+    const sendCampaignResponse = await mailerLiteFetch(`/campaigns/${campaignId}/schedule`,"POST",sendDealActionPayload)
 
     const sendCampaignResult = await sendCampaignResponse.json();
 
