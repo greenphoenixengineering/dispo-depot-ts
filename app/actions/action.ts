@@ -13,6 +13,7 @@ import { DeletedTag, NewTag } from "@/libs/tagTypes";
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
 import { SendDealsState } from "@/libs/sendDealTypes";
+import { RequestInit } from "next/dist/server/web/spec-extension/request";
 
 const BASE_URL = "https://connect.mailerlite.com/api";
 export async function getBuyersWithTags() {
@@ -587,4 +588,36 @@ export async function sendDealsAction(
       success: false,
     };
   }
+}
+
+
+
+
+
+
+// GENERIC MAILERLIT FETCH FUNCTION
+export async function mailerLiteFetch(
+  path: string,
+  method: "GET" | "POST" | "PUT" | "DELETE",
+  payload?: any
+) {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
+  };
+
+  const options: RequestInit = {
+    method,
+    headers,
+  };
+
+  if (payload) {
+    options.body = JSON.stringify(payload);
+  }
+
+  const response = await fetch(`${BASE_URL}${path}`, options);
+
+  // Optionally, handle errors or non-2xx responses here
+  return response;
 }
