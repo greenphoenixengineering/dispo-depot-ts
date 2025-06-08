@@ -12,6 +12,8 @@ import {
 import { DeletedTag, NewTag } from "@/libs/tagTypes";
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
+import { SendDealsState } from "@/libs/sendDealTypes";
+import { RequestInit } from "next/dist/server/web/spec-extension/request";
 
 const BASE_URL = "https://connect.mailerlite.com/api";
 export async function getBuyersWithTags() {
@@ -81,7 +83,6 @@ export async function getWholesalerTags() {
   return tags;
 }
 
-
 export async function updateBuyerAndTagsAction(payload: UpdateBuyer) {
   const { buyerId, updates, tags, buyerApiId } = payload;
   const tagIds = tags.map((tagInfo: any) => tagInfo.id);
@@ -122,17 +123,12 @@ export async function updateBuyerAndTagsAction(payload: UpdateBuyer) {
       groups: mailerLiteGroupIds,
       status: "active",
     };
+    const response = await mailerLiteFetch(
+      `/subscribers/${buyerApiId}`,
+      "PUT",
+      payload
+    );
 
-    const response = await fetch(`${BASE_URL}/subscribers/${buyerApiId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-
-        Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
-      },
-      body: JSON.stringify(payload),
-    });
     if (!response.ok) {
       return { success: false, message: "Error updating buyer!" };
     }
@@ -186,16 +182,7 @@ export async function addBuyerToMailerLit(newBuyer: NewBuyer) {
   };
 
   try {
-    const response = await fetch(`${BASE_URL}/subscribers`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-
-        Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
-      },
-      body: JSON.stringify(payload),
-    });
+    const response = await mailerLiteFetch(`/subscribers`, "POST", payload);
 
     const result = await response.json();
 
@@ -301,16 +288,7 @@ export async function addTagToSupabase(payload: any) {
 
 export async function addTagToMailerlit(payload: NewTag) {
   try {
-    const response = await fetch(`${BASE_URL}/groups`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-
-        Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
-      },
-      body: JSON.stringify(payload),
-    });
+    const response = await mailerLiteFetch(`/groups`, "POST", payload);
 
     const result = await response.json();
 
@@ -363,17 +341,10 @@ export async function UpdateTag(payload: any) {
     if (error) {
       return { success: false, message: "error updating tag on supabase" };
     }
-
-    const response = await fetch(`${BASE_URL}/groups/${tagApiId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-
-        Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
-      },
-      body: JSON.stringify({ name: newTagName }),
+    const response = await mailerLiteFetch(`/groups/${tagApiId}`, "PUT", {
+      name: newTagName,
     });
+
     if (!response.ok) {
       return { success: false, message: "Error updating tag on mailerlit!" };
     }
@@ -394,17 +365,7 @@ export async function deleteTag(payload: DeletedTag) {
     if (error) {
       return { success: false, error: error.message };
     }
-
-    // DELETE GROUP FROM MAILERLIT
-    const response = await fetch(`${BASE_URL}/groups/${tagApiId}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-
-        Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
-      },
-    });
+    const response = await mailerLiteFetch(`/groups/${tagApiId}`, "DELETE");
 
     if (response.ok) {
       return { success: true };
@@ -426,17 +387,9 @@ export async function deleteBuyer(DeletePayload: DeleteBuyer) {
     return { success: false, message: "Error deleting buyer!" };
   }
 
-  const response = await fetch(
+  const response = await mailerLiteFetch(
     `${BASE_URL}/subscribers/${DeletePayload.buyerApiId}`,
-    {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-
-        Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
-      },
-    }
+    "DELETE"
   );
 
   if (!response.ok) {
@@ -444,4 +397,159 @@ export async function deleteBuyer(DeletePayload: DeleteBuyer) {
   }
 
   return { success: true, message: "Buyer deleted successfully!" };
+}
+
+export async function sendDealsAction(
+  prevState: SendDealsState,
+  formData: FormData
+): Promise<SendDealsState> {
+  const subject = formData.get("subject") as string;
+  const messageContent = formData.get("message") as string;
+  const selectedTagsApiId = formData.getAll("selectedTagsApiId") as string[];
+
+  const errors: SendDealsState["errors"] = {};
+
+  if (selectedTagsApiId.length === 0) {
+    errors.tags = "Please select at least one buyer group.";
+  }
+  if (!subject) {
+    errors.subject = "Subject line is required.";
+  }
+  if (!messageContent) {
+    errors.message = "Message is required.";
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return { errors, success: false };
+  }
+
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  const formattedDate = `${year}-${month}-${day}`;
+  const campaignName = `${subject}_${formattedDate}`;
+  const currentWholesaler = await getCurrentWholesaler();
+
+  // ----- STEP 1: Create Campaign Shell (Mailerlite) -----
+  const mailerLitePayload = {
+    name: campaignName,
+    type: "regular",
+    emails: [
+      {
+        subject: subject,
+        from_name: `${currentWholesaler.first_name} ${currentWholesaler.last_name}`,
+        from: "support@mydispodepot.io",
+        reply_to: "support@mydispodepot.io",
+        content: messageContent,
+      },
+    ],
+    groups: selectedTagsApiId,
+  };
+
+  try {
+    const createCampaignResponse = await mailerLiteFetch(
+      "/campaigns",
+      "POST",
+      mailerLitePayload
+    );
+    const createCampaignResult = await createCampaignResponse.json();
+
+    if (
+      !createCampaignResponse.ok ||
+      !createCampaignResult.data ||
+      !createCampaignResult.data.id
+    ) {
+      const apiErrorMsg =
+        createCampaignResult.message ||
+        (createCampaignResult.errors
+          ? JSON.stringify(createCampaignResult.errors)
+          : `API request failed: ${createCampaignResponse.status}`);
+      return {
+        errors: { api: `Failed to create campaign: ${apiErrorMsg}` },
+        success: false,
+      };
+    }
+
+    const campaignId = createCampaignResult.data.id;
+
+    // ----- STEP 2: SAVE CAMPAIGN ID TO SUPABASE -----
+    const { error: supabaseInsertError } = await supabase
+      .from("wholesaler_campaign")
+      .insert({
+        campaign_id: campaignId, // Use the campaignId from createCampaignResult
+        wholesaler_id: currentWholesaler?.id,
+      });
+
+    if (supabaseInsertError) {
+      return {
+        errors: {
+          api: `Failed to save campaign to DB: ${supabaseInsertError.message}`,
+        },
+        success: false,
+      };
+    }
+
+    // ----- STEP 3: Schedule / send the campaign (Mailerlite) -----
+    const sendDealActionPayload = { delivery: "instant" };
+
+    const sendCampaignResponse = await mailerLiteFetch(
+      `/campaigns/${campaignId}/schedule`,
+      "POST",
+      sendDealActionPayload
+    );
+
+    const sendCampaignResult = await sendCampaignResponse.json();
+
+    if (!sendCampaignResponse.ok) {
+      console.error(
+        "Mailerlite API Error (Send Campaign):",
+        sendCampaignResult
+      );
+      const errorMessage =
+        sendCampaignResult.message ||
+        (sendCampaignResult.errors
+          ? JSON.stringify(sendCampaignResult.errors)
+          : `Send action failed: ${sendCampaignResponse.status}`);
+      return {
+        errors: { api: `Failed to send campaign: ${errorMessage}` },
+        success: false,
+      };
+    }
+
+    return { message: "Deal sent successfully!", success: true };
+  } catch (error: any) {
+    console.error("Error in sendDeals action:", error);
+    return {
+      errors: { api: error.message || "An unexpected error occurred." },
+      success: false,
+    };
+  }
+}
+
+// GENERIC MAILERLIT FETCH FUNCTION
+export async function mailerLiteFetch(
+  path: string,
+  method: "GET" | "POST" | "PUT" | "DELETE",
+  payload?: any
+) {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
+  };
+
+  const options: RequestInit = {
+    method,
+    headers,
+  };
+
+  if (payload) {
+    options.body = JSON.stringify(payload);
+  }
+
+  const response = await fetch(`${BASE_URL}${path}`, options);
+
+  // Optionally, handle errors or non-2xx responses here
+  return response;
 }
