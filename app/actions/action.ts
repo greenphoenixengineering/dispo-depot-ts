@@ -442,7 +442,7 @@ export async function sendDealsAction(
       {
         subject: subject,
         from_name: `${currentWholesaler.first_name} ${currentWholesaler.last_name}`,
-        from: "mike@greenphoenixengineering.com",
+        from:`user123@dispodepot.com`,
         reply_to: "support@mydispodepot.io",
         content: messageContent,
       },
