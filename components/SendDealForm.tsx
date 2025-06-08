@@ -1,6 +1,5 @@
 "use client";
 
-import { ChevronDown, X, Search } from "lucide-react";
 import { sendDealsAction } from "@/app/actions/action";
 import { useFormState } from "react-dom";
 import { useEffect, useRef, useState } from "react";
@@ -33,15 +32,11 @@ export default function SendDealForm({ tags }: { tags: Tag[] }) {
 
       if (formState.success) {
         formRef.current?.reset();
-        setSelectedTagObjects([]);
-        // setSearchTerm("");
-        // setIsDropdownOpen(false);
+        setSelectedTagObjects([]);        
       }
       return () => clearTimeout(timer);
     }
   }, [formState]);
-
-  console.log("form state",formState)
 
   return (
     <div>

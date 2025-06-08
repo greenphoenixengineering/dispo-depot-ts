@@ -399,8 +399,6 @@ export async function deleteBuyer(DeletePayload: DeleteBuyer) {
   return { success: true, message: "Buyer deleted successfully!" };
 }
 
-// SEND DEAL ACTION
-
 export async function sendDealsAction(
   prevState: SendDealsState,
   formData: FormData
@@ -408,7 +406,6 @@ export async function sendDealsAction(
   const subject = formData.get("subject") as string;
   const messageContent = formData.get("message") as string;
   const selectedTagsApiId = formData.getAll("selectedTagsApiId") as string[];
-  // selectedApiIds
 
   const errors: SendDealsState["errors"] = {};
 
@@ -442,7 +439,7 @@ export async function sendDealsAction(
       {
         subject: subject,
         from_name: `${currentWholesaler.first_name} ${currentWholesaler.last_name}`,
-        from: "mike@greenphoenixengineering.com",
+        from: "support@mydispodepot.io",
         reply_to: "support@mydispodepot.io",
         content: messageContent,
       },
