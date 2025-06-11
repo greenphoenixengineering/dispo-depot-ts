@@ -24,7 +24,6 @@ const DashboardSideBar = ({ open = false, onClose }: DashboardSideBarProps) => {
       `}
       aria-label="Sidebar"
     >
-      {/* Botón cerrar en móvil */}
       <div className="md:hidden flex justify-end p-4">
         <button onClick={onClose} aria-label="Cerrar sidebar">
           <X className="w-6 h-6 text-gray-500" />
@@ -32,40 +31,40 @@ const DashboardSideBar = ({ open = false, onClose }: DashboardSideBarProps) => {
       </div>
 
       <div className="hidden md:flex p-4 items-center">
-      <Link href="/dashboard" className="flex items-center">
-        <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
-          <div className="w-4 h-4 rounded-full border-2 border-white" />
-        </div>
-        <span className="ml-2 whitespace-nowrap opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
-          Dispo Depot
-        </span>
-      </Link>
-    </div>
+        <Link href="/dashboard" className="flex items-center">
+          <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+            <div className="w-4 h-4 rounded-full border-2 border-white" />
+          </div>
+          <span className="ml-2 whitespace-nowrap opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
+            Dispo Depot
+          </span>
+        </Link>
+      </div>
 
       <nav className="mt-6">
         {/* MAIN */}
         <div
-  className="
-    px-4 mb-2
-    text-xs font-semibold text-gray-400 uppercase tracking-wider
-    opacity-100
-    md:opacity-0 md:group-hover:opacity-100
-    transition-opacity duration-200
-    whitespace-nowrap
-  "
->
-  Main
-</div>
+          className="
+            px-4 mb-2
+            text-xs font-semibold text-gray-400 uppercase tracking-wider
+            opacity-100
+            md:opacity-0 md:group-hover:opacity-100
+            transition-opacity duration-200
+            whitespace-nowrap
+          ">
+          Main
+        </div>
 
         {/* Links */}
         {[
-          { href: "/dashboard",      icon: Home, label: "Dashboard" },
-          { href: "/dashboard/tags", icon: Tag,  label: "Manage Tags" },
-          { href: "/dashboard/deals",icon: Mail, label: "Send Deals" },
+          { href: "/dashboard", icon: Home, label: "Dashboard" },
+          { href: "/dashboard/tags", icon: Tag, label: "Manage Tags" },
+          { href: "/dashboard/deals", icon: Mail, label: "Send Deals" },
         ].map(({ href, icon: Icon, label }) => (
           <Link
             key={href}
             href={href}
+            onClick={onClose}
             className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-green-500"
           >
             <Icon className="w-6 h-6 flex-shrink-0" />
@@ -77,17 +76,16 @@ const DashboardSideBar = ({ open = false, onClose }: DashboardSideBarProps) => {
 
         {/* ACCOUNT */}
         <div
-  className="
-    px-4 mt-6 mb-2
-    text-xs font-semibold text-gray-400 uppercase tracking-wider
-    opacity-100
-    md:opacity-0 md:group-hover:opacity-100
-    transition-opacity duration-200
-    whitespace-nowrap
-  "
->
-  Account
-</div>
+          className="
+            px-4 mt-6 mb-2
+            text-xs font-semibold text-gray-400 uppercase tracking-wider
+            opacity-100
+            md:opacity-0 md:group-hover:opacity-100
+            transition-opacity duration-200
+            whitespace-nowrap
+          ">
+          Account
+        </div>
         <button
           onClick={handleSignOut}
           className="w-full flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-red-500"
