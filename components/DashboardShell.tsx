@@ -44,7 +44,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
           <div className="w-10 h-10" />
         </header>
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-6 bg-gray-100">{children}</main>
+        <main className="flex-1 overflow-y-auto p-3 sm:p-6 bg-gray-100">{children}</main>
       </div>
     </div>
   );
