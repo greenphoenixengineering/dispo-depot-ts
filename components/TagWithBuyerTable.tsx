@@ -85,7 +85,6 @@ export default function TagWithBuyerTable({
       );
     } finally {
       setIsCreating(false);
-      console.log("Finished create tag attempt.");
     }
   };
   const cancelCreate = () => {
@@ -113,8 +112,6 @@ export default function TagWithBuyerTable({
         tagId: deletingTag.id,
         tagApiId: deletingTag.api_id,
       });
-
-      console.log("delete result",deleteResult)
 
       if (deleteResult.success) {
         setDeletingTag(null);
@@ -154,25 +151,25 @@ export default function TagWithBuyerTable({
   return (
     <div className="space-y-0">
       {/* ←— Header & Create Button */}
-      <div className="space-y-4">
+      <div className="space-y-2 sm:space-y-4">
         <Link
           href="/dashboard"
           className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900"
         >
           <ArrowLeft className="w-5 h-5" />
-          <span>Back to Dashboard</span>
+          <span className="text-xs sm:text-base">Back to Dashboard</span>
         </Link>
 
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">Manage Tags</h1>
-            <p className="text-gray-600">
+            <h1 className="text-xl sm:text-2xl font-bold">Manage Tags</h1>
+            <p className="text-sm sm:text-base text-gray-600">
               Create and manage tags to organize your buyers
             </p>
           </div>
           <button
             onClick={() => setShowCreateForm(true)}
-            className="inline-flex items-center gap-2 bg-green-500 text-white rounded-md px-4 py-2 hover:bg-green-600 transition"
+            className="inline-flex items-center gap-2 bg-green-500 text-white rounded-md px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base hover:bg-green-600 transition mb-4"
           >
             <Plus className="w-4 h-4" />
             <span>Create Tag</span>
@@ -180,9 +177,8 @@ export default function TagWithBuyerTable({
         </div>
       </div>
 
-      {/* ←— Create Form */}
+      
       {showCreateForm && (
-  // Backdrop: subimos el z-index muy alto para tapar incluso la cabecera
   <div
     className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50"
     onClick={cancelCreate} // click fuera cierra
@@ -214,7 +210,7 @@ export default function TagWithBuyerTable({
         <div>
           <label
             htmlFor="tagName"
-            className="block text-sm font-medium text-gray-700 mb-1"
+            className="block text-xs sm:text-sm font-medium text-gray-700 mb-1"
           >
             Tag Name *
           </label>
@@ -225,7 +221,7 @@ export default function TagWithBuyerTable({
             value={newTagName}
             onChange={(e) => setNewTagName(e.target.value)}
             placeholder="Enter tag name"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-xs sm:text-sm"
           />
         </div>
 
@@ -233,14 +229,14 @@ export default function TagWithBuyerTable({
           <button
             type="button"
             onClick={cancelCreate}
-            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition"
+            className="px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition text-sm sm:text-base"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={isCreating}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition disabled:opacity-50 text-sm sm:text-base"
           >
             {isCreating ? (
               <div className="animate-spin h-4 w-4 border-2 border-t-white border-b-white rounded-full" />
@@ -251,8 +247,8 @@ export default function TagWithBuyerTable({
           </button>
         </div>
       </form>
+      </div>
     </div>
-  </div>
 )}
 
       {/* ←— Mobile: Card List */}
@@ -263,16 +259,16 @@ export default function TagWithBuyerTable({
               <TagChip label={tag.name} index={0} />
               <div className="flex items-center space-x-2">
                 <Link href={`tags/edit/${tag.id}?buyer_count=${tag.buyer_count}`}>
-                  <button className="text-gray-600 hover:text-gray-900">
+                  <button className="text-gray-600 hover:text-gray-900 text-sm sm:text-base">
                     <Edit className="w-5 h-5" />
                   </button>
                 </Link>
-                <button onClick={() => startDeleteTag(tag)} className="text-red-600 hover:text-red-900">
+                <button onClick={() => startDeleteTag(tag)} className="text-red-600 hover:text-red-900 text-sm sm:text-base">
                   <Trash className="w-5 h-5" />
                 </button>
               </div>
             </div>
-            <div className="text-sm text-gray-500">{tag.buyer_count} buyers</div>
+            <div className="text-xs sm:text-sm text-gray-500">{tag.buyer_count} buyers</div>
           </div>
         ))}
       </div>
@@ -282,13 +278,13 @@ export default function TagWithBuyerTable({
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
                 Tag
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
                 Buyers
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-right text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -299,16 +295,16 @@ export default function TagWithBuyerTable({
                 <td className="px-6 py-4 whitespace-nowrap">
                   <TagChip label={tag.name} index={0} />
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
                   {tag.buyer_count} buyers
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <Link href={`tags/edit/${tag.id}?buyer_count=${tag.buyer_count}`}>
-                    <button className="text-gray-600 hover:text-gray-900 mr-3">
+                    <button className="text-gray-600 hover:text-gray-900 mr-3 text-sm sm:text-base">
                       <Edit className="w-4 h-4" />
                     </button>
                   </Link>
-                  <button onClick={() => startDeleteTag(tag)} className="text-red-600 hover:text-red-900">
+                  <button onClick={() => startDeleteTag(tag)} className="text-red-600 hover:text-red-900 text-sm sm:text-base">
                     <Trash className="w-4 h-4" />
                   </button>
                 </td>
