@@ -35,7 +35,7 @@ const DashboardSideBar = ({ open = false, onClose }: DashboardSideBarProps) => {
           <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
             <div className="w-4 h-4 rounded-full border-2 border-white" />
           </div>
-          <span className="ml-2 whitespace-nowrap opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
+          <span className="font-bold ml-2 whitespace-nowrap opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
             Dispo Depot
           </span>
         </Link>

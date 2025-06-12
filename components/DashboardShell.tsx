@@ -33,12 +33,12 @@ export default function DashboardShell({ children }: { children: React.ReactNode
           </button>
 
           {/* Centered logo on mobile, left on desktop */}
-          <div className="flex items-center justify-center w-full p-4 md:hidden">
+          <div className="flex items-center justify-center w-full p-2 md:hidden">
             <Link href="/dashboard" className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
                 <div className="w-4 h-4 rounded-full border-2 border-white" />
               </div>
-              <span className="font-bold text-xl">Dispo Depot</span>
+              <span className="font-bold text-md sm:text-xl">Dispo Depot</span>
             </Link>
           </div>
           <div className="w-10 h-10" />
