@@ -179,77 +179,77 @@ export default function TagWithBuyerTable({
 
       
       {showCreateForm && (
-  <div
-    className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50"
-    onClick={cancelCreate} // click fuera cierra
-  >
-    {/* Modal content */}
-    <div
-      className="bg-white rounded-lg shadow-lg w-[90%] max-w-md p-6 relative"
-      onClick={(e) => e.stopPropagation()} // que no cierre al hacer click dentro
-    >
-      {/* Botón Cerrar */}
-      <button
+      <div
+        className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50"
         onClick={cancelCreate}
-        className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-        aria-label="Close modal"
       >
-        <X className="w-5 h-5" />
-      </button>
+        {/* Modal content */}
+        <div
+          className="bg-white rounded-lg shadow-lg w-[90%] max-w-md p-6 relative"
+          onClick={(e) => e.stopPropagation()} // que no cierre al hacer click dentro
+        >
+          {/* Close button */}
+          <button
+            onClick={cancelCreate}
+            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            aria-label="Close modal"
+          >
+            <X className="w-5 h-5" />
+          </button>
 
-      <h2 className="text-lg font-semibold mb-4">Create New Tag</h2>
+          <h2 className="text-lg font-semibold mb-4">Create New Tag</h2>
 
-      {createMessage && (
-        <div className="mb-4 flex items-center gap-2 p-2 bg-green-100 text-green-800 rounded">
-          <Check className="w-4 h-4" />
-          <span>{createMessage}</span>
+          {createMessage && (
+            <div className="mb-4 flex items-center gap-2 p-2 bg-green-100 text-green-800 rounded">
+              <Check className="w-4 h-4" />
+              <span>{createMessage}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleCreateTag} className="space-y-4">
+            <div>
+              <label
+                htmlFor="tagName"
+                className="block text-xs sm:text-sm font-medium text-gray-700 mb-1"
+              >
+                Tag Name *
+              </label>
+              <input
+                id="tagName"
+                type="text"
+                required
+                value={newTagName}
+                onChange={(e) => setNewTagName(e.target.value)}
+                placeholder="Enter tag name"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-xs sm:text-sm"
+              />
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={cancelCreate}
+                className="px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition text-sm sm:text-base"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isCreating}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition disabled:opacity-50 text-sm sm:text-base"
+              >
+                {isCreating ? (
+                  <div className="animate-spin h-4 w-4 border-2 border-t-white border-b-white rounded-full" />
+                ) : (
+                  <Plus className="w-4 h-4" />
+                )}
+                <span>{isCreating ? "Creating..." : "Create Tag"}</span>
+              </button>
+            </div>
+          </form>
+          </div>
         </div>
       )}
-
-      <form onSubmit={handleCreateTag} className="space-y-4">
-        <div>
-          <label
-            htmlFor="tagName"
-            className="block text-xs sm:text-sm font-medium text-gray-700 mb-1"
-          >
-            Tag Name *
-          </label>
-          <input
-            id="tagName"
-            type="text"
-            required
-            value={newTagName}
-            onChange={(e) => setNewTagName(e.target.value)}
-            placeholder="Enter tag name"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-xs sm:text-sm"
-          />
-        </div>
-
-        <div className="flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={cancelCreate}
-            className="px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition text-sm sm:text-base"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={isCreating}
-            className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition disabled:opacity-50 text-sm sm:text-base"
-          >
-            {isCreating ? (
-              <div className="animate-spin h-4 w-4 border-2 border-t-white border-b-white rounded-full" />
-            ) : (
-              <Plus className="w-4 h-4" />
-            )}
-            <span>{isCreating ? "Creating..." : "Create Tag"}</span>
-          </button>
-        </div>
-      </form>
-      </div>
-    </div>
-)}
 
       {/* ←— Mobile: Card List */}
       <div className="space-y-4 md:hidden">
@@ -257,13 +257,13 @@ export default function TagWithBuyerTable({
           <div key={tag.id} className="bg-white rounded-lg shadow p-4 space-y-2">
             <div className="flex justify-between items-start">
               <TagChip label={tag.name} index={0} />
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2">
                 <Link href={`tags/edit/${tag.id}?buyer_count=${tag.buyer_count}`}>
-                  <button className="text-gray-600 hover:text-gray-900 text-sm sm:text-base">
+                  <button className="flex items-center text-gray-600 hover:text-gray-900 text-sm sm:text-base p-0">
                     <Edit className="w-5 h-5" />
                   </button>
                 </Link>
-                <button onClick={() => startDeleteTag(tag)} className="text-red-600 hover:text-red-900 text-sm sm:text-base">
+                <button onClick={() => startDeleteTag(tag)} className="flex items-center text-red-600 hover:text-red-900 text-sm sm:text-base p-0">
                   <Trash className="w-5 h-5" />
                 </button>
               </div>
