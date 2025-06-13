@@ -20,28 +20,14 @@ const Dashboard = async () => {
       </div>
       
       {/* Action buttons */}
-      <div className="flex flex-col w-full gap-3 mb-6 sm:flex-row sm:w-auto sm:items-center">
-        <Link
-          href="/dashboard/deals"
-          className="inline-flex items-center gap-2 bg-green-500 text-white rounded-md px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base hover:bg-green-600 transition-colors w-full sm:w-auto"
-        >
-          <Mail className="w-4 h-4" />
-          <span>Send Deals to Tags</span>
-        </Link>
-        <Link
-          href="/dashboard/tags"
-          className="inline-flex items-center gap-2 bg-white border border-gray-300 text-gray-700 rounded-md px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base hover:bg-gray-50 transition-colors w-full sm:w-auto"
-        >
-          <Tag className="w-4 h-4" />
-          <span>Manage Tags</span>
-        </Link>
+      <div className="flex flex-col w-full gap-3 mb-4 sm:flex-row sm:w-auto sm:items-center">
         <Link
           href="/dashboard/buyer/new"
-          className="inline-flex items-center gap-2 bg-white border border-gray-300 text-gray-700 rounded-md px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base hover:bg-gray-50 transition-colors w-full sm:w-auto"
+          className="inline-flex items-center gap-2 bg-green-500 text-white rounded-md px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base hover:bg-green-600 transition-colors w-full sm:w-auto"
         >
           <Plus className="w-4 h-4" />
           <span>Add Buyer</span>
-        </Link>
+        </Link>        
       </div>
       
       {/* Mobile card layout */}
