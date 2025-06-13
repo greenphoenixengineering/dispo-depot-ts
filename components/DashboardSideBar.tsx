@@ -39,7 +39,7 @@ const DashboardSideBar = ({ open = false, onClose }: DashboardSideBarProps) => {
         </Link>
       </div>
 
-      <nav className="mt-6 ml-2">
+      <nav className="mt-6">
         {/* MAIN */}
         {/* <div className="px-4 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider whitespace-nowrap">
           Main
@@ -55,7 +55,7 @@ const DashboardSideBar = ({ open = false, onClose }: DashboardSideBarProps) => {
             key={href}
             href={href}
             onClick={onClose}
-            className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-green-500"
+            className="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-green-500"
           >
             <Icon className="w-6 h-6 flex-shrink-0" />
             <span className="ml-2 whitespace-nowrap">
@@ -70,7 +70,7 @@ const DashboardSideBar = ({ open = false, onClose }: DashboardSideBarProps) => {
         </div> */}
         <button
           onClick={handleSignOut}
-          className="w-full flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-red-500"
+          className="w-full flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-red-500"
         >
           <LogOut className="w-6 h-6 flex-shrink-0" />
           <span className="ml-2 whitespace-nowrap">
