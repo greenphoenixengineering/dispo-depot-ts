@@ -160,7 +160,7 @@ export default function TagWithBuyerTable({
           <span className="text-xs sm:text-base">Back to Dashboard</span>
         </Link>
 
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-8">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold">Manage Tags</h1>
             <p className="text-sm sm:text-base text-gray-600">
