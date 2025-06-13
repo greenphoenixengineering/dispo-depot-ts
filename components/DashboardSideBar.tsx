@@ -49,7 +49,7 @@ const DashboardSideBar = () => {
           Account
         </div>
         <Link
-          href="/logout"
+          href="/"
           onClick={handleSignOut}
           className="flex items-center gap-2 px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-red-500"
         >
