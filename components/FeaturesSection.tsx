@@ -13,9 +13,9 @@ export function FeaturesSection() {
             description="Organize and categorize your content with our powerful tagging system for efficient management and retrieval."
           />
           <FeatureCard
-            icon={<MessageSquare className="w-6 h-6" />}
-            title="Email & SMS Integrations"
-            description="Seamlessly connect with your customers through integrated email and SMS messaging capabilities."
+            icon={<Cpu className="w-6 h-6" />}
+            title="AI Estimator"
+            description="Estimate jobs per room given dimensions and materials."
           />
           <FeatureCard
             icon={<Cpu className="w-6 h-6" />}
