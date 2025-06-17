@@ -54,6 +54,7 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
   const [saveMessage, setSaveMessage] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   useEffect(() => {
     if (buyer) {
@@ -123,6 +124,7 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
     e.preventDefault();
     setIsSaving(true);
     setSaveMessage("");
+    setHasSubmitted(false);
 
     const tagsPayload = selectedTags.map((tag) => ({
       id: tag.id,
@@ -149,6 +151,7 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
     }
 
     setIsSaving(false);
+    setHasSubmitted(true);
     setTimeout(() => setSaveMessage(""), 3000);
   };
 
@@ -170,10 +173,10 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
           className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 mb-4"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to Dashboard</span>
+          <span className="text-xs sm:text-base">Back to Dashboard</span>
         </Link>
-        <h1 className="text-2xl font-bold mb-2">Edit Buyer</h1>
-        <p className="text-gray-600">
+        <h1 className="text-xl sm:text-2xl font-bold mb-2">Edit Buyer</h1>
+        <p className="text-sm sm:text-base text-gray-600">
           Update buyer information and manage tags
         </p>
       </div>
@@ -184,7 +187,7 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
             <div>
               <label
                 htmlFor="first_name"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-xs sm:text-sm font-medium text-gray-700 mb-1"
               >
                 First Name *
               </label>
@@ -203,7 +206,7 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
             <div>
               <label
                 htmlFor="last_name"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-xs sm:text-sm font-medium text-gray-700 mb-1"
               >
                 Last Name *
               </label>
@@ -223,7 +226,7 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
               <div className="flex items-center gap-1">
                 <label
                   htmlFor="email"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-xs sm:text-sm font-medium text-gray-700 mb-1"
                 >
                   Email Address *
                 </label>
@@ -253,7 +256,7 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
             <div>
               <label
                 htmlFor="phone"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-xs sm:text-sm font-medium text-gray-700 mb-1"
               >
                 Phone Number *
               </label>
@@ -272,7 +275,7 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
 
           {/* --- Tags Section --- */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
               Tags
             </label>
             <div
@@ -284,7 +287,7 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
               {selectedTags.map((tag) => (
                 <span
                   key={tag.id}
-                  className="flex items-center gap-1 bg-green-100 text-green-800 text-sm font-medium px-2.5 py-0.5 rounded-full whitespace-nowrap"
+                  className="flex items-center gap-1 bg-green-100 text-green-800 text-xs sm:text-sm font-medium px-2.5 py-0.5 rounded-full whitespace-nowrap"
                 >
                   {tag.name}
                   <button
@@ -315,7 +318,7 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
                   placeholder={
                     selectedTags.length === 0 ? "Add tags..." : "Add more..."
                   }
-                  className="w-full px-1 py-0.5 outline-none bg-transparent text-sm"
+                  className="w-full px-1 py-0.5 outline-none bg-transparent text-xs sm:text-sm"
                 />
                 {/* Dropdown Panel */}
                 {isTagDropdownOpen && filteredTagsForDropdown.length > 0 && (
@@ -328,7 +331,7 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
                             e.stopPropagation();
                             handleAddTag(option);
                           }}
-                          className="px-3 py-2 cursor-pointer hover:bg-green-50 text-sm"
+                          className="px-3 py-2 cursor-pointer hover:bg-green-50 text-xs sm:text-sm"
                         >
                           {option.name}
                         </li>
@@ -340,7 +343,7 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
                   tagSearchTerm &&
                   filteredTagsForDropdown.length === 0 && (
                     <div className="absolute z-20 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg p-2">
-                      <p className="text-sm text-gray-500">No matching tags</p>
+                      <p className="text-xs sm:text-sm text-gray-500">No matching tags</p>
                     </div>
                   )}
               </div>
@@ -349,13 +352,9 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
           {/* --- End Tags Section --- */}
 
           {/* Save Message */}
-          {saveMessage && (
+          {hasSubmitted && saveMessage && (
             <div
-              className={`mb-4 p-2 rounded-md ${
-                !buyerUpdatedSuccessfuly
-                  ? "bg-red-100 text-red-800"
-                  : "bg-green-100 text-green-800"
-              }`}
+              className={`mb-4 p-2 rounded-md text-xs sm:text-sm bg-green-100 text-green-800`}
             >
               {saveMessage}
             </div>
@@ -367,7 +366,7 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
             <button
               type="button"
               onClick={() => setShowDeleteModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 border border-red-300 text-red-700 rounded-md hover:bg-red-50 transition-colors"
+              className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 border border-red-300 text-red-700 rounded-md hover:bg-red-50 transition-colors text-xs sm:text-sm"
             >
               <Trash className="w-4 h-4" />
               <span>Delete Buyer</span>
@@ -376,14 +375,14 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
             <div className="flex gap-3">
               <Link
                 href="/dashboard"
-                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                className="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors text-xs sm:text-sm"
               >
                 Cancel
               </Link>
               <button
                 type="submit"
                 disabled={isSaving}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors disabled:opacity-50"
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors disabled:opacity-50 text-xs sm:text-sm"
               >
                 {isSaving ? (
                   <>

@@ -42,37 +42,7 @@ export default function BuyersTable({
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-2">Dashboard</h1>
-        <p className="text-gray-600">
-          Manage your buyers and send targeted deals
-        </p>
-      </div>
-
-      {/* Action buttons */}
-      <div className="flex flex-wrap gap-3 mb-6">
-        <Link
-          href="/dashboard/deals"
-          className="inline-flex items-center gap-2 bg-green-500 text-white rounded-md px-4 py-2 hover:bg-green-600 transition-colors"
-        >
-          <Mail className="w-4 h-4" />
-          <span>Send Deals to Tags</span>
-        </Link>
-        <Link
-          href="/dashboard/tags"
-          className="inline-flex items-center gap-2 bg-white border border-gray-300 text-gray-700 rounded-md px-4 py-2 hover:bg-gray-50 transition-colors"
-        >
-          <Tag className="w-4 h-4" />
-          <span>Manage Tags</span>
-        </Link>
-        <Link
-          href="/dashboard/buyer/new"
-          className="inline-flex items-center gap-2 bg-white border border-gray-300 text-gray-700 rounded-md px-4 py-2 hover:bg-gray-50 transition-colors ml-auto"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add Buyer</span>
-        </Link>
-      </div>
+      
 
       {/* Search and filter */}
       <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
