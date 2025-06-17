@@ -9,7 +9,7 @@ import { SubmitButton } from "./SubmitButton";
 import { Tag } from "@/libs/tagTypes";
 import MultiSelectTagsDropDown from "./MultiSelectTagsDropDown";
 
-export default function SendDealForm({ tags }: { tags: Tag[] }) {
+export default function SendDealForm({ tags,email_authorized }: { tags: Tag[],email_authorized:boolean }) {
   const initialState: SendDealsState = {
     message: null,
     errors: {},
@@ -19,6 +19,8 @@ export default function SendDealForm({ tags }: { tags: Tag[] }) {
   const [messageVisible, setMessageVisible] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
+
+  console.log("my email authozied",email_authorized)
   const [selectedTagObjects, setSelectedTagObjects] = useState<any[]>([]);
 
   useEffect(() => {
@@ -127,7 +129,7 @@ export default function SendDealForm({ tags }: { tags: Tag[] }) {
         </div>
 
         <div className="flex justify-end">
-          <SubmitButton />
+          <SubmitButton email_authorized={email_authorized} />
         </div>
       </form>
     </div>

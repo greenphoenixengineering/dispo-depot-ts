@@ -1,14 +1,21 @@
-import { getWholesalerTags } from "@/app/actions/action";
+import { getCurrentWholesaler, getWholesalerTags } from "@/app/actions/action";
+import EmailAuthorizedBanner from "@/components/EmailAuthorizedBanner";
 import SendDealForm from "@/components/SendDealForm";
-import { ArrowLeft } from "lucide-react";
+import { AlertTriangle, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
 const page = async () => {
   const tags = await getWholesalerTags();
+  const currentWholesaler = await getCurrentWholesaler();
+
+  console.log("current wholesaler", currentWholesaler);
+
   return (
     <>
       <div className="mb-6">
+        {/* Authorization Banner */}
+        {!currentWholesaler?.email_authorized && <EmailAuthorizedBanner />}
         <Link
           href="/dashboard"
           className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 mb-4"
@@ -21,7 +28,7 @@ const page = async () => {
           Create and send targeted deals to specific buyer segments
         </p>
       </div>
-      <SendDealForm tags={tags} />
+      <SendDealForm tags={tags} email_authorized={currentWholesaler?.email_authorized} />
     </>
   );
 };
