@@ -442,7 +442,7 @@ export async function sendDealsAction(
       {
         subject: subject,
         from_name: `${currentWholesaler.first_name} ${currentWholesaler.last_name}`,
-        from:`user123@dispodepot.com`,
+        from: `user123@dispodepot.com`,
         reply_to: "support@mydispodepot.io",
         content: messageContent,
       },
@@ -555,4 +555,71 @@ export async function mailerLiteFetch(
 
   // Optionally, handle errors or non-2xx responses here
   return response;
+}
+
+// action to create an alias for a user
+
+// A robust function to create an alias in ImprovMX
+export async function createUserAlias(payload:any) {
+  const { alias, forward } = payload; // Destructure to ensure we have the needed parts
+
+  // Basic validation to prevent sending bad requests
+  if (!alias || !forward) {
+    throw new Error("Both 'alias' and 'forward' are required to create a user alias.");
+  }
+  
+  const IMRPOVMX_BASE_URL = "https://api.improvmx.com/v3/domains/mydispodepot.io/aliases";
+  const apiKey = process.env.IMPROVMX_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("IMPROVMX_API_KEY is not set in environment variables.");
+  }
+
+  // Correctly create and encode credentials for Basic Auth
+  const credentials = `api:${apiKey}`;
+  const encodedCredentials = Buffer.from(credentials).toString('base64');
+  
+  try {
+    const res = await fetch(IMRPOVMX_BASE_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": `Basic ${encodedCredentials}`,
+      },
+      // Here we stringify the payload object that was passed in.
+      // This will correctly create the body: {"alias": "badr", "forward": "..."}
+      body: JSON.stringify(payload) 
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error("ImprovMX API Error:", data);
+      throw new Error(`API request failed with status ${res.status}`);
+    }
+
+    return data;
+
+  } catch (error) {
+    console.error("Failed inside createUserAlias:", error);
+    throw error;
+  }
+}
+
+
+
+export async function updateUserAliasOnSupa(payload:any) {
+  const { error } = await supabase
+      .from("wholesaler")
+      .update({ alias: payload.alias })
+      .eq("user_id", payload.userId)
+      .select();
+
+      if(error){
+        return {success:false}
+      }else{
+                return {success:true}
+
+      }
 }
