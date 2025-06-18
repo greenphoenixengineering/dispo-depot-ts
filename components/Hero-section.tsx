@@ -5,7 +5,7 @@ import heroDashboard from "@/public/dashboard.png"
 
 export function HeroSection() {
   return (
-    <section className="relative py-12 md:py-32 overflow-hidden">
+    <section className="relative py-32 md:py-64 overflow-hidden">
       {/* Full-width background image */}
       <div className="absolute inset-0 w-full h-full z-0">
         <Image
@@ -36,13 +36,13 @@ export function HeroSection() {
               Try Now For Free <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
-          <div className="hidden md:flex justify-center md:justify-end mt-8 md:mt-0">
+          <div className="hidden md:flex items-center justify-center">
             <div className="shadow-xl rounded-lg overflow-hidden max-w-full">
               <Image
                 src={heroDashboard}
                 alt="Dispo Depot Dashboard"
-                width={600}
-                height={400}
+                width={300}
+                height={300}
                 className="w-full h-auto"
               />
             </div>

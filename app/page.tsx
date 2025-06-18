@@ -16,7 +16,7 @@ const page = () => {
     <HeroSection/>
     <FeaturesSection/>
 
-    {/* Pricing Section from former Pricing page */}
+    {/* Pricing  */}
     <section className="py-12 md:py-24">
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16">
@@ -153,12 +153,12 @@ const page = () => {
             We offer custom solutions for large wholesalers with specific needs. Contact our sales team to discuss
             your requirements.
           </p>
-          <Link
-            href="/contact"
+          <a
+            href="mailto:support@greenphoenixengineering.com"
             className="inline-flex items-center px-5 py-2 md:px-6 md:py-3 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
           >
             Contact Sales
-          </Link>
+          </a>
         </div>
       </div>
     </section>
