@@ -31,7 +31,7 @@ const ButtonSignin = ({
     return (
       <Link
         href={config.auth.callbackUrl}
-        className={`btn ${extraStyle ? extraStyle : ""} flex items-center justify-center gap-2 px-3 py-1 md:px-4 md:py-2 text-sm md:text-base leading-none`}
+        className={`btn flex items-center justify-center gap-2 px-3 py-1 md:px-4 md:py-2 text-sm md:text-base leading-none ${extraStyle ? extraStyle : ""}`}
         style={{ height: 'auto' }}
       >
         {session.user?.image ? (
