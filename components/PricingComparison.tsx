@@ -2,7 +2,7 @@ import { Check, X } from "lucide-react"
 
 export function PricingComparison() {
   return (
-    <div className="mt-12 md:mt-16">
+    <div className="py-12 md:py-24 bg-gray-100">
       <h2 className="text-xl md:text-2xl font-bold mb-6 md:mb-8 text-center">Feature Comparison</h2>
       <div className="flex justify-center">
         <div className="w-full lg:w-1/2 overflow-x-auto">

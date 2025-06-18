@@ -1,6 +1,6 @@
 export function PricingFAQ() {
     return (
-      <div className="mt-12 py-12 md:mt-16 relative overflow-hidden rounded-xl">
+      <div className="py-12 md:py-24 relative overflow-hidden rounded-xl">
         {/* Background image with overlay */}
         <div className="absolute inset-0 w-full h-full z-0">
           <img
