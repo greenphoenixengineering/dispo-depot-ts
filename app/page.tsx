@@ -7,6 +7,7 @@ import { PricingFAQ } from '@/components/PricingFaq'
 import Link from "next/link"
 import { Check } from "lucide-react"
 import React from 'react'
+import ButtonSignin from '@/components/ButtonSignin'
 
 const page = () => {
   return (
@@ -51,12 +52,13 @@ const page = () => {
                 <span>Email support</span>
               </li>
             </ul>
-            <Link
+            {/* <Link
               href="/signup"
               className="block w-full py-2 text-center border border-black rounded-md hover:bg-gray-50 transition-colors"
             >
               Get Started
-            </Link>
+            </Link> */}
+            <ButtonSignin extraStyle="block w-full py-2 text-center border border-black rounded-md hover:bg-gray-50 transition-colors" text="Get Started" />
           </div>
 
           {/* Standard Plan */}
@@ -92,7 +94,7 @@ const page = () => {
               </li>
             </ul>
             <Link
-              href="/signup"
+              href="https://buy.stripe.com/cNibJ1daFb06b7r11ybZe02"
               className="block w-full py-2 text-center bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
             >
               Get Started
@@ -133,7 +135,7 @@ const page = () => {
               </li>
             </ul>
             <Link
-              href="/signup"
+              href="https://buy.stripe.com/28EcN5eeJeci8Zj11ybZe03"
               className="block w-full py-2 text-center border border-black rounded-md hover:bg-gray-50 transition-colors"
             >
               Get Started

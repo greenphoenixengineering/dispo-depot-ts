@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
+import ButtonSignin from "./ButtonSignin"
 
 export function CTASection() {
   return (
@@ -14,12 +15,13 @@ export function CTASection() {
             </p>
           </div>
           <div className="flex justify-center md:justify-end">
-            <Link
+            {/* <Link
               href="/pricing"
               className="inline-flex items-center gap-2 bg-green-500 text-white rounded-full px-5 py-2 md:px-6 md:py-3 hover:bg-green-600 transition-colors"
             >
               Try Now For Free <ArrowRight className="w-4 h-4" />
-            </Link>
+            </Link> */}
+            <ButtonSignin extraStyle="inline-flex items-center gap-2 bg-green-500 text-white rounded-full px-5 py-2 md:px-6 md:py-3 hover:bg-green-600 transition-colors" text="Try Now For Free" />
           </div>
         </div>
       </div>
