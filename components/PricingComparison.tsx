@@ -2,7 +2,7 @@ import { Check, X } from "lucide-react"
 
 export function PricingComparison() {
   return (
-    <div className="mt-12 md:mt-16">
+    <div className="mt-12 md:mt-16 py-12 md:py-16">
       <h2 className="text-xl md:text-2xl font-bold mb-6 md:mb-8 text-center">Feature Comparison</h2>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border border-gray-200 rounded-lg overflow-hidden">

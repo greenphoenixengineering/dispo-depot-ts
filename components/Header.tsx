@@ -56,9 +56,6 @@ export function Header() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-4 ml-auto">
-          <Link href="/pricing" className="text-gray-700 hover:text-gray-900 font-medium">
-            Pricing
-          </Link>
           <ButtonSignin extraStyle="bg-green-500 text-white px-4 py-2 rounded-full font-medium hover:bg-green-600 transition-colors" text="sign up" />
         </div>
 
@@ -91,13 +88,6 @@ export function Header() {
             </svg>
           </button>
           <div className="flex flex-col items-center justify-center h-full gap-8">
-            <Link 
-              href="/pricing" 
-              className="text-gray-700 hover:text-gray-900 font-medium text-xl"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Pricing
-            </Link>
             <ButtonSignin 
               extraStyle="bg-green-500 text-white px-6 py-3 rounded-full font-medium hover:bg-green-600 transition-colors text-lg" 
               text="sign up"
