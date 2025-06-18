@@ -10,7 +10,7 @@ export function FeaturesSection() {
           <FeatureCard
             icon={<Tag className="w-6 h-6" />}
             title="Advanced Tagging System"
-            description="Send deals to multiple buyers at once via Tags. No more long email chains or pricy email platforms."
+            description="Send deals to multiple buyers at once via Tags. No more long email chains or pricey email platforms."
           />
           <FeatureCard
             icon={<Cpu className="w-6 h-6" />}
