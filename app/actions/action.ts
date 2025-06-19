@@ -606,7 +606,7 @@ export async function createUserAlias(payload: any) {
   }
 }
 
-export async function updateUserAliasOnSupa(payload: any) {
+export async function updateUserAliasOnSupa(payload: {alias:string,userId:string}) {
   const { error } = await supabase
     .from("wholesaler")
     .update({ alias: payload.alias })
@@ -620,7 +620,7 @@ export async function updateUserAliasOnSupa(payload: any) {
   }
 }
 
-export async function notifyAdminNewAliasCreated(payload: any) {
+export async function notifyAdminNewAliasCreated(payload: {userName:string,userAlias:string}) {
   const { userName, userAlias } = payload;
   const mailerLitePayload = {
     name: "New User Alias Notification",
