@@ -559,9 +559,8 @@ export async function mailerLiteFetch(
 
 // action to create an alias for a user
 
-// A robust function to create an alias in ImprovMX
 export async function createUserAlias(payload: any) {
-  const { alias, forward } = payload; // Destructure to ensure we have the needed parts
+  const { alias, forward } = payload; 
 
   // Basic validation to prevent sending bad requests
   if (!alias || !forward) {
@@ -578,7 +577,6 @@ export async function createUserAlias(payload: any) {
     throw new Error("IMPROVMX_API_KEY is not set in environment variables.");
   }
 
-  // Correctly create and encode credentials for Basic Auth
   const credentials = `api:${apiKey}`;
   const encodedCredentials = Buffer.from(credentials).toString("base64");
 
@@ -590,8 +588,7 @@ export async function createUserAlias(payload: any) {
         Accept: "application/json",
         Authorization: `Basic ${encodedCredentials}`,
       },
-      // Here we stringify the payload object that was passed in.
-      // This will correctly create the body: {"alias": "badr", "forward": "..."}
+    
       body: JSON.stringify(payload),
     });
 
