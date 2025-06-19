@@ -632,7 +632,7 @@ export async function notifyAdminNewAliasCreated(payload: any) {
       {
         subject: "New User Alias Created",
         from_name: `${userName}`,
-        from: `user123@dispodepot.com`,
+        from: `mike@greenphoenixengineering.com`,
         content: `
         <p>Hello Admin,</p>
         <p>A new user alias has been created:</p>
@@ -643,12 +643,19 @@ export async function notifyAdminNewAliasCreated(payload: any) {
     ],
   };
 
-  const notifyAdminWithAliasResponse = await mailerLiteFetch(
-    "/campaigns",
-    "POST",
-    mailerLitePayload
-  );
-  const notifyAdminWithAliasResult = await notifyAdminWithAliasResponse.json();
 
-  console.log("notify admin with alias", notifyAdminWithAliasResult);
+  try{
+    const notifyAdminWithAliasResponse = await mailerLiteFetch(
+      "/campaigns",
+      "POST",
+      mailerLitePayload
+    );
+    const notifyAdminWithAliasResult = await notifyAdminWithAliasResponse.json();
+    if(notifyAdminWithAliasResult.data.id){
+      return  {success:true}
+    }
+  }catch(e){
+    return {success:false,error:e}
+  }
+   
 }

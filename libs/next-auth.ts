@@ -4,7 +4,11 @@ import GoogleProvider from "next-auth/providers/google";
 import config from "@/config";
 
 import { SupabaseAdapter } from "@auth/supabase-adapter";
-import { createUserAlias, notifyAdminNewAliasCreated, updateUserAliasOnSupa } from "@/app/actions/action";
+import {
+  createUserAlias,
+  notifyAdminNewAliasCreated,
+  updateUserAliasOnSupa,
+} from "@/app/actions/action";
 
 interface NextAuthOptionsExtended extends NextAuthOptions {
   adapter: any;
@@ -49,9 +53,20 @@ export const authOptions: NextAuthOptionsExtended = {
             userId: user.id,
           });
 
-          // Improvement: Check if the update was actually successful
+          // I Check if the update was actually successful
           if (updateData.success) {
-            await notifyAdminNewAliasCreated()
+            // notify the admin with the new user alias
+            const sendEmailResult = await notifyAdminNewAliasCreated({
+              userName: user.first_name + user.last_name,
+              userAlias: data.alias.alias,
+            });
+            if (sendEmailResult.success) {
+              console.log("email sent to admin successfully");
+            } else {
+              console.log(
+                "there was an error notifying the admin about the new user alias"
+              );
+            }
             console.log("✅ Successfully stored alias in Supabase:");
           } else {
             console.error(
