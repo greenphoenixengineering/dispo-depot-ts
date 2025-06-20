@@ -442,7 +442,7 @@ export async function sendDealsAction(
       {
         subject: subject,
         from_name: `${currentWholesaler.first_name} ${currentWholesaler.last_name}`,
-        from: `user123@dispodepot.com`,
+        from: `messenger@mydispodepot.io`,
         reply_to: "support@mydispodepot.io",
         content: messageContent,
       },
@@ -671,17 +671,17 @@ export async function notifyAdminNewAliasCreated(payload: {
 
       const scheduleCampaingResult = await sheduleCampaingResponse.json();
 
-
-      if(scheduleCampaingResult.data.id){
+      if (scheduleCampaingResult.data.id) {
         return { success: true };
-   
-      }else{
-        
-        return { success: false,error:"Campaign created, but there was an error scheduling it." };
+      } else {
+        return {
+          success: false,
+          error: "Campaign created, but there was an error scheduling it.",
+        };
       }
     }
 
-    return {success:false}
+    return { success: false };
   } catch (e) {
     return { success: false, error: e };
   }
