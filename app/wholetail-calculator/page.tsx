@@ -23,6 +23,8 @@ export default function WholetailCalculator() {
   const [secondPointsPct, setSecondPointsPct] = useState(0.02);
   const [secondInterestPct, setSecondInterestPct] = useState(0.12);
 
+  const [adjustmentPct, setAdjustmentPct] = useState(0.1);
+
   const closingFees = asIsValue * closingFeePct;
   const cleanUpCost = asIsValue * cleanUpPct;
   const listAgentFee = asIsValue * listAgentPct;
@@ -65,7 +67,6 @@ export default function WholetailCalculator() {
   const compsSoldSqft = [267, 304, 235, 227];
   const compsListSqft = [147, 154, 132, 130];
   const avgListPrice = compsListPrices.reduce((a, b) => a + b) / compsListPrices.length;
-  const adjustmentPct = 0.1;
   const adjustedAsIsValue = avgListPrice * (1 - adjustmentPct);
 
   const arv = 195000;
@@ -138,13 +139,13 @@ export default function WholetailCalculator() {
     return Math.max(0, Math.round(diffTime / (1000 * 60 * 60 * 24)));
   }
 
-  return (
-    <div className="w-full sm:max-w-3xl sm:mx-auto p-2 sm:p-6">
-      <h1 className="p-2 sm:p-6 text-2xl font-bold mb-4">Wholetail Offer Calculator</h1>
-      <div className="p-2 sm:p-6 space-y-4">        
+  const [arvMarketPrior, setArvMarketPrior] = useState(0);
+  const [arvMarketCurrent, setArvMarketCurrent] = useState(0);
 
-        {/* Inputs */}
-        <div>
+  return (
+    <div className="p-4 sm:p-6 w-full sm:max-w-xl sm:mx-auto">
+      <div className="text-lg sm:text-2xl font-bold mb-4 text-center">Wholetail Offer Calculator</div>
+      <div className='mb-4'>
           <label className="block font-medium">Adjusted As-Is Value ($)</label>
           <input
             type="number"
@@ -162,59 +163,88 @@ export default function WholetailCalculator() {
             className="border rounded p-2 w-full"
           />
         </div>
+        
+        <div className="font-bold text-blue-700 mt-4 mb-2 text-center">Buy Formula</div>      
 
-        <hr />
-
-        <div className="p-2 sm:p-6 mb-8">
-          <div className="font-bold text-blue-700 mb-2">Buy Formula</div>
-          <div className="flex justify-between items-center mb-2">
-            <span className="font-bold">Adjusted As-Is Value</span>
-            <span className="bg-green-500 text-white font-bold px-4 py-1 rounded text-lg">${asIsValue.toLocaleString()}</span>
-          </div>
-
-          {/* Table header */}
-          <div className="grid grid-cols-[2fr_110px_120px] gap-x-2 gap-y-0 mb-2 items-center border-b font-semibold text-gray-700">
-            <span className="pl-6 min-w-[200px] w-2/5 py-2">Item</span>
-            <span className="text-center w-24 py-2">Percentage</span>
-            <span className="text-right w-28 py-2">Amount</span>
-          </div>
-
-          {/* Table body */}
-          <div className="grid grid-cols-[2fr_110px_120px] gap-x-2 gap-y-0 mb-2 items-center">
-            <span className="pl-6 min-w-[200px] w-2/5 text-gray-700 py-2">Closing Fees (buy/sell)</span>
-            <input type="number" step="0.01" min="0" max="100" value={(closingFeePct*100).toFixed(2)} onChange={e => setClosingFeePct(Number(e.target.value)/100)} className="border rounded px-2 py-1 w-24 text-right" />
-            <span className="text-right w-28 py-2">${closingFees.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
-
-            <span className="pl-6 min-w-[200px] w-2/5 text-gray-700 py-2">Trash/Clean/Insurance</span>
-            <input type="number" step="0.01" min="0" max="100" value={(cleanUpPct*100).toFixed(2)} onChange={e => setCleanUpPct(Number(e.target.value)/100)} className="border rounded px-2 py-1 w-24 text-right" />
-            <span className="text-right w-28 py-2">${cleanUpCost.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
-
-            <span className="pl-6 min-w-[200px] w-2/5 text-gray-700 py-2">List Agent</span>
-            <input type="number" step="0.01" min="0" max="100" value={(listAgentPct*100).toFixed(2)} onChange={e => setListAgentPct(Number(e.target.value)/100)} className="border rounded px-2 py-1 w-24 text-right" />
-            <span className="text-right w-28 py-2">${listAgentFee.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
-
-            <span className="pl-6 min-w-[200px] w-2/5 text-gray-700 py-2">Buyer Agent</span>
-            <input type="number" step="0.01" min="0" max="100" value={(buyerAgentPct*100).toFixed(2)} onChange={e => setBuyerAgentPct(Number(e.target.value)/100)} className="border rounded px-2 py-1 w-24 text-right" />
-            <span className="text-right w-28 py-2">${buyerAgentFee.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
-
-            <span className="pl-6 min-w-[200px] w-2/5 text-gray-700 py-2">Funding</span>
-            <input type="number" step="0.01" min="0" max="100" value={(fundingPct*100).toFixed(2)} onChange={e => setFundingPct(Number(e.target.value)/100)} className="border rounded px-2 py-1 w-24 text-right" />
-            <span className="text-right w-28 py-2">${fundingCost.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
-
-            <span className="pl-6 min-w-[200px] w-2/5 text-gray-700 py-2">Wholesale Fee</span>
-            <span></span>
-            <span className="text-right w-28 py-2">${wholesaleFee.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
-
-            <span className="pl-6 min-w-[200px] w-2/5 text-gray-700 py-2">Profit</span>
-            <input type="number" step="0.01" min="0" max="100" value={(profitPct*100).toFixed(2)} onChange={e => setProfitPct(Number(e.target.value)/100)} className="border rounded px-2 py-1 w-24 text-right" />
-            <span className="text-right w-28 py-2">${profit.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
-          </div>
-
-          <div className="flex justify-between items-center mt-6 border-t pt-4">
-            <span className="font-bold">Max Allowable Offer (MAO)</span>
-            <span className="font-bold text-lg bg-green-300 text-green-900 px-4 py-1 rounded">
-              ${maxOffer.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
-            </span>
+        <table className="w-full table-fixed">
+          <thead>
+            <tr className="border-b">
+              <th className="w-[44%] text-left py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Item</th>
+              <th className="w-[18%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">%</th>
+              <th className="w-[38%] text-right py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="border-b">
+              <td className="py-1 px-0.5 text-[10px] sm:text-sm">Closing Fees (buy/sell)</td>
+              <td className="text-center py-1 px-0.5">
+                <input type="number" step="0.01" min="0" max="100" 
+                  value={(closingFeePct*100).toFixed(2)} 
+                  onChange={e => setClosingFeePct(Number(e.target.value)/100)} 
+                  className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
+              </td>
+              <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">
+                  ${closingFees.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+              </td>
+            </tr>
+            <tr className="border-b">
+              <td className="py-1 px-0.5 text-[10px] sm:text-sm">Trash/Clean/Insurance</td>
+              <td className="text-center py-1 px-0.5">
+                <input type="number" step="0.01" min="0" max="100" value={(cleanUpPct*100).toFixed(2)} onChange={e => setCleanUpPct(Number(e.target.value)/100)} className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
+              </td>
+              <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">
+                ${cleanUpCost.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+              </td>
+            </tr>
+            <tr className="border-b">
+              <td className="py-1 px-0.5 text-[10px] sm:text-sm">List Agent</td>
+              <td className="text-center py-1 px-0.5">
+                <input type="number" step="0.01" min="0" max="100" value={(listAgentPct*100).toFixed(2)} onChange={e => setListAgentPct(Number(e.target.value)/100)} className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
+              </td>
+              <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">
+                ${listAgentFee.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+              </td>
+            </tr>
+            <tr className="border-b">
+              <td className="py-1 px-0.5 text-[10px] sm:text-sm">Buyer Agent</td>
+              <td className="text-center py-1 px-0.5">
+                <input type="number" step="0.01" min="0" max="100" value={(buyerAgentPct*100).toFixed(2)} onChange={e => setBuyerAgentPct(Number(e.target.value)/100)} className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
+              </td>
+              <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">
+                ${buyerAgentFee.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+              </td>
+            </tr>
+            <tr className="border-b">
+              <td className="py-1 px-0.5 text-[10px] sm:text-sm">Funding</td>
+              <td className="text-center py-1 px-0.5">
+                <input type="number" step="0.01" min="0" max="100" value={(fundingPct*100).toFixed(2)} onChange={e => setFundingPct(Number(e.target.value)/100)} className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
+              </td>
+              <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">
+                ${fundingCost.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+              </td>
+            </tr>
+            <tr className="border-b">
+              <td className="py-1 px-0.5 text-[10px] sm:text-sm">Wholesale Fee</td>
+              <td></td>
+              <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">
+                ${wholesaleFee.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+              </td>
+            </tr>
+            <tr className="border-b">
+              <td className="py-1 px-0.5 text-[10px] sm:text-sm">Profit</td>
+              <td className="text-center py-1 px-0.5">
+                <input type="number" step="0.01" min="0" max="100" value={(profitPct*100).toFixed(2)} onChange={e => setProfitPct(Number(e.target.value)/100)} className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
+              </td>
+              <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">
+                ${profit.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+              </td>
+            </tr>
+          </tbody>          
+        </table>
+        <div className="flex justify-between items-center mt-6">
+          <div className="font-bold text-[14px] sm:text-base">Max Allowable Offer (MAO)</div>
+          <div className="font-bold bg-green-300 text-green-900 px-1.5 py-0.5 rounded text-[10px] sm:text-lg">
+            ${maxOffer.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
           </div>
         </div>
 
@@ -222,95 +252,124 @@ export default function WholetailCalculator() {
 
         {/* FUNDING SECTION */}
         <div className="p-2 sm:p-6 mb-8">
-          <div className="font-bold text-blue-700 mb-2 text-lg">Funding</div>
-
+          <div className="font-bold text-blue-700 my-2 text-center">Funding</div>
           {/* 1st Position */}
           <div className="font-bold text-blue-700 mb-1 ml-2">1st Position</div>
-          {/* Table header */}
-          <div className="grid grid-cols-[2fr_80px_110px_120px] gap-x-2 gap-y-0 mb-2 items-center border-b font-semibold text-gray-700">
-            <span className="pl-6 min-w-[200px] w-2/5 py-2">Item</span>
-            <span className="text-center w-20 py-2">Months</span>
-            <span className="text-center w-24 py-2">Percentage</span>
-            <span className="text-right w-28 py-2">Amount</span>
-          </div>
-          {/* Table body */}
-          <div className="grid grid-cols-[2fr_80px_110px_120px] gap-x-2 gap-y-0 mb-2 items-center">
-            <span className="pl-6 min-w-[200px] w-2/5 text-gray-700 py-2">Total Capital</span>
-            <span></span>
-            <span></span>
-            <span className="text-right w-28 py-2">${totalCapital.toLocaleString()}</span>
-
-            <span className="pl-6 min-w-[200px] w-2/5 text-gray-700 py-2">Loan-to-Capital</span>
-            <span></span>
-            <input type="number" step="0.01" min="0" max="100" value={(firstLoanPct*100).toFixed(2)} onChange={e => setFirstLoanPct(Number(e.target.value)/100)} className="border rounded px-2 py-1 w-24 text-right" />
-            <span className="text-right w-28 py-2">${firstLoan.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
-
-            <span className="pl-6 min-w-[200px] w-2/5 text-gray-700 py-2">Points</span>
-            <span></span>
-            <input type="number" step="0.01" min="0" max="100" value={(firstPointsPct*100).toFixed(2)} onChange={e => setFirstPointsPct(Number(e.target.value)/100)} className="border rounded px-2 py-1 w-24 text-right" />
-            <span className="text-right w-28 py-2">${firstPoints.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
-
-            <span className="pl-6 min-w-[200px] w-2/5 text-gray-700 py-2">Interest</span>
-            <input type="number" step="1" min="0" value={months} onChange={e => setMonths(Number(e.target.value))} className="border rounded px-2 py-1 w-20 text-center" />
-            <input type="number" step="0.01" min="0" max="100" value={(firstInterestPct*100).toFixed(2)} onChange={e => setFirstInterestPct(Number(e.target.value)/100)} className="border rounded px-2 py-1 w-24 text-right" />
-            <span className="text-right w-28 py-2">${firstInterest.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
-
-            <span className="pl-6 min-w-[200px] w-2/5 text-gray-700 py-2">Misc. Fee</span>
-            <span></span>
-            <span></span>
-            <span className="text-right w-28 py-2">${firstMiscFee.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
-
-            <span className="font-bold pl-6 min-w-[200px] w-2/5 py-2">Total Cost 1st Position</span>
-            <span></span>
-            <span></span>
-            <span className="bg-green-300 text-green-900 font-bold px-2 py-1 rounded text-right w-28">${firstTotal.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
+          <table className="w-full table-fixed">
+            <thead>
+              <tr className="border-b">
+                <th className="w-[34%] text-left py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Expense Item</th>
+                <th className="w-[18%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">%</th>
+                <th className="w-[28%] text-right py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Amount</th>
+                <th className="w-[20%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Months</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b">
+                <td className="py-1 px-0.5 text-[10px] sm:text-sm">Total Capital</td>
+                <td></td>
+                <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">${totalCapital.toLocaleString()}</td>
+                <td></td>
+              </tr>
+              <tr className="border-b">
+                <td className="py-1 px-0.5 text-[10px] sm:text-sm">Loan-to-Capital</td>
+                <td className="text-center py-1 px-0.5">
+                  <input type="number" step="0.01" min="0" max="100" value={(firstLoanPct*100).toFixed(2)} onChange={e => setFirstLoanPct(Number(e.target.value)/100)} className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
+                </td>
+                <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">${firstLoan.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</td>
+                <td></td>
+              </tr>
+              <tr className="border-b">
+                <td className="py-1 px-0.5 text-[10px] sm:text-sm">Points</td>
+                <td className="text-center py-1 px-0.5">
+                  <input type="number" step="0.01" min="0" max="100" value={(firstPointsPct*100).toFixed(2)} onChange={e => setFirstPointsPct(Number(e.target.value)/100)} className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
+                </td>
+                <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">${firstPoints.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</td>
+                <td></td>
+              </tr>
+              <tr className="border-b">
+                <td className="py-1 px-0.5 text-[10px] sm:text-sm">Interest</td>
+                <td className="text-center py-1 px-0.5">
+                  <input type="number" step="0.01" min="0" max="100" value={(firstInterestPct*100).toFixed(2)} onChange={e => setFirstInterestPct(Number(e.target.value)/100)} className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
+                </td>
+                <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">${firstInterest.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</td>
+                <td className="text-center py-1 px-0.5">
+                  <input type="number" step="1" min="0" value={months} onChange={e => setMonths(Number(e.target.value))} className="border rounded px-0.5 py-1 w-10 sm:w-20 text-center text-[10px] sm:text-sm" />
+                </td>
+              </tr>
+              <tr className="border-b">
+                <td className="py-1 px-0.5 text-[10px] sm:text-sm">Misc. Fee</td>
+                <td></td>
+                <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">${firstMiscFee.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</td>
+                <td></td>
+              </tr>
+            </tbody>          
+          </table>
+          <div className="flex justify-between items-center mt-2">
+            <span className="font-bold text-[10px] sm:text-base">Total Cost 1st Position</span>
+            <span className="bg-green-300 text-green-900 font-bold px-1.5 py-0.5 rounded text-[10px] sm:text-base">${firstTotal.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
           </div>
 
           {/* 2nd Position */}
           <div className="font-bold text-blue-700 mb-1 ml-2 mt-4">2nd Position</div>
-          {/* Table header */}
-          <div className="grid grid-cols-[2fr_80px_110px_120px] gap-x-2 gap-y-0 mb-2 items-center border-b font-semibold text-gray-700">
-            <span className="pl-6 min-w-[200px] w-2/5 py-2">Item</span>
-            <span className="text-center w-20 py-2">Months</span>
-            <span className="text-center w-24 py-2">Percentage</span>
-            <span className="text-right w-28 py-2">Amount</span>
-          </div>
-          {/* Table body */}
-          <div className="grid grid-cols-[2fr_80px_110px_120px] gap-x-2 gap-y-0 mb-2 items-center">
-            <span className="pl-6 min-w-[200px] w-2/5 text-gray-700 py-2">Total Capital</span>
-            <span></span>
-            <span></span>
-            <span className="text-right w-28 py-2">${totalCapital.toLocaleString()}</span>
-
-            <span className="pl-6 min-w-[200px] w-2/5 text-gray-700 py-2">Loan-to-Capital</span>
-            <span></span>
-            <input type="number" step="0.01" min="0" max="100" value={(secondLoanPct*100).toFixed(2)} onChange={e => setSecondLoanPct(Number(e.target.value)/100)} className="border rounded px-2 py-1 w-24 text-right" />
-            <span className="text-right w-28 py-2">${secondLoan.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
-
-            <span className="pl-6 min-w-[200px] w-2/5 text-gray-700 py-2">Points</span>
-            <span></span>
-            <input type="number" step="0.01" min="0" max="100" value={(secondPointsPct*100).toFixed(2)} onChange={e => setSecondPointsPct(Number(e.target.value)/100)} className="border rounded px-2 py-1 w-24 text-right" />
-            <span className="text-right w-28 py-2">${secondPoints.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
-
-            <span className="pl-6 min-w-[200px] w-2/5 text-gray-700 py-2">Interest</span>
-            <input type="number" step="1" min="0" value={months} onChange={e => setMonths(Number(e.target.value))} className="border rounded px-2 py-1 w-20 text-center" />
-            <input type="number" step="0.01" min="0" max="100" value={(secondInterestPct*100).toFixed(2)} onChange={e => setSecondInterestPct(Number(e.target.value)/100)} className="border rounded px-2 py-1 w-24 text-right" />
-            <span className="text-right w-28 py-2">${secondInterest.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
-
-            <span className="pl-6 min-w-[200px] w-2/5 text-gray-700 py-2">Misc. Fee</span>
-            <span></span>
-            <span></span>
-            <span className="text-right w-28 py-2">${secondMiscFee.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
-
-            <span className="font-bold pl-6 min-w-[200px] w-2/5 py-2">Total Cost 2nd Position</span>
-            <span></span>
-            <span></span>
-            <span className="bg-green-300 text-green-900 font-bold px-2 py-1 rounded text-right w-28">${secondTotal.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
+          <table className="w-full table-fixed">
+            <thead>
+              <tr className="border-b">
+                <th className="w-[34%] text-left py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Expense Item</th>
+                <th className="w-[18%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">%</th>
+                <th className="w-[28%] text-right py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Amount</th>
+                <th className="w-[20%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Months</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b">
+                <td className="py-1 px-0.5 text-[10px] sm:text-sm">Total Capital</td>
+                <td></td>
+                <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">${totalCapital.toLocaleString()}</td>
+                <td></td>
+              </tr>
+              <tr className="border-b">
+                <td className="py-1 px-0.5 text-[10px] sm:text-sm">Loan-to-Capital</td>
+                <td className="text-center py-1 px-0.5">
+                  <input type="number" step="0.01" min="0" max="100" value={(secondLoanPct*100).toFixed(2)} onChange={e => setSecondLoanPct(Number(e.target.value)/100)} className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
+                </td>
+                <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">${secondLoan.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</td>
+                <td></td>
+              </tr>
+              <tr className="border-b">
+                <td className="py-1 px-0.5 text-[10px] sm:text-sm">Points</td>
+                <td className="text-center py-1 px-0.5">
+                  <input type="number" step="0.01" min="0" max="100" value={(secondPointsPct*100).toFixed(2)} onChange={e => setSecondPointsPct(Number(e.target.value)/100)} className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
+                </td>
+                <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">${secondPoints.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</td>
+                <td></td>
+              </tr>
+              <tr className="border-b">
+                <td className="py-1 px-0.5 text-[10px] sm:text-sm">Interest</td>
+                <td className="text-center py-1 px-0.5">
+                  <input type="number" step="0.01" min="0" max="100" value={(secondInterestPct*100).toFixed(2)} onChange={e => setSecondInterestPct(Number(e.target.value)/100)} className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
+                </td>
+                <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">${secondInterest.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</td>
+                <td className="text-center py-1 px-0.5">
+                  <input type="number" step="1" min="0" value={months} onChange={e => setMonths(Number(e.target.value))} className="border rounded px-0.5 py-1 w-10 sm:w-20 text-center text-[10px] sm:text-sm" />
+                </td>
+              </tr>
+              <tr className="border-b">
+                <td className="py-1 px-0.5 text-[10px] sm:text-sm">Misc. Fee</td>
+                <td></td>
+                <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">${secondMiscFee.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</td>
+                <td></td>
+              </tr>
+            </tbody>          
+          </table>
+          <div className="flex justify-between items-center mt-2">
+            <span className="font-bold text-[10px] sm:text-base">Total Cost 2nd Position</span>
+            <span className="bg-green-300 text-green-900 font-bold px-1.5 py-0.5 rounded text-[10px] sm:text-base">${secondTotal.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
           </div>
 
           <div className="flex justify-between items-center mt-4 border-t pt-4">
-            <span className="font-bold">Total Funding</span>
-            <span className="bg-green-500 text-white font-bold px-4 py-1 rounded text-lg">${totalFunding.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
+            <span className="font-bold text-[14px] sm:text-base">Total Funding</span>
+            <span className="bg-green-500 text-white font-bold px-1.5 py-0.5 rounded text-[10px] sm:text-lg">${totalFunding.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
           </div>
         </div>
 
@@ -318,29 +377,30 @@ export default function WholetailCalculator() {
 
         {/* AS-IS COMPS SECTION */}
         <div className="p-2 sm:p-6 mb-8">
-          <div className="font-bold text-blue-700 mb-2 text-lg">As-Is Comps</div>
+          <div className="font-bold text-blue-700 my-2 text-center">As-Is Comps</div>          
+          
           {/* Solds Table */}
-          <div className="font-bold text-red-600 mb-1 ml-2">Sold</div>
+          <div className="font-bold text-red-700 mb-1">Sold</div>
           <div className="overflow-x-auto w-full">
-            <table className="w-full border text-sm">
+            <table className="w-full min-w-[700px] table-fixed">
               <thead>
-                <tr className="bg-gray-100">                  
-                  <th className="border px-2 py-1">Address</th>
-                  <th className="border px-2 py-1">Sq. Ft.</th>
-                  <th className="border px-2 py-1">Sold Price</th>
-                  <th className="border px-2 py-1">Sold/Sq. Ft</th>
-                  <th className="border px-2 py-1">Sold Date</th>
-                  <th className="border px-2 py-1">Days</th>
+                <tr className="border-b">
+                  <th className="w-[20%] text-left py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Address</th>
+                  <th className="w-[13%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Sq. Ft.</th>
+                  <th className="w-[17%] text-right py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Sold Price</th>
+                  <th className="w-[15%] text-right py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Sold/Sq. Ft</th>
+                  <th className="w-[20%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Sold Date</th>
+                  <th className="w-[15%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Days</th>
                 </tr>
               </thead>
               <tbody>
                 {soldComps.map((row, i) => (
                   <tr key={i}>
-                    <td className="border px-2 py-1">
+                    <td className="border px-0.5 py-1">
                       <input
                         type="text"
                         value={row.address}
-                        className="w-32 border rounded px-1 py-0.5"
+                        className="w-24 sm:w-32 border rounded px-0.5 py-1 text-[10px] sm:text-sm"
                         onChange={e => {
                           const newComps = [...soldComps];
                           newComps[i].address = e.target.value;
@@ -348,12 +408,12 @@ export default function WholetailCalculator() {
                         }}
                       />
                     </td>
-                    <td className="border px-2 py-1">
+                    <td className="border px-0.5 py-1">
                       <input
                         type="number"
                         value={row.sqft}
                         min={0}
-                        className="w-20 border rounded px-1 py-0.5 text-right"
+                        className="w-14 sm:w-20 border rounded px-0.5 py-1 text-right text-[10px] sm:text-sm"
                         onChange={e => {
                           const newComps = [...soldComps];
                           newComps[i].sqft = Number(e.target.value);
@@ -361,12 +421,12 @@ export default function WholetailCalculator() {
                         }}
                       />
                     </td>
-                    <td className="border px-2 py-1">
+                    <td className="border px-0.5 py-1">
                       <input
                         type="number"
                         value={row.price}
                         min={0}
-                        className="w-28 border rounded px-1 py-0.5 text-right"
+                        className="w-20 sm:w-28 border rounded px-0.5 py-1 text-right text-[10px] sm:text-sm"
                         onChange={e => {
                           const newComps = [...soldComps];
                           newComps[i].price = Number(e.target.value);
@@ -374,12 +434,12 @@ export default function WholetailCalculator() {
                         }}
                       />
                     </td>
-                    <td className="border px-2 py-1 bg-green-100 text-green-900 font-bold text-right">${row.sqft ? (row.price / row.sqft).toLocaleString(undefined, {maximumFractionDigits:0}) : ''}</td>
-                    <td className="border px-2 py-1">
+                    <td className="border px-0.5 py-1 bg-green-100 text-green-900 font-bold text-right text-[10px] sm:text-sm">{row.sqft ? `$${(row.price / row.sqft).toLocaleString(undefined, {maximumFractionDigits:0})}` : ''}</td>
+                    <td className="border px-0.5 py-1">
                       <input
                         type="date"
                         value={row.date}
-                        className="w-32 border rounded px-1 py-0.5"
+                        className="w-24 border rounded px-0.5 py-1 text-[10px] sm:text-sm"
                         onChange={e => {
                           const newComps = [...soldComps];
                           newComps[i].date = e.target.value;
@@ -387,196 +447,268 @@ export default function WholetailCalculator() {
                         }}
                       />
                     </td>
-                    <td className="border px-2 py-1 bg-green-100 text-green-900 font-bold">{daysBetween(row.date)}</td>
+                    <td className="border px-0.5 py-1 bg-green-100 text-green-900 font-bold text-center text-[10px] sm:text-sm">{daysBetween(row.date)}</td>
                   </tr>
                 ))}
                 <tr className="font-bold">
-                  <td className="border px-2 py-1" colSpan={1}>Average</td>
-                  <td className="border px-2 py-1">{avgSqft.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
-                  <td className="border px-2 py-1">${avgPrice.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
-                  <td className="border px-2 py-1">${avgSoldPerSqft.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
-                  <td className="border px-2 py-1"></td>
-                  <td className="border px-2 py-1">{avgDays.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm" colSpan={1}>Average</td>
+                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm">{avgSqft.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm">${avgPrice.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm">${avgSoldPerSqft.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                  <td className="border px-0.5 py-1"></td>
+                  <td className="border px-0.5 py-1"></td>
                 </tr>
               </tbody>
             </table>
           </div>
-          <div className="flex justify-between items-center mt-2">
-            <span className="font-bold">Sold As-Is Value</span>
-            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded">${avgPrice.toLocaleString(undefined, {maximumFractionDigits:0})}</span>
+          <div className="flex justify-between items-center mt-4 border-t pt-4">
+            <span className="font-bold text-[10px] sm:text-base">Sold As-Is Value</span>
+            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-lg">${avgPrice.toLocaleString(undefined, {maximumFractionDigits:0})}</span>
           </div>
 
-          {/* Active Table */}
-          <div className="font-bold text-red-600 mb-1 ml-2">Active</div>
+          {/* Actives Table */}
+          <div className="font-bold text-red-700 mb-1">Actives</div>
           <div className="overflow-x-auto w-full">
-            <table className="w-full border text-sm">
+            <table className="w-full min-w-[700px] table-fixed">
               <thead>
-                <tr className="bg-gray-100">                  
-                  <th className="border px-2 py-1">Address</th>
-                  <th className="border px-2 py-1">Sq. Ft.</th>
-                  <th className="border px-2 py-1">Sold Price</th>
-                  <th className="border px-2 py-1">Sold/Sq. Ft</th>
-                  <th className="border px-2 py-1">Sold Date</th>
-                  <th className="border px-2 py-1">Days</th>
+                <tr className="border-b">
+                  <th className="w-[20%] text-left py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Address</th>
+                  <th className="w-[13%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Sq. Ft.</th>
+                  <th className="w-[17%] text-right py-1 px-0.5 text-[10px] sm:text-sm font-semibold">List Price</th>
+                  <th className="w-[15%] text-right py-1 px-0.5 text-[10px] sm:text-sm font-semibold">List/Sq. Ft</th>
+                  <th className="w-[20%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">List Date</th>
+                  <th className="w-[15%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Days</th>
                 </tr>
               </thead>
               <tbody>
-                {soldComps.map((row, i) => (
+                {arvActiveComps.map((row, i) => (
                   <tr key={i}>
-                    <td className="border px-2 py-1">
+                    <td className="border px-0.5 py-1">
                       <input
                         type="text"
                         value={row.address}
-                        className="w-32 border rounded px-1 py-0.5"
+                        className="w-24 sm:w-32 border rounded px-0.5 py-1 text-[10px] sm:text-sm"
                         onChange={e => {
-                          const newComps = [...soldComps];
+                          const newComps = [...arvActiveComps];
                           newComps[i].address = e.target.value;
-                          setSoldComps(newComps);
+                          setArvActiveComps(newComps);
                         }}
                       />
                     </td>
-                    <td className="border px-2 py-1">
+                    <td className="border px-0.5 py-1">
                       <input
                         type="number"
                         value={row.sqft}
                         min={0}
-                        className="w-20 border rounded px-1 py-0.5 text-right"
+                        className="w-14 sm:w-20 border rounded px-0.5 py-1 text-right text-[10px] sm:text-sm"
                         onChange={e => {
-                          const newComps = [...soldComps];
+                          const newComps = [...arvActiveComps];
                           newComps[i].sqft = Number(e.target.value);
-                          setSoldComps(newComps);
+                          setArvActiveComps(newComps);
                         }}
                       />
                     </td>
-                    <td className="border px-2 py-1">
+                    <td className="border px-0.5 py-1">
                       <input
                         type="number"
                         value={row.price}
                         min={0}
-                        className="w-28 border rounded px-1 py-0.5 text-right"
+                        className="w-20 sm:w-28 border rounded px-0.5 py-1 text-right text-[10px] sm:text-sm"
                         onChange={e => {
-                          const newComps = [...soldComps];
+                          const newComps = [...arvActiveComps];
                           newComps[i].price = Number(e.target.value);
-                          setSoldComps(newComps);
+                          setArvActiveComps(newComps);
                         }}
                       />
                     </td>
-                    <td className="border px-2 py-1 bg-green-100 text-green-900 font-bold text-right">${row.sqft ? (row.price / row.sqft).toLocaleString(undefined, {maximumFractionDigits:0}) : ''}</td>
-                    <td className="border px-2 py-1">
+                    <td className="border px-0.5 py-1 bg-green-100 text-green-900 font-bold text-right text-[10px] sm:text-sm">{row.sqft ? `$${(row.price / row.sqft).toLocaleString(undefined, {maximumFractionDigits:0})}` : ''}</td>
+                    <td className="border px-0.5 py-1">
                       <input
                         type="date"
                         value={row.date}
-                        className="w-32 border rounded px-1 py-0.5"
+                        className="w-24 border rounded px-0.5 py-1 text-[10px] sm:text-sm"
                         onChange={e => {
-                          const newComps = [...soldComps];
+                          const newComps = [...arvActiveComps];
                           newComps[i].date = e.target.value;
-                          setSoldComps(newComps);
+                          setArvActiveComps(newComps);
                         }}
                       />
                     </td>
-                    <td className="border px-2 py-1 bg-green-100 text-green-900 font-bold">{daysBetween(row.date)}</td>
+                    <td className="border px-0.5 py-1 bg-green-100 text-green-900 font-bold text-center text-[10px] sm:text-sm">{daysBetween(row.date)}</td>
                   </tr>
                 ))}
                 <tr className="font-bold">
-                  <td className="border px-2 py-1" colSpan={1}>Average</td>
-                  <td className="border px-2 py-1">{avgSqft.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
-                  <td className="border px-2 py-1">${avgPrice.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
-                  <td className="border px-2 py-1">${avgSoldPerSqft.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
-                  <td className="border px-2 py-1"></td>
-                  <td className="border px-2 py-1">{avgDays.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm" colSpan={1}>Average</td>
+                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm">{avgArvActiveSqft.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm">${avgArvActivePrice.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm">${avgArvActivePerSqft.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                  <td className="border px-0.5 py-1"></td>
+                  <td className="border px-0.5 py-1"></td>
                 </tr>
               </tbody>
             </table>
           </div>
-          <div className="flex justify-between items-center mt-2">
-            <span className="font-bold">Sold As-Is Value</span>
-            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded">${avgPrice.toLocaleString(undefined, {maximumFractionDigits:0})}</span>
+          <div className="flex justify-between items-center mt-4 border-t pt-4">
+            <span className="font-bold text-[10px] sm:text-base">Active As-Is Value</span>
+            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-lg">${avgArvActivePrice.toLocaleString(undefined, {maximumFractionDigits:0})}</span>
           </div>
-        </div>
 
-        <hr className="my-6" />
-
-        <div className="p-2 sm:p-6 bg-white max-w-full overflow-x-auto mb-8">
-          <div className="text-blue-800 font-bold text-lg sm:text-xl mb-2 tracking-wide">ARV Formula</div>
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
-              <span className="font-bold text-black text-lg">ARV</span>
-              <span className="bg-green-300 text-black font-bold px-6 py-1 rounded text-lg ml-auto min-w-[120px] text-right">${arv.toLocaleString()}</span>
-            </div>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
-              <span className="font-bold text-black text-lg">Repair Cost</span>
-              <span className="font-bold text-black text-lg ml-auto min-w-[120px] text-right">${repairCost.toLocaleString()}</span>
-            </div>
-            <div className="w-full mb-2">
-              <table className="w-full border border-black">
-                <thead>
-                  <tr>
-                    <th className="border border-black px-2 py-1 font-bold text-black text-left">Condition</th>
-                    <th className="border border-black px-2 py-1 font-bold text-black text-right">Cost/Sqft</th>
-                    <th className="border border-black px-2 py-1 font-bold text-black text-right">Cost</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="border border-black px-2 py-1 text-black">Light</td>
-                    <td className="border border-black px-2 py-1 text-right">$10.00</td>
-                    <td className="border border-black px-2 py-1 text-right bg-green-300 font-bold">$0</td>
-                  </tr>
-                  <tr>
-                    <td className="border border-black px-2 py-1 text-black">Average</td>
-                    <td className="border border-black px-2 py-1 text-right">$25.00</td>
-                    <td className="border border-black px-2 py-1 text-right bg-green-300 font-bold">$0</td>
-                  </tr>
-                  <tr>
-                    <td className="border border-black px-2 py-1 text-black">Heavy</td>
-                    <td className="border border-black px-2 py-1 text-right">$50.00</td>
-                    <td className="border border-black px-2 py-1 text-right bg-green-300 font-bold">$0</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 mt-4">
-              <span className="font-bold text-black text-lg">Exit (ARV - Repairs)</span>
-              <span className="font-bold text-black text-lg ml-auto min-w-[60px] text-right">70%</span>
-              <span className="bg-green-300 text-black font-bold px-6 py-1 rounded text-lg ml-2 min-w-[120px] text-right">${exitValue.toLocaleString()}</span>
-            </div>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
-              <span className="font-bold text-black text-lg">Gross Wholesale Fee</span>
-              <span className="font-bold text-black text-lg ml-auto min-w-[120px] text-right">${wholesaleTargetFee.toLocaleString()}</span>
-            </div>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-4">
-              <span className="font-bold text-black text-lg">Max Buy</span>
-              <span className="bg-green-300 text-black font-bold px-6 py-1 rounded text-lg ml-auto min-w-[120px] text-right">${maxBuy.toLocaleString()}</span>
-              <span className="bg-green-300 text-black font-bold px-6 py-1 rounded text-lg ml-2 min-w-[80px] text-right">{(maxBuyPct * 100).toFixed(0)}%</span>
+          {/* Market Adjustments */}
+          <div className="mt-6">
+            <div className="font-bold text-red-700 mb-1">Market Adjustment (15 day sale)</div>          
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full">
+              {/* Combined Value */}
+              <div className="flex-1 flex flex-col items-stretch text-center">
+                <span className="text-[10px] sm:text-xs font-semibold mb-1">Combined Value</span>
+                <span className="bg-green-300 text-black font-bold rounded py-2 px-1 text-[14px] sm:text-xl">${((avgPrice + avgArvActivePrice) / 2).toLocaleString(undefined, {maximumFractionDigits:0})}</span>
+              </div>
+              {/* Adjustment */}
+              <div className="flex-1 flex flex-col items-stretch text-center">
+                <span className="text-[10px] sm:text-xs font-semibold mb-1">Adjustment</span>
+                <div className="relative w-full">
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    step={0.01}
+                    value={(adjustmentPct * 100).toFixed(2)}
+                    onChange={e => setAdjustmentPct(Number(e.target.value) / 100)}
+                    className="border rounded px-1 py-1 pr-6 text-center text-[14px] sm:text-xl w-full"
+                  />
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[14px] sm:text-base pointer-events-none">%</span>
+                </div>
+              </div>
+              {/* Adjusted As-Is Value */}
+              <div className="flex-1 flex flex-col items-stretch text-center">
+                <span className="text-[10px] sm:text-xs font-semibold mb-1">Adjusted AS-IS Value</span>
+                <span className="bg-green-300 text-black font-bold rounded py-2 px-1 text-[14px] sm:text-xl">${(((avgPrice + avgArvActivePrice) / 2) * (1 - adjustmentPct)).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</span>
+              </div>
             </div>
           </div>
         </div>
 
         <hr className="my-6" />
 
-        {/* ARV COMPS SECTION */}
+        {/* ARV FORMULA SECTION */}
         <div className="p-2 sm:p-6 mb-8">
-          <div className="font-bold text-blue-700 mb-2 text-lg">ARV Comps</div>                    
-          <div className="overflow-x-auto w-full">
-            <table className="w-full border text-sm">
+          <div className="font-bold text-blue-700 my-2 text-center">ARV Formula</div>
+
+          {/* ARV Row */}
+          <div className="flex justify-between items-center mt-4 pt-4">
+            <span className="font-bold text-[14px] sm:text-base">ARV</span>
+            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-lg">${arv.toLocaleString()}</span>
+          </div>          
+
+          {/* Repair Cost Table */}
+          <div className="mb-4">
+            <div className="font-bold text-[14px] sm:text-lg mb-1">Repair Cost</div>
+            <table className="w-full table-fixed">
               <thead>
-                <tr className="bg-gray-100">                  
-                  <th className="border px-2 py-1">Address</th>
-                  <th className="border px-2 py-1">Sq. Ft.</th>
-                  <th className="border px-2 py-1">Sold Price</th>
-                  <th className="border px-2 py-1">Sold/Sq. Ft</th>
-                  <th className="border px-2 py-1">Sold Date</th>
-                  <th className="border px-2 py-1">Days</th>
+                <tr className="border-b">
+                  <th className="w-[40%] text-left py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Condition</th>
+                  <th className="w-[30%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Cost/SqFt</th>
+                  <th className="w-[30%] text-right py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Cost</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="py-1 px-0.5 text-[10px] sm:text-sm font-bold">Light</td>
+                  <td className="text-center py-1 px-0.5">
+                    <input type="number" step="0.01" min="0" value={10.00} className="border rounded px-0.5 py-1 w-16 sm:w-24 text-right text-[10px] sm:text-sm" readOnly />
+                  </td>
+                  <td className="text-right py-1 px-0.5 bg-green-200 text-green-900 font-bold text-[10px] sm:text-sm">$0</td>
+                </tr>
+                <tr>
+                  <td className="py-1 px-0.5 text-[10px] sm:text-sm font-bold">Average</td>
+                  <td className="text-center py-1 px-0.5">
+                    <input type="number" step="0.01" min="0" value={25.00} className="border rounded px-0.5 py-1 w-16 sm:w-24 text-right text-[10px] sm:text-sm" readOnly />
+                  </td>
+                  <td className="text-right py-1 px-0.5 bg-green-200 text-green-900 font-bold text-[10px] sm:text-sm">$0</td>
+                </tr>
+                <tr>
+                  <td className="py-1 px-0.5 text-[10px] sm:text-sm font-bold">Heavy</td>
+                  <td className="text-center py-1 px-0.5">
+                    <input type="number" step="0.01" min="0" value={50.00} className="border rounded px-0.5 py-1 w-16 sm:w-24 text-right text-[10px] sm:text-sm" readOnly />
+                  </td>
+                  <td className="text-right py-1 px-0.5 bg-green-200 text-green-900 font-bold text-[10px] sm:text-sm">$0</td>
+                </tr>
+              </tbody>
+            </table>
+            <div className="flex justify-between items-center mt-4 border-t pt-4">
+              <span className="font-bold text-[14px] sm:text-base">Total Repair Cost</span>
+              <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-lg">${repairCost.toLocaleString()}</span>
+            </div>            
+          </div>
+
+          {/* EXIT (ARV - REPAIRS) */}
+          <div className="flex justify-between items-center mt-4 pt-4">
+            <span className="font-bold text-[14px] sm:text-lg">Exit (ARV - Repairs)</span>
+            <div className="flex items-center gap-2 w-24 sm:w-28">
+              <input
+                type="number"
+                min={0}
+                max={100}
+                step={0.01}
+                value={(exitPct * 100).toFixed(2)}
+                onChange={e => {
+                  const val = Number(e.target.value) / 100;
+                  if (!isNaN(val)) {
+                    // @ts-ignore
+                    window.exitPct = val; // for debugging
+                  }
+                }}
+                className="border rounded px-1 py-1 text-center text-[10px] sm:text-lg w-full"
+                style={{minWidth: '3.5rem'}}
+              />
+              <span className="text-[10px] sm:text-lg">%</span>
+            </div>
+            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-lg">${exitValue.toLocaleString()}</span>
+          </div>
+
+          {/* Gross Wholesale Fee */}
+          <div className="flex justify-between items-center mt-4 pt-4">
+            <span className="font-bold text-[14px] sm:text-lg">Gross Wholesale Fee</span>
+            <input
+              type="number"
+              value={wholesaleTargetFee}
+              className="border rounded px-2 py-1 text-right text-[10px] sm:text-lg w-24 sm:w-32"
+              readOnly
+            />
+          </div>
+
+          {/* Max Buy */}
+          <div className="flex justify-between items-center mt-4 pt-4">
+            <span className="font-bold text-[14px] sm:text-lg">Max Buy</span>
+            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-lg w-24 sm:w-28 text-center">${maxBuy.toLocaleString()}</span>
+            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-lg w-24 sm:w-28 text-center">{(maxBuyPct * 100).toFixed(0)}%</span>
+          </div>
+        </div>
+
+        <hr className="my-6" />
+
+        {/* ARV Comps */}
+        <div className="p-2 sm:p-6 mb-8">
+          <div className="font-bold text-blue-700 my-2 text-center">ARV Comps</div>          
+          <div className="overflow-x-auto w-full">
+            <table className="w-full min-w-[700px] table-fixed">
+              <thead>
+                <tr className="border-b">
+                  <th className="w-[20%] text-left py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Address</th>
+                  <th className="w-[13%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Sq. Ft.</th>
+                  <th className="w-[17%] text-right py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Sold Price</th>
+                  <th className="w-[15%] text-right py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Sold/Sq. Ft</th>
+                  <th className="w-[20%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Sold Date</th>
+                  <th className="w-[15%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Days</th>
                 </tr>
               </thead>
               <tbody>
                 {arvSoldComps.map((row, i) => (
                   <tr key={i}>
-                    <td className="border px-2 py-1">
+                    <td className="border px-0.5 py-1">
                       <input
                         type="text"
                         value={row.address}
-                        className="w-32 border rounded px-1 py-0.5"
+                        className="w-24 sm:w-32 border rounded px-0.5 py-1 text-[10px] sm:text-sm"
                         onChange={e => {
                           const newComps = [...arvSoldComps];
                           newComps[i].address = e.target.value;
@@ -584,12 +716,12 @@ export default function WholetailCalculator() {
                         }}
                       />
                     </td>
-                    <td className="border px-2 py-1">
+                    <td className="border px-0.5 py-1">
                       <input
                         type="number"
                         value={row.sqft}
                         min={0}
-                        className="w-20 border rounded px-1 py-0.5 text-right"
+                        className="w-14 sm:w-20 border rounded px-0.5 py-1 text-right text-[10px] sm:text-sm"
                         onChange={e => {
                           const newComps = [...arvSoldComps];
                           newComps[i].sqft = Number(e.target.value);
@@ -597,12 +729,12 @@ export default function WholetailCalculator() {
                         }}
                       />
                     </td>
-                    <td className="border px-2 py-1">
+                    <td className="border px-0.5 py-1">
                       <input
                         type="number"
                         value={row.price}
                         min={0}
-                        className="w-28 border rounded px-1 py-0.5 text-right"
+                        className="w-20 sm:w-28 border rounded px-0.5 py-1 text-right text-[10px] sm:text-sm"
                         onChange={e => {
                           const newComps = [...arvSoldComps];
                           newComps[i].price = Number(e.target.value);
@@ -610,12 +742,12 @@ export default function WholetailCalculator() {
                         }}
                       />
                     </td>
-                    <td className="border px-2 py-1 bg-green-100 text-green-900 font-bold text-right">${row.sqft ? (row.price / row.sqft).toLocaleString(undefined, {maximumFractionDigits:0}) : ''}</td>
-                    <td className="border px-2 py-1">
+                    <td className="border px-0.5 py-1 bg-green-100 text-green-900 font-bold text-right text-[10px] sm:text-sm">{row.sqft ? `$${(row.price / row.sqft).toLocaleString(undefined, {maximumFractionDigits:0})}` : ''}</td>
+                    <td className="border px-0.5 py-1">
                       <input
                         type="date"
                         value={row.date}
-                        className="w-32 border rounded px-1 py-0.5"
+                        className="w-24 border rounded px-0.5 py-1 text-[10px] sm:text-sm"
                         onChange={e => {
                           const newComps = [...arvSoldComps];
                           newComps[i].date = e.target.value;
@@ -623,26 +755,63 @@ export default function WholetailCalculator() {
                         }}
                       />
                     </td>
-                    <td className="border px-2 py-1 bg-green-100 text-green-900 font-bold">{daysBetween(row.date)}</td>
+                    <td className="border px-0.5 py-1 bg-green-100 text-green-900 font-bold text-center text-[10px] sm:text-sm">{daysBetween(row.date)}</td>
                   </tr>
                 ))}
                 <tr className="font-bold">
-                  <td className="border px-2 py-1" colSpan={1}>Average</td>
-                  <td className="border px-2 py-1">{avgArvSoldSqft.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
-                  <td className="border px-2 py-1">${avgArvSoldPrice.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
-                  <td className="border px-2 py-1">${avgArvSoldPerSqft.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
-                  <td className="border px-2 py-1"></td>
-                  <td className="border px-2 py-1">{avgArvSoldDays.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm" colSpan={1}>Average</td>
+                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm bg-green-300 text-green-900">{avgArvSoldSqft.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm bg-green-300 text-green-900">${avgArvSoldPrice.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm bg-green-300 text-green-900">${avgArvSoldPerSqft.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                  <td className="border px-0.5 py-1"></td>
+                  <td className="border px-0.5 py-1 bg-green-300 text-green-900">{avgArvSoldDays.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
                 </tr>
               </tbody>
             </table>
           </div>
-          <div className="flex justify-between items-center mt-2">
-            <span className="font-bold">ARV Value (Sold)</span>
-            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded">${avgArvSoldPrice.toLocaleString(undefined, {maximumFractionDigits:0})}</span>
+
+          {/* ARV Average Price (Price/Sqft) and Market Adjustment */}
+          <div className="mb-8">
+            {/* ARV Average Price */}
+            <div className="flex justify-between items-center mt-6">
+              <span className="font-bold text-[14px] sm:text-lg">ARV Average Price (Price/Sqft)</span>
+              <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-lg">
+                ${avgArvSoldPerSqft && avgArvSoldSqft ? (avgArvSoldPerSqft * avgArvSoldSqft).toLocaleString(undefined, {maximumFractionDigits:0}) : '$0'}
+              </span>
+            </div>
+
+            {/* ARV Market Adjustment */}
+            <div className="mt-6">
+              <div className="font-bold text-[14px] sm:text-lg mb-2">ARV Market Adjustment</div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 items-center">
+                <span className="font-bold text-[12px] sm:text-base">6 mo prior</span>                
+                <input
+                  type="number"
+                  value={arvMarketPrior}
+                  onChange={e => setArvMarketPrior(Number(e.target.value))}
+                  className="border rounded px-2 py-1 text-right text-[10px] sm:text-lg w-full"
+                  min={0}
+                />
+                <span className="font-bold text-[12px] sm:text-base">Current</span>
+                <input
+                  type="number"
+                  value={arvMarketCurrent}
+                  onChange={e => setArvMarketCurrent(Number(e.target.value))}
+                  className="border rounded px-2 py-1 text-right text-[10px] sm:text-lg w-full"
+                  min={0}
+                />
+                <span className="font-bold text-[12px] sm:text-base">Gain/Loss</span>
+                <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-lg text-center">
+                  {arvMarketPrior > 0 ? `${(((arvMarketCurrent - arvMarketPrior) / arvMarketPrior) * 100).toFixed(0)}%` : '0%'}
+                </span>
+                <span className="font-bold text-[12px] sm:text-base">Adjusted ARV</span>
+                <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-lg text-center">
+                  ${arvMarketCurrent.toLocaleString(undefined, {maximumFractionDigits:0})}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
     </div>
   );
 }
