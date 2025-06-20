@@ -652,11 +652,36 @@ export async function notifyAdminNewAliasCreated(payload: {
       "POST",
       mailerLitePayload
     );
-    const notifyAdminWithAliasResult =
+
+    const notifyAdminWithAliasCampaingResult =
       await notifyAdminWithAliasResponse.json();
-    if (notifyAdminWithAliasResult.data.id) {
-      return { success: true };
+    console.log(
+      "notify admin campaing result",
+      notifyAdminWithAliasCampaingResult
+    );
+    if (notifyAdminWithAliasCampaingResult.data.id) {
+      // schedule the campaing
+      const sheduleCampaingPayload = { delivery: "instant" };
+
+      const sheduleCampaingResponse = await mailerLiteFetch(
+        `/campaigns/${notifyAdminWithAliasCampaingResult.data.id}/schedule`,
+        "POST",
+        sheduleCampaingPayload
+      );
+
+      const scheduleCampaingResult = await sheduleCampaingResponse.json();
+
+
+      if(scheduleCampaingResult.data.id){
+        return { success: true };
+   
+      }else{
+        
+        return { success: false,error:"Campaign created, but there was an error scheduling it." };
+      }
     }
+
+    return {success:false}
   } catch (e) {
     return { success: false, error: e };
   }
