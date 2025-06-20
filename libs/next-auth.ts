@@ -36,7 +36,6 @@ export const authOptions: NextAuthOptionsExtended = {
   events: {
     createUser: async function ({ user }) {
       try {
-        console.log(`Starting alias creation process for user: ${user.id}`);
 
         // Step 1: Create the alias on the external service
         const data = await createUserAlias({

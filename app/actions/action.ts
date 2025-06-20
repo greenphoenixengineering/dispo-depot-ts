@@ -480,7 +480,7 @@ export async function sendDealsAction(
     const { error: supabaseInsertError } = await supabase
       .from("wholesaler_campaign")
       .insert({
-        campaign_id: campaignId, // Use the campaignId from createCampaignResult
+        campaign_id: campaignId,
         wholesaler_id: currentWholesaler?.id,
       });
 
@@ -560,7 +560,7 @@ export async function mailerLiteFetch(
 // action to create an alias for a user
 
 export async function createUserAlias(payload: any) {
-  const { alias, forward } = payload; 
+  const { alias, forward } = payload;
 
   // Basic validation to prevent sending bad requests
   if (!alias || !forward) {
@@ -588,7 +588,7 @@ export async function createUserAlias(payload: any) {
         Accept: "application/json",
         Authorization: `Basic ${encodedCredentials}`,
       },
-    
+
       body: JSON.stringify(payload),
     });
 
@@ -606,7 +606,10 @@ export async function createUserAlias(payload: any) {
   }
 }
 
-export async function updateUserAliasOnSupa(payload: {alias:string,userId:string}) {
+export async function updateUserAliasOnSupa(payload: {
+  alias: string;
+  userId: string;
+}) {
   const { error } = await supabase
     .from("wholesaler")
     .update({ alias: payload.alias })
@@ -620,7 +623,10 @@ export async function updateUserAliasOnSupa(payload: {alias:string,userId:string
   }
 }
 
-export async function notifyAdminNewAliasCreated(payload: {userName:string,userAlias:string}) {
+export async function notifyAdminNewAliasCreated(payload: {
+  userName: string;
+  userAlias: string;
+}) {
   const { userName, userAlias } = payload;
   const mailerLitePayload = {
     name: "New User Alias Notification",
@@ -628,31 +634,30 @@ export async function notifyAdminNewAliasCreated(payload: {userName:string,userA
     emails: [
       {
         subject: "New User Alias Created",
-        from_name: `${userName}`,
-        from: `mike@greenphoenixengineering.com`,
+        from_name: "Dispo Depot",
+        from: "messenger@mydispodepot.io",
         content: `
-        <p>Hello Admin,</p>
-        <p>A new user alias has been created:</p>
-        <p><strong>Alias:</strong> ${userAlias}</p>
-        <p>Regards,<br/>${userName}</p>
-      `,
+<p>Hello Admin,</p>
+<p>A new user alias has been created:</p>
+<p>full name of new user ${userName} </p>
+<p><strong>Alias:</strong> ${userAlias}</p>
+`,
       },
     ],
   };
 
-
-  try{
+  try {
     const notifyAdminWithAliasResponse = await mailerLiteFetch(
       "/campaigns",
       "POST",
       mailerLitePayload
     );
-    const notifyAdminWithAliasResult = await notifyAdminWithAliasResponse.json();
-    if(notifyAdminWithAliasResult.data.id){
-      return  {success:true}
+    const notifyAdminWithAliasResult =
+      await notifyAdminWithAliasResponse.json();
+    if (notifyAdminWithAliasResult.data.id) {
+      return { success: true };
     }
-  }catch(e){
-    return {success:false,error:e}
+  } catch (e) {
+    return { success: false, error: e };
   }
-   
 }
