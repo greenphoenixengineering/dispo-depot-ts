@@ -164,8 +164,10 @@ export default function WholetailCalculator() {
           />
         </div>
         
-        <div className="font-bold text-blue-700 mt-4 mb-2 text-center">Buy Formula</div>      
+        <hr className="my-6" />
 
+        {/* BUY FORMULA SECTION */}
+        <div className="font-bold text-blue-700 mt-6 mb-2 text-center text-xl">Buy Formula</div>      
         <table className="w-full table-fixed">
           <thead>
             <tr className="border-b">
@@ -251,10 +253,10 @@ export default function WholetailCalculator() {
         <hr className="my-6" />
 
         {/* FUNDING SECTION */}
-        <div className="p-2 sm:p-6 mb-8">
-          <div className="font-bold text-blue-700 my-2 text-center">Funding</div>
+        <div className="mb-8">
+          <div className="font-bold text-blue-700 my-2 text-center text-xl">Funding</div>
           {/* 1st Position */}
-          <div className="font-bold text-blue-700 mb-1 ml-2">1st Position</div>
+          <div className="font-bold text-blue-700 mb-1">1st Position</div>
           <table className="w-full table-fixed">
             <thead>
               <tr className="border-b">
@@ -306,12 +308,12 @@ export default function WholetailCalculator() {
             </tbody>          
           </table>
           <div className="flex justify-between items-center mt-2">
-            <span className="font-bold text-[10px] sm:text-base">Total Cost 1st Position</span>
+            <span className="font-bold text-[10px] sm:text-sm">Total Cost 1st Position</span>
             <span className="bg-green-300 text-green-900 font-bold px-1.5 py-0.5 rounded text-[10px] sm:text-base">${firstTotal.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
           </div>
 
           {/* 2nd Position */}
-          <div className="font-bold text-blue-700 mb-1 ml-2 mt-4">2nd Position</div>
+          <div className="font-bold text-blue-700 mb-1 mt-6">2nd Position</div>
           <table className="w-full table-fixed">
             <thead>
               <tr className="border-b">
@@ -363,21 +365,23 @@ export default function WholetailCalculator() {
             </tbody>          
           </table>
           <div className="flex justify-between items-center mt-2">
-            <span className="font-bold text-[10px] sm:text-base">Total Cost 2nd Position</span>
+            <span className="font-bold text-[10px] sm:text-sm">Total Cost 2nd Position</span>
             <span className="bg-green-300 text-green-900 font-bold px-1.5 py-0.5 rounded text-[10px] sm:text-base">${secondTotal.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
           </div>
 
-          <div className="flex justify-between items-center mt-4 border-t pt-4">
-            <span className="font-bold text-[14px] sm:text-base">Total Funding</span>
-            <span className="bg-green-500 text-white font-bold px-1.5 py-0.5 rounded text-[10px] sm:text-lg">${totalFunding.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
+          <div className="flex justify-between items-center mt-2">
+            <span className="font-bold text-[16px] sm:text-base">Total Funding</span>
+            <div className="font-bold bg-green-300 text-green-900 px-1.5 py-0.5 rounded text-[10px] sm:text-lg">
+              ${totalFunding.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+            </div>
           </div>
         </div>
 
         <hr className="my-6" />
 
         {/* AS-IS COMPS SECTION */}
-        <div className="p-2 sm:p-6 mb-8">
-          <div className="font-bold text-blue-700 my-2 text-center">As-Is Comps</div>          
+        <div className="mb-8">
+          <div className="font-bold text-blue-700 my-2 text-center text-xl">As-Is Comps</div>          
           
           {/* Solds Table */}
           <div className="font-bold text-red-700 mb-1">Sold</div>
@@ -461,13 +465,15 @@ export default function WholetailCalculator() {
               </tbody>
             </table>
           </div>
-          <div className="flex justify-between items-center mt-4 border-t pt-4">
-            <span className="font-bold text-[10px] sm:text-base">Sold As-Is Value</span>
-            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-lg">${avgPrice.toLocaleString(undefined, {maximumFractionDigits:0})}</span>
+          <div className="flex justify-between items-center pt-2">
+            <span className="font-bold text-[10px] sm:text-sm">Sold As-Is Value</span>
+            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-sm">
+              ${avgPrice.toLocaleString(undefined, {maximumFractionDigits:0})}
+            </span>
           </div>
 
           {/* Actives Table */}
-          <div className="font-bold text-red-700 mb-1">Actives</div>
+          <div className="font-bold text-red-700 mb-1 mt-5">Actives</div>
           <div className="overflow-x-auto w-full">
             <table className="w-full min-w-[700px] table-fixed">
               <thead>
@@ -521,7 +527,9 @@ export default function WholetailCalculator() {
                         }}
                       />
                     </td>
-                    <td className="border px-0.5 py-1 bg-green-100 text-green-900 font-bold text-right text-[10px] sm:text-sm">{row.sqft ? `$${(row.price / row.sqft).toLocaleString(undefined, {maximumFractionDigits:0})}` : ''}</td>
+                    <td className="border px-0.5 py-1 bg-green-100 text-green-900 font-bold text-right text-[10px] sm:text-sm">
+                      {row.sqft ? `$${(row.price / row.sqft).toLocaleString(undefined, {maximumFractionDigits:0})}` : ''}
+                    </td>
                     <td className="border px-0.5 py-1">
                       <input
                         type="date"
@@ -548,9 +556,9 @@ export default function WholetailCalculator() {
               </tbody>
             </table>
           </div>
-          <div className="flex justify-between items-center mt-4 border-t pt-4">
-            <span className="font-bold text-[10px] sm:text-base">Active As-Is Value</span>
-            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-lg">${avgArvActivePrice.toLocaleString(undefined, {maximumFractionDigits:0})}</span>
+          <div className="flex justify-between items-center pt-2">
+            <span className="font-bold text-[10px] sm:text-sm">Active As-Is Value</span>
+            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-sm">${avgArvActivePrice.toLocaleString(undefined, {maximumFractionDigits:0})}</span>
           </div>
 
           {/* Market Adjustments */}
@@ -560,7 +568,9 @@ export default function WholetailCalculator() {
               {/* Combined Value */}
               <div className="flex-1 flex flex-col items-stretch text-center">
                 <span className="text-[10px] sm:text-xs font-semibold mb-1">Combined Value</span>
-                <span className="bg-green-300 text-black font-bold rounded py-2 px-1 text-[14px] sm:text-xl">${((avgPrice + avgArvActivePrice) / 2).toLocaleString(undefined, {maximumFractionDigits:0})}</span>
+                <span className="bg-green-300 text-black font-bold rounded py-2 px-1 text-[10px] sm:text-sm">
+                  ${((avgPrice + avgArvActivePrice) / 2).toLocaleString(undefined, {maximumFractionDigits:0})}
+                </span>
               </div>
               {/* Adjustment */}
               <div className="flex-1 flex flex-col items-stretch text-center">
@@ -573,15 +583,15 @@ export default function WholetailCalculator() {
                     step={0.01}
                     value={(adjustmentPct * 100).toFixed(2)}
                     onChange={e => setAdjustmentPct(Number(e.target.value) / 100)}
-                    className="border rounded px-1 py-1 pr-6 text-center text-[14px] sm:text-xl w-full"
+                    className="border rounded px-5 py-2 pr-6 text-center text-[10px] sm:text-sm w-full"
                   />
-                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[14px] sm:text-base pointer-events-none">%</span>
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[14px] sm:text-sm pointer-events-none">%</span>
                 </div>
               </div>
               {/* Adjusted As-Is Value */}
               <div className="flex-1 flex flex-col items-stretch text-center">
                 <span className="text-[10px] sm:text-xs font-semibold mb-1">Adjusted AS-IS Value</span>
-                <span className="bg-green-300 text-black font-bold rounded py-2 px-1 text-[14px] sm:text-xl">${(((avgPrice + avgArvActivePrice) / 2) * (1 - adjustmentPct)).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</span>
+                <span className="bg-green-300 text-black font-bold rounded py-2 px-1 text-[10px] sm:text-sm">${(((avgPrice + avgArvActivePrice) / 2) * (1 - adjustmentPct)).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</span>
               </div>
             </div>
           </div>
@@ -590,43 +600,43 @@ export default function WholetailCalculator() {
         <hr className="my-6" />
 
         {/* ARV FORMULA SECTION */}
-        <div className="p-2 sm:p-6 mb-8">
-          <div className="font-bold text-blue-700 my-2 text-center">ARV Formula</div>
+        <div className="mb-8">
+          <div className="font-bold text-blue-700 my-2 text-center text-xl">ARV Formula</div>
 
           {/* ARV Row */}
-          <div className="flex justify-between items-center mt-4 pt-4">
-            <span className="font-bold text-[14px] sm:text-base">ARV</span>
-            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-lg">${arv.toLocaleString()}</span>
+          <div className="flex justify-between items-center my-5">
+            <span className="text-[14px] sm:text-base font-bold">ARV</span>
+            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-sm">${arv.toLocaleString()}</span>
           </div>          
 
           {/* Repair Cost Table */}
           <div className="mb-4">
-            <div className="font-bold text-[14px] sm:text-lg mb-1">Repair Cost</div>
-            <table className="w-full table-fixed">
+            <div className="text-[14px] sm:text-base mb-3 font-bold">Repair Cost</div>
+            <table className="w-full table-fixed ">
               <thead>
                 <tr className="border-b">
-                  <th className="w-[40%] text-left py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Condition</th>
-                  <th className="w-[30%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Cost/SqFt</th>
-                  <th className="w-[30%] text-right py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Cost</th>
+                  <th className="w-[40%] text-left py-1 px-0.5 text-[10px] sm:text-sm ">Condition</th>
+                  <th className="w-[30%] text-center py-1 px-0.5 text-[10px] sm:text-sm">Cost/SqFt</th>
+                  <th className="w-[30%] text-right py-1 px-0.5 text-[10px] sm:text-sm ">Cost</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td className="py-1 px-0.5 text-[10px] sm:text-sm font-bold">Light</td>
+                  <td className="py-1 px-0.5 text-[10px] sm:text-sm ">Light</td>
                   <td className="text-center py-1 px-0.5">
                     <input type="number" step="0.01" min="0" value={10.00} className="border rounded px-0.5 py-1 w-16 sm:w-24 text-right text-[10px] sm:text-sm" readOnly />
                   </td>
-                  <td className="text-right py-1 px-0.5 bg-green-200 text-green-900 font-bold text-[10px] sm:text-sm">$0</td>
+                  <td className="text-right py-1 px-0.5 bg-green-200 text-green-900 text-[10px] sm:text-sm">$0</td>
                 </tr>
                 <tr>
-                  <td className="py-1 px-0.5 text-[10px] sm:text-sm font-bold">Average</td>
+                  <td className="py-1 px-0.5 text-[10px] sm:text-sm">Average</td>
                   <td className="text-center py-1 px-0.5">
                     <input type="number" step="0.01" min="0" value={25.00} className="border rounded px-0.5 py-1 w-16 sm:w-24 text-right text-[10px] sm:text-sm" readOnly />
                   </td>
                   <td className="text-right py-1 px-0.5 bg-green-200 text-green-900 font-bold text-[10px] sm:text-sm">$0</td>
                 </tr>
                 <tr>
-                  <td className="py-1 px-0.5 text-[10px] sm:text-sm font-bold">Heavy</td>
+                  <td className="py-1 px-0.5 text-[10px] sm:text-sm">Heavy</td>
                   <td className="text-center py-1 px-0.5">
                     <input type="number" step="0.01" min="0" value={50.00} className="border rounded px-0.5 py-1 w-16 sm:w-24 text-right text-[10px] sm:text-sm" readOnly />
                   </td>
@@ -688,7 +698,7 @@ export default function WholetailCalculator() {
 
         {/* ARV Comps */}
         <div className="p-2 sm:p-6 mb-8">
-          <div className="font-bold text-blue-700 my-2 text-center">ARV Comps</div>          
+          <div className="font-bold text-blue-700 my-2 text-center text-xl">ARV Comps</div>          
           <div className="overflow-x-auto w-full">
             <table className="w-full min-w-[700px] table-fixed">
               <thead>
@@ -784,7 +794,7 @@ export default function WholetailCalculator() {
             <div className="mt-6">
               <div className="font-bold text-[14px] sm:text-lg mb-2">ARV Market Adjustment</div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 items-center">
-                <span className="font-bold text-[12px] sm:text-base">6 mo prior</span>                
+                <span className="text-[12px] sm:text-base">6 mo prior</span>                
                 <input
                   type="number"
                   value={arvMarketPrior}
@@ -792,7 +802,7 @@ export default function WholetailCalculator() {
                   className="border rounded px-2 py-1 text-right text-[10px] sm:text-lg w-full"
                   min={0}
                 />
-                <span className="font-bold text-[12px] sm:text-base">Current</span>
+                <span className="text-[12px] sm:text-base">Current</span>
                 <input
                   type="number"
                   value={arvMarketCurrent}
