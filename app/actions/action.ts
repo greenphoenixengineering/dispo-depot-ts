@@ -635,7 +635,7 @@ export async function notifyAdminNewAliasCreated(payload: {
       {
         subject: "New User Alias Created",
         from_name: "Dispo Depot",
-        from: "messenger@mydispodepot.io",
+        from: "mike@greenphoenixengineering.com",
         content: `
 <p>Hello Admin,</p>
 <p>A new user alias has been created:</p>
