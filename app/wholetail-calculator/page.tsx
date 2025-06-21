@@ -33,6 +33,8 @@ export default function WholetailCalculator() {
   const profit = asIsValue * profitPct;
   const wholesaleFee = asIsValue * wholesaleFeePct;
 
+  const totalCostPct = closingFeePct + cleanUpPct + listAgentPct + buyerAgentPct + fundingPct + wholesaleFeePct + profitPct;
+
   const totalCost =
     closingFees +
     cleanUpCost +
@@ -144,9 +146,10 @@ export default function WholetailCalculator() {
   const [arvMarketCurrent, setArvMarketCurrent] = useState(0);
 
   return (
-    <div className="p-4 sm:p-6 w-full sm:max-w-xl sm:mx-auto">
-      <div className="text-lg sm:text-2xl font-bold mb-4 text-center">Wholetail Offer Calculator</div>
-      <div className='mb-4'>
+    <div className="p-4 sm:p-6 w-full sm:max-w-xl md:max-w-5xl lg:max-w-7xl sm:mx-auto">
+      <div className="sm:max-w-xl sm:mx-auto">
+        <div className="text-lg sm:text-2xl font-bold mb-4 text-center">Wholetail Offer Calculator</div>
+        <div className='mb-4'>
           <label className="block font-medium">Adjusted As-Is Value ($)</label>
           <input
             type="number"
@@ -164,7 +167,7 @@ export default function WholetailCalculator() {
           <thead>
             <tr className="border-b">
               <th className="w-[44%] text-left py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Item</th>
-              <th className="w-[18%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">%</th>
+              <th className="w-[18%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Percent</th>
               <th className="w-[38%] text-right py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Amount</th>
             </tr>
           </thead>
@@ -179,7 +182,7 @@ export default function WholetailCalculator() {
               </td>
               <td className="text-right">
                 <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                  ${closingFees.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                  ${closingFees.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                 </span>
               </td>
             </tr>
@@ -190,7 +193,7 @@ export default function WholetailCalculator() {
               </td>
               <td className="text-right">
                 <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                  ${cleanUpCost.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                  ${cleanUpCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                 </span>
               </td>
             </tr>
@@ -201,7 +204,7 @@ export default function WholetailCalculator() {
               </td>
               <td className="text-right">
                 <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                  ${listAgentFee.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                  ${listAgentFee.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                 </span>
               </td>
             </tr>
@@ -212,7 +215,7 @@ export default function WholetailCalculator() {
               </td>
               <td className="text-right">
                 <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                  ${buyerAgentFee.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                  ${buyerAgentFee.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                 </span>
               </td>
             </tr>
@@ -223,7 +226,7 @@ export default function WholetailCalculator() {
               </td>
               <td className="text-right">
                 <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                  ${fundingCost.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                  ${fundingCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                 </span>
               </td>
             </tr>
@@ -242,7 +245,7 @@ export default function WholetailCalculator() {
               </td>
               <td className="text-right">
                 <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                  ${wholesaleFee.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                  ${wholesaleFee.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                 </span>
               </td>
             </tr>
@@ -253,7 +256,18 @@ export default function WholetailCalculator() {
               </td>              
               <td className="text-right">
                 <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                  ${profit.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                  ${profit.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                </span>
+              </td>
+            </tr>
+            <tr className="border-b font-bold">
+              <td className="py-1 px-0.5 text-[10px] sm:text-sm">Totals</td>
+              <td className="text-center py-1 px-0.5 text-[10px] sm:text-sm text-right">
+                {(totalCostPct * 100).toFixed(2)}%
+              </td>
+              <td className="text-right">
+                <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
+                  ${totalCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                 </span>
               </td>
             </tr>
@@ -261,8 +275,13 @@ export default function WholetailCalculator() {
         </table>
         <div className="flex justify-between items-center mt-6">
           <div className="font-bold text-[14px] sm:text-base">Max Allowable Offer (MAO)</div>
-          <div className="font-bold bg-green-300 text-green-900 px-1.5 py-0.5 rounded text-[10px] sm:text-lg">
-            ${maxOffer.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+          <div className="flex items-center gap-2">
+            <div className="font-bold bg-green-300 text-green-900 px-1.5 py-0.5 rounded text-[10px] sm:text-lg">
+                ${maxOffer.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+            </div>
+            <div className="font-bold bg-green-300 text-green-900 px-1.5 py-0.5 rounded text-[10px] sm:text-lg">
+              {asIsValue > 0 ? `${((maxOffer / asIsValue) * 100).toFixed(0)}%` : '0%'}
+            </div>
           </div>
         </div>
 
@@ -277,7 +296,7 @@ export default function WholetailCalculator() {
             <thead>
               <tr className="border-b">
                 <th className="w-[34%] text-left py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Expense Item</th>
-                <th className="w-[18%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">%</th>
+                <th className="w-[18%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Percent</th>
                 <th className="w-[28%] text-right py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Amount</th>
                 <th className="w-[20%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Months</th>
               </tr>
@@ -288,7 +307,7 @@ export default function WholetailCalculator() {
                 <td></td>
                 <td className="text-right">
                   <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                    ${totalCapital.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                    ${totalCapital.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                   </span>
                 </td>
                 <td></td>
@@ -303,7 +322,7 @@ export default function WholetailCalculator() {
                 
                 <td className="text-right">
                   <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                    ${firstLoan.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                    ${firstLoan.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                   </span>
                 </td>
                 <td></td>
@@ -317,7 +336,7 @@ export default function WholetailCalculator() {
                 </td>
                 <td className="text-right">
                 <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                  ${firstPoints.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                  ${firstPoints.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                 </span>
               </td>
                 <td></td>
@@ -331,7 +350,7 @@ export default function WholetailCalculator() {
                 </td>
                 <td className="text-right">
                 <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                  ${firstInterest.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                  ${firstInterest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                 </span>
               </td>
                 <td className="text-center py-1 px-0.5">
@@ -345,7 +364,7 @@ export default function WholetailCalculator() {
                 <td></td>
                 <td className="text-right">
                 <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                  ${firstMiscFee.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                  ${firstMiscFee.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                 </span>
               </td>
                 <td></td>
@@ -355,7 +374,7 @@ export default function WholetailCalculator() {
           <div className="flex justify-between items-center mt-2">
             <span className="font-bold text-[10px] sm:text-sm">Total Cost 1st Position</span>
             <span className="bg-green-300 text-green-900 font-bold px-1.5 py-0.5 rounded text-[10px] sm:text-base">
-              ${firstTotal.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+              ${firstTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
             </span>
           </div>
 
@@ -365,7 +384,7 @@ export default function WholetailCalculator() {
             <thead>
               <tr className="border-b">
                 <th className="w-[34%] text-left py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Expense Item</th>
-                <th className="w-[18%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">%</th>
+                <th className="w-[18%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Percent</th>
                 <th className="w-[28%] text-right py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Amount</th>
                 <th className="w-[20%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Months</th>
               </tr>
@@ -376,7 +395,7 @@ export default function WholetailCalculator() {
                 <td></td>
                 <td className="text-right">
                 <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                  ${totalCapital.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                  ${totalCapital.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                 </span>
               </td>
                 <td></td>
@@ -390,7 +409,7 @@ export default function WholetailCalculator() {
                 </td>
                 <td className="text-right">
                   <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                    ${secondLoan.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                    ${secondLoan.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                   </span>
                 </td>
                 <td></td>
@@ -404,7 +423,7 @@ export default function WholetailCalculator() {
                 </td>
                 <td className="text-right">
                   <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                    ${secondPoints.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                    ${secondPoints.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                   </span>
                 </td>
                 <td></td>
@@ -418,7 +437,7 @@ export default function WholetailCalculator() {
                 </td>
                 <td className="text-right">
                   <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                    ${secondInterest.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                    ${secondInterest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                   </span>
                 </td>
                 <td className="text-center py-1 px-0.5">
@@ -430,7 +449,7 @@ export default function WholetailCalculator() {
                 <td></td>
                 <td className="text-right">
                   <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                    ${secondMiscFee.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                    ${secondMiscFee.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                   </span>
                 </td>
                 <td></td>
@@ -439,13 +458,13 @@ export default function WholetailCalculator() {
           </table>
           <div className="flex justify-between items-center mt-2">
             <span className="font-bold text-[10px] sm:text-sm">Total Cost 2nd Position</span>
-            <span className="bg-green-300 text-green-900 font-bold px-1.5 py-0.5 rounded text-[10px] sm:text-base">${secondTotal.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
+            <span className="bg-green-300 text-green-900 font-bold px-1.5 py-0.5 rounded text-[10px] sm:text-base">${secondTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
           </div>
 
           <div className="flex justify-between items-center mt-2">
             <span className="font-bold text-[16px] sm:text-base">Total Funding</span>
             <div className="font-bold bg-green-300 text-green-900 px-1.5 py-0.5 rounded text-[10px] sm:text-lg">
-              ${totalFunding.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+              ${totalFunding.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
             </div>
           </div>
         </div>
@@ -458,7 +477,7 @@ export default function WholetailCalculator() {
           
           {/* Solds Table */}
           <div className="font-bold text-red-700 mb-1">Sold</div>
-          <div className="overflow-x-auto w-full">
+          <div className="overflow-x-auto md:overflow-visible w-full">
             <table className="w-full min-w-[700px] table-fixed">
               <thead>
                 <tr className="border-b">
@@ -511,7 +530,7 @@ export default function WholetailCalculator() {
                         }}
                       />
                     </td>
-                    <td className="border px-0.5 py-1 bg-green-100 text-green-900 font-bold text-right text-[10px] sm:text-sm">{row.sqft ? `$${(row.price / row.sqft).toLocaleString(undefined, {maximumFractionDigits:0})}` : ''}</td>
+                    <td className="border px-0.5 py-1 bg-green-100 text-green-900 font-bold text-right text-[10px] sm:text-sm">{row.sqft ? `$${(row.price / row.sqft).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : ''}</td>
                     <td className="border px-0.5 py-1">
                       <input
                         type="date"
@@ -530,8 +549,8 @@ export default function WholetailCalculator() {
                 <tr className="font-bold">
                   <td className="border px-0.5 py-1 text-[10px] sm:text-sm" colSpan={1}>Average</td>
                   <td className="border px-0.5 py-1 text-[10px] sm:text-sm">{avgSqft.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
-                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm">${avgPrice.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
-                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm">${avgSoldPerSqft.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm">${avgPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm">${avgSoldPerSqft.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                   <td className="border px-0.5 py-1"></td>
                   <td className="border px-0.5 py-1"></td>
                 </tr>
@@ -541,13 +560,13 @@ export default function WholetailCalculator() {
           <div className="flex justify-between items-center pt-2">
             <span className="font-bold text-[16px] sm:text-base">Sold As-Is Value</span>
             <span className="font-bold bg-green-300 text-green-900 px-1.5 py-0.5 rounded text-[10px] sm:text-lg">
-              ${avgPrice.toLocaleString(undefined, {maximumFractionDigits:0})}
+              ${avgPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
             </span>
           </div>
 
           {/* Actives Table */}
           <div className="font-bold text-red-700 mb-1 mt-5">Actives</div>
-          <div className="overflow-x-auto w-full">
+          <div className="overflow-x-auto md:overflow-visible w-full">
             <table className="w-full min-w-[700px] table-fixed">
               <thead>
                 <tr className="border-b">
@@ -601,7 +620,7 @@ export default function WholetailCalculator() {
                       />
                     </td>
                     <td className="border px-0.5 py-1 bg-green-100 text-green-900 font-bold text-right text-[10px] sm:text-sm">
-                      {row.sqft ? `$${(row.price / row.sqft).toLocaleString(undefined, {maximumFractionDigits:0})}` : ''}
+                      {row.sqft ? `$${(row.price / row.sqft).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : ''}
                     </td>
                     <td className="border px-0.5 py-1">
                       <input
@@ -621,8 +640,8 @@ export default function WholetailCalculator() {
                 <tr className="font-bold">
                   <td className="border px-0.5 py-1 text-[10px] sm:text-sm" colSpan={1}>Average</td>
                   <td className="border px-0.5 py-1 text-[10px] sm:text-sm">{avgArvActiveSqft.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
-                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm">${avgArvActivePrice.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
-                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm">${avgArvActivePerSqft.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm">${avgArvActivePrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm">${avgArvActivePerSqft.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                   <td className="border px-0.5 py-1"></td>
                   <td className="border px-0.5 py-1"></td>
                 </tr>
@@ -632,11 +651,11 @@ export default function WholetailCalculator() {
           <div className="flex justify-between items-center pt-2">
             <span className="font-bold text-[16px] sm:text-base">Active As-Is Value</span>
             <span className="font-bold bg-green-300 text-green-900 px-1.5 py-0.5 rounded text-[10px] sm:text-lg">
-              ${avgArvActivePrice.toLocaleString(undefined, {maximumFractionDigits:0})}
+              ${avgArvActivePrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
             </span>
           </div>
 
-          {/* Market Adjustments */}
+          {/* Market Adjustment */}
           <div className="mt-6">
             <div className="font-bold text-red-700 mb-1">Market Adjustment (15 day sale)</div>          
             <div className="space-y-2">
@@ -644,7 +663,7 @@ export default function WholetailCalculator() {
               <div className="flex justify-between items-center">
                 <span className="text-[16px] sm:text-base font-bold">Combined Value</span>
                 <span className="font-bold bg-green-300 text-green-900 px-1.5 py-0.5 rounded text-[10px] sm:text-lg">
-                  ${((avgPrice + avgArvActivePrice) / 2).toLocaleString(undefined, {maximumFractionDigits:0})}
+                  ${((avgPrice + avgArvActivePrice) / 2).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                 </span>
               </div>
               {/* Adjustment */}
@@ -667,7 +686,7 @@ export default function WholetailCalculator() {
               <div className="flex justify-between items-center">
                 <span className="text-[16px] sm:text-base font-bold">Adjusted AS-IS Value</span>
                 <span className="font-bold bg-green-300 text-green-900 px-1.5 py-0.5 rounded text-[10px] sm:text-lg">
-                  ${(((avgPrice + avgArvActivePrice) / 2) * (1 - adjustmentPct)).toLocaleString(undefined, {maximumFractionDigits:0})}
+                  ${(((avgPrice + avgArvActivePrice) / 2) * (1 - adjustmentPct)).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                 </span>
               </div>
             </div>
@@ -676,229 +695,232 @@ export default function WholetailCalculator() {
 
         <hr className="my-6" />
 
-        {/* ARV FORMULA SECTION */}
-        <div className="my-10">
-          <div className="font-bold text-blue-700 my-2 text-center text-xl">ARV Formula</div>
+        <div className="sm:max-w-xl sm:mx-auto">
+          {/* ARV FORMULA SECTION */}
+          <div className="my-10">
+            <div className="font-bold text-blue-700 my-2 text-center text-xl">ARV Formula</div>
 
-          {/* ARV Row */}
-          <div className="flex justify-between items-center my-5">
-            <span className="text-[16px] sm:text-base font-bold">ARV</span>
-            <span className="font-bold bg-green-300 text-green-900 px-1.5 py-0.5 rounded text-[10px] sm:text-lg">${arv.toLocaleString()}</span>
-          </div>          
+            {/* ARV Row */}
+            <div className="flex justify-between items-center my-5">
+              <span className="text-[16px] sm:text-base font-bold">ARV</span>
+              <span className="font-bold bg-green-300 text-green-900 px-1.5 py-0.5 rounded text-[10px] sm:text-lg">${arv.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+            </div>          
 
-          {/* Repair Cost Table */}
-          <div className="mb-4">
-            <div className="text-[16px] sm:text-base mb-3 font-bold">Repair Cost</div>
-            <table className="w-full table-fixed ">
-              <thead>
-                <tr className="border-b">
-                  <th className="w-[40%] text-left py-1 px-0.5 text-[10px] sm:text-sm ">Condition</th>
-                  <th className="w-[30%] text-center py-1 px-0.5 text-[10px] sm:text-sm">Cost/SqFt</th>
-                  <th className="w-[30%] text-right py-1 px-0.5 text-[10px] sm:text-sm ">Cost</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="py-1 px-0.5 text-[10px] sm:text-sm ">Light</td>
-                  <td className="text-center py-1 px-0.5">
-                    <input type="number" step="0.01" min="0" value={10.00} className="border rounded px-0.5 py-1 w-16 sm:w-24 text-right text-[10px] sm:text-sm" readOnly />
+            {/* Repair Cost Table */}
+            <div className="mb-4">
+              <div className="text-[16px] sm:text-base mb-3 font-bold">Repair Cost</div>
+              <table className="w-full table-fixed ">
+                <thead>
+                  <tr className="border-b">
+                    <th className="w-[40%] text-left py-1 px-0.5 text-[10px] sm:text-sm ">Condition</th>
+                    <th className="w-[30%] text-center py-1 px-0.5 text-[10px] sm:text-sm">Cost/SqFt</th>
+                    <th className="w-[30%] text-right py-1 px-0.5 text-[10px] sm:text-sm ">Cost</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="py-1 px-0.5 text-[10px] sm:text-sm ">Light</td>
+                    <td className="text-center py-1 px-0.5">
+                      <input type="number" step="0.01" min="0" value={10.00} className="border rounded px-0.5 py-1 w-16 sm:w-24 text-right text-[10px] sm:text-sm" readOnly />
+                    </td>
+                    <td className="text-right py-1 px-0.5 bg-green-200 text-green-900 text-[10px] sm:text-sm">$0.00</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1 px-0.5 text-[10px] sm:text-sm">Average</td>
+                    <td className="text-center py-1 px-0.5">
+                      <input type="number" step="0.01" min="0" value={25.00} className="border rounded px-0.5 py-1 w-16 sm:w-24 text-right text-[10px] sm:text-sm" readOnly />
+                    </td>
+                    <td className="text-right py-1 px-0.5 bg-green-200 text-green-900 text-[10px] sm:text-sm">$0.00</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1 px-0.5 text-[10px] sm:text-sm">Heavy</td>
+                    <td className="text-center py-1 px-0.5">
+                      <input type="number" step="0.01" min="0" value={50.00} className="border rounded px-0.5 py-1 w-16 sm:w-24 text-right text-[10px] sm:text-sm" readOnly />
+                    </td>
+                    <td className="text-right py-1 px-0.5 bg-green-200 text-green-900 text-[10px] sm:text-sm">$0.00</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div className="flex justify-between items-center mt-4 border-t pt-4">
+                <span className="text-[12px] sm:text-sm">Total Repair Cost</span>
+                <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-sm">${repairCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+              </div>            
+            </div>
+
+            {/* EXIT (ARV - REPAIRS) */}
+            <div className="flex justify-between items-center mt-4 pt-4">
+              <span className="font-bold text-[14px] sm:text-base">EXIT (ARV - Repairs)</span>
+              <div className="flex items-center gap-2 w-24 sm:w-28">
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  step={0.01}
+                  value={(exitPct * 100).toFixed(2)}
+                  onChange={e => {
+                    const val = Number(e.target.value) / 100;
+                    if (!isNaN(val)) {
+                      // @ts-ignore
+                      window.exitPct = val; // for debugging
+                    }
+                  }}
+                  className="border rounded px-1 py-1 text-center text-[10px] sm:text-base w-full"
+                  style={{minWidth: '3.5rem'}}
+                />
+                <span className="text-[10px] sm:text-base">%</span>
+              </div>
+              <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-base">${exitValue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+            </div>
+
+            {/* Gross Wholesale Fee */}
+            <div className="flex justify-between items-center mt-4 pt-4">
+              <span className="font-bold text-[16px] sm:text-base">Gross Wholesale Fee</span>
+              <input
+                type="text"
+                value={`$${wholesaleTargetFee.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`}
+                className="border rounded px-2 py-1 text-right text-[10px] sm:text-base w-24 sm:w-32"
+                readOnly
+              />
+            </div>
+
+            {/* Max Buy */}
+            <div className="flex justify-between items-center mt-4 pt-4">
+              <span className="font-bold text-[14px] sm:text-base">Max Buy</span>
+              <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-base w-24 sm:w-28 text-center">${maxBuy.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+              <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-base w-24 sm:w-28 text-center">{(maxBuyPct * 100).toFixed(0)}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr className="my-6" />
+
+      {/* ARV Comps */}
+      <div className="my-10">
+        <div className="font-bold text-blue-700 my-2 text-center text-xl">ARV Comps</div>          
+        <div className="overflow-x-auto md:overflow-visible w-full">
+          <table className="w-full min-w-[700px] table-fixed">
+            <thead>
+              <tr className="border-b">
+                <th className="w-[20%] text-left py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Address</th>
+                <th className="w-[13%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Sq. Ft.</th>
+                <th className="w-[17%] text-right py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Sold Price</th>
+                <th className="w-[15%] text-right py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Sold/Sq. Ft</th>
+                <th className="w-[20%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Sold Date</th>
+                <th className="w-[15%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Days</th>
+              </tr>
+            </thead>
+            <tbody>
+              {arvSoldComps.map((row, i) => (
+                <tr key={i}>
+                  <td className="border px-0.5 py-1">
+                    <input
+                      type="text"
+                      value={row.address}
+                      className="w-24 sm:w-32 border rounded px-0.5 py-1 text-[10px] sm:text-sm"
+                      onChange={e => {
+                        const newComps = [...arvSoldComps];
+                        newComps[i].address = e.target.value;
+                        setArvSoldComps(newComps);
+                      }}
+                    />
                   </td>
-                  <td className="text-right py-1 px-0.5 bg-green-200 text-green-900 text-[10px] sm:text-sm">$0</td>
-                </tr>
-                <tr>
-                  <td className="py-1 px-0.5 text-[10px] sm:text-sm">Average</td>
-                  <td className="text-center py-1 px-0.5">
-                    <input type="number" step="0.01" min="0" value={25.00} className="border rounded px-0.5 py-1 w-16 sm:w-24 text-right text-[10px] sm:text-sm" readOnly />
+                  <td className="border px-0.5 py-1">
+                    <input
+                      type="number"
+                      value={row.sqft}
+                      min={0}
+                      className="w-14 sm:w-20 border rounded px-0.5 py-1 text-right text-[10px] sm:text-sm"
+                      onChange={e => {
+                        const newComps = [...arvSoldComps];
+                        newComps[i].sqft = Number(e.target.value);
+                        setArvSoldComps(newComps);
+                      }}
+                    />
                   </td>
-                  <td className="text-right py-1 px-0.5 bg-green-200 text-green-900 text-[10px] sm:text-sm">$0</td>
-                </tr>
-                <tr>
-                  <td className="py-1 px-0.5 text-[10px] sm:text-sm">Heavy</td>
-                  <td className="text-center py-1 px-0.5">
-                    <input type="number" step="0.01" min="0" value={50.00} className="border rounded px-0.5 py-1 w-16 sm:w-24 text-right text-[10px] sm:text-sm" readOnly />
+                  <td className="border px-0.5 py-1">
+                    <input
+                      type="number"
+                      value={row.price}
+                      min={0}
+                      className="w-20 sm:w-28 border rounded px-0.5 py-1 text-right text-[10px] sm:text-sm"
+                      onChange={e => {
+                        const newComps = [...arvSoldComps];
+                        newComps[i].price = Number(e.target.value);
+                        setArvSoldComps(newComps);
+                      }}
+                    />
                   </td>
-                  <td className="text-right py-1 px-0.5 bg-green-200 text-green-900 text-[10px] sm:text-sm">$0</td>
+                  <td className="border px-0.5 py-1 bg-green-100 text-green-900 font-bold text-right text-[10px] sm:text-sm">{row.sqft ? `$${(row.price / row.sqft).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : ''}</td>
+                  <td className="border px-0.5 py-1">
+                    <input
+                      type="date"
+                      value={row.date}
+                      className="w-24 border rounded px-0.5 py-1 text-[10px] sm:text-sm"
+                      onChange={e => {
+                        const newComps = [...arvSoldComps];
+                        newComps[i].date = e.target.value;
+                        setArvSoldComps(newComps);
+                      }}
+                    />
+                  </td>
+                  <td className="border px-0.5 py-1 bg-green-100 text-green-900 font-bold text-center text-[10px] sm:text-sm">{daysBetween(row.date)}</td>
                 </tr>
-              </tbody>
-            </table>
-            <div className="flex justify-between items-center mt-4 border-t pt-4">
-              <span className="text-[12px] sm:text-sm">Total Repair Cost</span>
-              <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-sm">${repairCost.toLocaleString()}</span>
-            </div>            
+              ))}
+              <tr className="font-bold">
+                <td className="border px-0.5 py-1 text-[10px] sm:text-sm" colSpan={1}>Average</td>
+                <td className="border px-0.5 py-1 text-[10px] sm:text-sm bg-green-300 text-green-900">{avgArvSoldSqft.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                <td className="border px-0.5 py-1 text-[10px] sm:text-sm bg-green-300 text-green-900">${avgArvSoldPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                <td className="border px-0.5 py-1 text-[10px] sm:text-sm bg-green-300 text-green-900">${avgArvSoldPerSqft.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                <td className="border px-0.5 py-1"></td>
+                <td className="border px-0.5 py-1 bg-green-300 text-green-900">{avgArvSoldDays.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* ARV Average Price (Price/Sqft) and Market Adjustment */}
+        <div className="mb-8">
+          {/* ARV Average Price */}
+          <div className="flex justify-between items-center mt-6">
+            <span className="font-bold text-[14px] sm:text-base">ARV Average Price (Price/Sqft)</span>
+            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-base">
+              ${avgArvSoldPerSqft && avgArvSoldSqft ? (avgArvSoldPerSqft * avgArvSoldSqft).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '$0.00'}
+            </span>
           </div>
 
-          {/* EXIT (ARV - REPAIRS) */}
-          <div className="flex justify-between items-center mt-4 pt-4">
-            <span className="font-bold text-[14px] sm:text-base">Exit (ARV - Repairs)</span>
-            <div className="flex items-center gap-2 w-24 sm:w-28">
+          {/* ARV Market Adjustment */}
+          <div className="mt-6">
+            <div className="font-bold text-[14px] sm:text-base mb-2">ARV Market Adjustment</div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 items-center">
+              <span className="text-[12px] sm:text-base">6 mo prior</span>                
               <input
                 type="number"
+                value={arvMarketPrior}
+                onChange={e => setArvMarketPrior(Number(e.target.value))}
+                className="border rounded px-2 py-1 text-right text-[10px] sm:text-base w-full"
                 min={0}
-                max={100}
-                step={0.01}
-                value={(exitPct * 100).toFixed(2)}
-                onChange={e => {
-                  const val = Number(e.target.value) / 100;
-                  if (!isNaN(val)) {
-                    // @ts-ignore
-                    window.exitPct = val; // for debugging
-                  }
-                }}
-                className="border rounded px-1 py-1 text-center text-[10px] sm:text-base w-full"
-                style={{minWidth: '3.5rem'}}
               />
-              <span className="text-[10px] sm:text-base">%</span>
-            </div>
-            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-base">${exitValue.toLocaleString()}</span>
-          </div>
-
-          {/* Gross Wholesale Fee */}
-          <div className="flex justify-between items-center mt-4 pt-4">
-            <span className="font-bold text-[16px] sm:text-base">Gross Wholesale Fee</span>
-            <input
-              type="number"
-              value={wholesaleTargetFee}
-              className="border rounded px-2 py-1 text-right text-[10px] sm:text-base w-24 sm:w-32"
-              readOnly
-            />
-          </div>
-
-          {/* Max Buy */}
-          <div className="flex justify-between items-center mt-4 pt-4">
-            <span className="font-bold text-[14px] sm:text-base">Max Buy</span>
-            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-base w-24 sm:w-28 text-center">${maxBuy.toLocaleString()}</span>
-            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-base w-24 sm:w-28 text-center">{(maxBuyPct * 100).toFixed(0)}%</span>
-          </div>
-        </div>
-
-        <hr className="my-6" />
-
-        {/* ARV Comps */}
-        <div className="my-10">
-          <div className="font-bold text-blue-700 my-2 text-center text-xl">ARV Comps</div>          
-          <div className="overflow-x-auto w-full">
-            <table className="w-full min-w-[700px] table-fixed">
-              <thead>
-                <tr className="border-b">
-                  <th className="w-[20%] text-left py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Address</th>
-                  <th className="w-[13%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Sq. Ft.</th>
-                  <th className="w-[17%] text-right py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Sold Price</th>
-                  <th className="w-[15%] text-right py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Sold/Sq. Ft</th>
-                  <th className="w-[20%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Sold Date</th>
-                  <th className="w-[15%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Days</th>
-                </tr>
-              </thead>
-              <tbody>
-                {arvSoldComps.map((row, i) => (
-                  <tr key={i}>
-                    <td className="border px-0.5 py-1">
-                      <input
-                        type="text"
-                        value={row.address}
-                        className="w-24 sm:w-32 border rounded px-0.5 py-1 text-[10px] sm:text-sm"
-                        onChange={e => {
-                          const newComps = [...arvSoldComps];
-                          newComps[i].address = e.target.value;
-                          setArvSoldComps(newComps);
-                        }}
-                      />
-                    </td>
-                    <td className="border px-0.5 py-1">
-                      <input
-                        type="number"
-                        value={row.sqft}
-                        min={0}
-                        className="w-14 sm:w-20 border rounded px-0.5 py-1 text-right text-[10px] sm:text-sm"
-                        onChange={e => {
-                          const newComps = [...arvSoldComps];
-                          newComps[i].sqft = Number(e.target.value);
-                          setArvSoldComps(newComps);
-                        }}
-                      />
-                    </td>
-                    <td className="border px-0.5 py-1">
-                      <input
-                        type="number"
-                        value={row.price}
-                        min={0}
-                        className="w-20 sm:w-28 border rounded px-0.5 py-1 text-right text-[10px] sm:text-sm"
-                        onChange={e => {
-                          const newComps = [...arvSoldComps];
-                          newComps[i].price = Number(e.target.value);
-                          setArvSoldComps(newComps);
-                        }}
-                      />
-                    </td>
-                    <td className="border px-0.5 py-1 bg-green-100 text-green-900 font-bold text-right text-[10px] sm:text-sm">{row.sqft ? `$${(row.price / row.sqft).toLocaleString(undefined, {maximumFractionDigits:0})}` : ''}</td>
-                    <td className="border px-0.5 py-1">
-                      <input
-                        type="date"
-                        value={row.date}
-                        className="w-24 border rounded px-0.5 py-1 text-[10px] sm:text-sm"
-                        onChange={e => {
-                          const newComps = [...arvSoldComps];
-                          newComps[i].date = e.target.value;
-                          setArvSoldComps(newComps);
-                        }}
-                      />
-                    </td>
-                    <td className="border px-0.5 py-1 bg-green-100 text-green-900 font-bold text-center text-[10px] sm:text-sm">{daysBetween(row.date)}</td>
-                  </tr>
-                ))}
-                <tr className="font-bold">
-                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm" colSpan={1}>Average</td>
-                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm bg-green-300 text-green-900">{avgArvSoldSqft.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
-                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm bg-green-300 text-green-900">${avgArvSoldPrice.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
-                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm bg-green-300 text-green-900">${avgArvSoldPerSqft.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
-                  <td className="border px-0.5 py-1"></td>
-                  <td className="border px-0.5 py-1 bg-green-300 text-green-900">{avgArvSoldDays.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          {/* ARV Average Price (Price/Sqft) and Market Adjustment */}
-          <div className="mb-8">
-            {/* ARV Average Price */}
-            <div className="flex justify-between items-center mt-6">
-              <span className="font-bold text-[14px] sm:text-base">ARV Average Price (Price/Sqft)</span>
-              <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-base">
-                ${avgArvSoldPerSqft && avgArvSoldSqft ? (avgArvSoldPerSqft * avgArvSoldSqft).toLocaleString(undefined, {maximumFractionDigits:0}) : '$0'}
+              <span className="text-[12px] sm:text-base">Current</span>
+              <input
+                type="number"
+                value={arvMarketCurrent}
+                onChange={e => setArvMarketCurrent(Number(e.target.value))}
+                className="border rounded px-2 py-1 text-right text-[10px] sm:text-base w-full"
+                min={0}
+              />
+              <span className="font-bold text-[12px] sm:text-base">Gain/Loss</span>
+              <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-base text-center">
+                {arvMarketPrior > 0 ? `${(((arvMarketCurrent - arvMarketPrior) / arvMarketPrior) * 100).toFixed(0)}%` : '0%'}
+              </span>
+              <span className="font-bold text-[12px] sm:text-base">Adjusted ARV</span>
+              <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-base text-center">
+                ${arvMarketCurrent.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
               </span>
             </div>
-
-            {/* ARV Market Adjustment */}
-            <div className="mt-6">
-              <div className="font-bold text-[14px] sm:text-base mb-2">ARV Market Adjustment</div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 items-center">
-                <span className="text-[12px] sm:text-base">6 mo prior</span>                
-                <input
-                  type="number"
-                  value={arvMarketPrior}
-                  onChange={e => setArvMarketPrior(Number(e.target.value))}
-                  className="border rounded px-2 py-1 text-right text-[10px] sm:text-base w-full"
-                  min={0}
-                />
-                <span className="text-[12px] sm:text-base">Current</span>
-                <input
-                  type="number"
-                  value={arvMarketCurrent}
-                  onChange={e => setArvMarketCurrent(Number(e.target.value))}
-                  className="border rounded px-2 py-1 text-right text-[10px] sm:text-base w-full"
-                  min={0}
-                />
-                <span className="font-bold text-[12px] sm:text-base">Gain/Loss</span>
-                <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-base text-center">
-                  {arvMarketPrior > 0 ? `${(((arvMarketCurrent - arvMarketPrior) / arvMarketPrior) * 100).toFixed(0)}%` : '0%'}
-                </span>
-                <span className="font-bold text-[12px] sm:text-base">Adjusted ARV</span>
-                <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-base text-center">
-                  ${arvMarketCurrent.toLocaleString(undefined, {maximumFractionDigits:0})}
-                </span>
-              </div>
-            </div>
           </div>
         </div>
+      </div>
     </div>
   );
 }
