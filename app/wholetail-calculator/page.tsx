@@ -4,13 +4,13 @@ import { useState } from 'react';
 
 export default function WholetailCalculator() {
   const [asIsValue, setAsIsValue] = useState(325000);
-  const [wholesaleFee, setWholesaleFee] = useState(0);
 
   const [closingFeePct, setClosingFeePct] = useState(0.03);
   const [cleanUpPct, setCleanUpPct] = useState(0.01);
   const [listAgentPct, setListAgentPct] = useState(0.01);
   const [buyerAgentPct, setBuyerAgentPct] = useState(0.03);
   const [fundingPct, setFundingPct] = useState(0.03);
+  const [wholesaleFeePct, setWholesaleFeePct] = useState(0);
   const [profitPct, setProfitPct] = useState(0.19);
 
   const [firstLoanPct, setFirstLoanPct] = useState(0.8);
@@ -31,6 +31,7 @@ export default function WholetailCalculator() {
   const buyerAgentFee = asIsValue * buyerAgentPct;
   const fundingCost = asIsValue * fundingPct;
   const profit = asIsValue * profitPct;
+  const wholesaleFee = asIsValue * wholesaleFeePct;
 
   const totalCost =
     closingFees +
@@ -154,20 +155,11 @@ export default function WholetailCalculator() {
             className="border rounded p-2 w-full"
           />
         </div>
-        <div>
-          <label className="block font-medium">Wholesale Fee ($)</label>
-          <input
-            type="number"
-            value={wholesaleFee}
-            onChange={(e) => setWholesaleFee(Number(e.target.value))}
-            className="border rounded p-2 w-full"
-          />
-        </div>
         
         <hr className="my-6" />
 
         {/* BUY FORMULA SECTION */}
-        <div className="font-bold text-blue-700 mt-6 mb-2 text-center text-xl">Buy Formula</div>      
+        <div className="font-bold text-blue-700 mt-10 mb-2 text-center text-xl">Buy Formula</div>      
         <table className="w-full table-fixed">
           <thead>
             <tr className="border-b">
@@ -185,8 +177,10 @@ export default function WholetailCalculator() {
                   onChange={e => setClosingFeePct(Number(e.target.value)/100)} 
                   className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
               </td>
-              <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">
+              <td className="text-right">
+                <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
                   ${closingFees.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                </span>
               </td>
             </tr>
             <tr className="border-b">
@@ -194,8 +188,10 @@ export default function WholetailCalculator() {
               <td className="text-center py-1 px-0.5">
                 <input type="number" step="0.01" min="0" max="100" value={(cleanUpPct*100).toFixed(2)} onChange={e => setCleanUpPct(Number(e.target.value)/100)} className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
               </td>
-              <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">
-                ${cleanUpCost.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+              <td className="text-right">
+                <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
+                  ${cleanUpCost.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                </span>
               </td>
             </tr>
             <tr className="border-b">
@@ -203,8 +199,10 @@ export default function WholetailCalculator() {
               <td className="text-center py-1 px-0.5">
                 <input type="number" step="0.01" min="0" max="100" value={(listAgentPct*100).toFixed(2)} onChange={e => setListAgentPct(Number(e.target.value)/100)} className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
               </td>
-              <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">
-                ${listAgentFee.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+              <td className="text-right">
+                <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
+                  ${listAgentFee.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                </span>
               </td>
             </tr>
             <tr className="border-b">
@@ -212,8 +210,10 @@ export default function WholetailCalculator() {
               <td className="text-center py-1 px-0.5">
                 <input type="number" step="0.01" min="0" max="100" value={(buyerAgentPct*100).toFixed(2)} onChange={e => setBuyerAgentPct(Number(e.target.value)/100)} className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
               </td>
-              <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">
-                ${buyerAgentFee.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+              <td className="text-right">
+                <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
+                  ${buyerAgentFee.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                </span>
               </td>
             </tr>
             <tr className="border-b">
@@ -221,24 +221,40 @@ export default function WholetailCalculator() {
               <td className="text-center py-1 px-0.5">
                 <input type="number" step="0.01" min="0" max="100" value={(fundingPct*100).toFixed(2)} onChange={e => setFundingPct(Number(e.target.value)/100)} className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
               </td>
-              <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">
-                ${fundingCost.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+              <td className="text-right">
+                <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
+                  ${fundingCost.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                </span>
               </td>
             </tr>
             <tr className="border-b">
               <td className="py-1 px-0.5 text-[10px] sm:text-sm">Wholesale Fee</td>
-              <td></td>
-              <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">
-                ${wholesaleFee.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+              <td className="text-center py-1 px-0.5">
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="100"
+                  value={(wholesaleFeePct * 100).toFixed(2)}
+                  onChange={e => setWholesaleFeePct(Number(e.target.value) / 100)}
+                  className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm"
+                />
+              </td>
+              <td className="text-right">
+                <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
+                  ${wholesaleFee.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                </span>
               </td>
             </tr>
             <tr className="border-b">
               <td className="py-1 px-0.5 text-[10px] sm:text-sm">Profit</td>
               <td className="text-center py-1 px-0.5">
                 <input type="number" step="0.01" min="0" max="100" value={(profitPct*100).toFixed(2)} onChange={e => setProfitPct(Number(e.target.value)/100)} className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
-              </td>
-              <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">
-                ${profit.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+              </td>              
+              <td className="text-right">
+                <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
+                  ${profit.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                </span>
               </td>
             </tr>
           </tbody>          
@@ -253,7 +269,7 @@ export default function WholetailCalculator() {
         <hr className="my-6" />
 
         {/* FUNDING SECTION */}
-        <div className="mb-8">
+        <div className="my-10">
           <div className="font-bold text-blue-700 my-2 text-center text-xl">Funding</div>
           {/* 1st Position */}
           <div className="font-bold text-blue-700 mb-1">1st Position</div>
@@ -270,46 +286,77 @@ export default function WholetailCalculator() {
               <tr className="border-b">
                 <td className="py-1 px-0.5 text-[10px] sm:text-sm">Total Capital</td>
                 <td></td>
-                <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">${totalCapital.toLocaleString()}</td>
+                <td className="text-right">
+                  <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
+                    ${totalCapital.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                  </span>
+                </td>
                 <td></td>
               </tr>
               <tr className="border-b">
                 <td className="py-1 px-0.5 text-[10px] sm:text-sm">Loan-to-Capital</td>
                 <td className="text-center py-1 px-0.5">
-                  <input type="number" step="0.01" min="0" max="100" value={(firstLoanPct*100).toFixed(2)} onChange={e => setFirstLoanPct(Number(e.target.value)/100)} className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
+                  <input type="number" step="0.01" min="0" max="100" value={(firstLoanPct*100).toFixed(2)} 
+                    onChange={e => setFirstLoanPct(Number(e.target.value)/100)} 
+                    className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
                 </td>
-                <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">${firstLoan.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</td>
+                
+                <td className="text-right">
+                  <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
+                    ${firstLoan.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                  </span>
+                </td>
                 <td></td>
               </tr>
               <tr className="border-b">
                 <td className="py-1 px-0.5 text-[10px] sm:text-sm">Points</td>
                 <td className="text-center py-1 px-0.5">
-                  <input type="number" step="0.01" min="0" max="100" value={(firstPointsPct*100).toFixed(2)} onChange={e => setFirstPointsPct(Number(e.target.value)/100)} className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
+                  <input type="number" step="0.01" min="0" max="100" value={(firstPointsPct*100).toFixed(2)} 
+                    onChange={e => setFirstPointsPct(Number(e.target.value)/100)} 
+                    className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
                 </td>
-                <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">${firstPoints.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</td>
+                <td className="text-right">
+                <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
+                  ${firstPoints.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                </span>
+              </td>
                 <td></td>
               </tr>
               <tr className="border-b">
                 <td className="py-1 px-0.5 text-[10px] sm:text-sm">Interest</td>
                 <td className="text-center py-1 px-0.5">
-                  <input type="number" step="0.01" min="0" max="100" value={(firstInterestPct*100).toFixed(2)} onChange={e => setFirstInterestPct(Number(e.target.value)/100)} className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
+                  <input type="number" step="0.01" min="0" max="100" value={(firstInterestPct*100).toFixed(2)} 
+                    onChange={e => setFirstInterestPct(Number(e.target.value)/100)} 
+                    className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
                 </td>
-                <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">${firstInterest.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</td>
+                <td className="text-right">
+                <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
+                  ${firstInterest.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                </span>
+              </td>
                 <td className="text-center py-1 px-0.5">
-                  <input type="number" step="1" min="0" value={months} onChange={e => setMonths(Number(e.target.value))} className="border rounded px-0.5 py-1 w-10 sm:w-20 text-center text-[10px] sm:text-sm" />
+                  <input type="number" step="1" min="0" value={months} 
+                    onChange={e => setMonths(Number(e.target.value))} 
+                    className="border rounded px-0.5 py-1 w-10 sm:w-20 text-center text-[10px] sm:text-sm" />
                 </td>
               </tr>
               <tr className="border-b">
                 <td className="py-1 px-0.5 text-[10px] sm:text-sm">Misc. Fee</td>
                 <td></td>
-                <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">${firstMiscFee.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</td>
+                <td className="text-right">
+                <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
+                  ${firstMiscFee.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                </span>
+              </td>
                 <td></td>
               </tr>
             </tbody>          
           </table>
           <div className="flex justify-between items-center mt-2">
             <span className="font-bold text-[10px] sm:text-sm">Total Cost 1st Position</span>
-            <span className="bg-green-300 text-green-900 font-bold px-1.5 py-0.5 rounded text-[10px] sm:text-base">${firstTotal.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
+            <span className="bg-green-300 text-green-900 font-bold px-1.5 py-0.5 rounded text-[10px] sm:text-base">
+              ${firstTotal.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+            </span>
           </div>
 
           {/* 2nd Position */}
@@ -327,31 +374,53 @@ export default function WholetailCalculator() {
               <tr className="border-b">
                 <td className="py-1 px-0.5 text-[10px] sm:text-sm">Total Capital</td>
                 <td></td>
-                <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">${totalCapital.toLocaleString()}</td>
+                <td className="text-right">
+                <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
+                  ${totalCapital.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                </span>
+              </td>
                 <td></td>
               </tr>
               <tr className="border-b">
                 <td className="py-1 px-0.5 text-[10px] sm:text-sm">Loan-to-Capital</td>
                 <td className="text-center py-1 px-0.5">
-                  <input type="number" step="0.01" min="0" max="100" value={(secondLoanPct*100).toFixed(2)} onChange={e => setSecondLoanPct(Number(e.target.value)/100)} className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
+                  <input type="number" step="0.01" min="0" max="100" value={(secondLoanPct*100).toFixed(2)} 
+                    onChange={e => setSecondLoanPct(Number(e.target.value)/100)} 
+                    className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
                 </td>
-                <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">${secondLoan.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</td>
+                <td className="text-right">
+                  <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
+                    ${secondLoan.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                  </span>
+                </td>
                 <td></td>
               </tr>
               <tr className="border-b">
                 <td className="py-1 px-0.5 text-[10px] sm:text-sm">Points</td>
                 <td className="text-center py-1 px-0.5">
-                  <input type="number" step="0.01" min="0" max="100" value={(secondPointsPct*100).toFixed(2)} onChange={e => setSecondPointsPct(Number(e.target.value)/100)} className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
+                  <input type="number" step="0.01" min="0" max="100" value={(secondPointsPct*100).toFixed(2)} 
+                    onChange={e => setSecondPointsPct(Number(e.target.value)/100)} 
+                    className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
                 </td>
-                <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">${secondPoints.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</td>
+                <td className="text-right">
+                  <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
+                    ${secondPoints.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                  </span>
+                </td>
                 <td></td>
               </tr>
               <tr className="border-b">
                 <td className="py-1 px-0.5 text-[10px] sm:text-sm">Interest</td>
                 <td className="text-center py-1 px-0.5">
-                  <input type="number" step="0.01" min="0" max="100" value={(secondInterestPct*100).toFixed(2)} onChange={e => setSecondInterestPct(Number(e.target.value)/100)} className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
+                  <input type="number" step="0.01" min="0" max="100" value={(secondInterestPct*100).toFixed(2)} 
+                    onChange={e => setSecondInterestPct(Number(e.target.value)/100)} 
+                    className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
                 </td>
-                <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">${secondInterest.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</td>
+                <td className="text-right">
+                  <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
+                    ${secondInterest.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                  </span>
+                </td>
                 <td className="text-center py-1 px-0.5">
                   <input type="number" step="1" min="0" value={months} onChange={e => setMonths(Number(e.target.value))} className="border rounded px-0.5 py-1 w-10 sm:w-20 text-center text-[10px] sm:text-sm" />
                 </td>
@@ -359,7 +428,11 @@ export default function WholetailCalculator() {
               <tr className="border-b">
                 <td className="py-1 px-0.5 text-[10px] sm:text-sm">Misc. Fee</td>
                 <td></td>
-                <td className="text-right py-1 px-0.5 text-[10px] sm:text-sm">${secondMiscFee.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</td>
+                <td className="text-right">
+                  <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
+                    ${secondMiscFee.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}
+                  </span>
+                </td>
                 <td></td>
               </tr>
             </tbody>          
@@ -380,7 +453,7 @@ export default function WholetailCalculator() {
         <hr className="my-6" />
 
         {/* AS-IS COMPS SECTION */}
-        <div className="mb-8">
+        <div className="my-10">
           <div className="font-bold text-blue-700 my-2 text-center text-xl">As-Is Comps</div>          
           
           {/* Solds Table */}
@@ -466,8 +539,8 @@ export default function WholetailCalculator() {
             </table>
           </div>
           <div className="flex justify-between items-center pt-2">
-            <span className="font-bold text-[10px] sm:text-sm">Sold As-Is Value</span>
-            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-sm">
+            <span className="font-bold text-[16px] sm:text-base">Sold As-Is Value</span>
+            <span className="font-bold bg-green-300 text-green-900 px-1.5 py-0.5 rounded text-[10px] sm:text-lg">
               ${avgPrice.toLocaleString(undefined, {maximumFractionDigits:0})}
             </span>
           </div>
@@ -557,25 +630,27 @@ export default function WholetailCalculator() {
             </table>
           </div>
           <div className="flex justify-between items-center pt-2">
-            <span className="font-bold text-[10px] sm:text-sm">Active As-Is Value</span>
-            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-sm">${avgArvActivePrice.toLocaleString(undefined, {maximumFractionDigits:0})}</span>
+            <span className="font-bold text-[16px] sm:text-base">Active As-Is Value</span>
+            <span className="font-bold bg-green-300 text-green-900 px-1.5 py-0.5 rounded text-[10px] sm:text-lg">
+              ${avgArvActivePrice.toLocaleString(undefined, {maximumFractionDigits:0})}
+            </span>
           </div>
 
           {/* Market Adjustments */}
           <div className="mt-6">
             <div className="font-bold text-red-700 mb-1">Market Adjustment (15 day sale)</div>          
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full">
+            <div className="space-y-2">
               {/* Combined Value */}
-              <div className="flex-1 flex flex-col items-stretch text-center">
-                <span className="text-[10px] sm:text-xs font-semibold mb-1">Combined Value</span>
-                <span className="bg-green-300 text-black font-bold rounded py-2 px-1 text-[10px] sm:text-sm">
+              <div className="flex justify-between items-center">
+                <span className="text-[16px] sm:text-base font-bold">Combined Value</span>
+                <span className="font-bold bg-green-300 text-green-900 px-1.5 py-0.5 rounded text-[10px] sm:text-lg">
                   ${((avgPrice + avgArvActivePrice) / 2).toLocaleString(undefined, {maximumFractionDigits:0})}
                 </span>
               </div>
               {/* Adjustment */}
-              <div className="flex-1 flex flex-col items-stretch text-center">
-                <span className="text-[10px] sm:text-xs font-semibold mb-1">Adjustment</span>
-                <div className="relative w-full">
+              <div className="flex justify-between items-center">
+                <span className="text-[16px] sm:text-base font-bold">Adjustment</span>
+                <div className="relative w-24">
                   <input
                     type="number"
                     min={0}
@@ -583,15 +658,17 @@ export default function WholetailCalculator() {
                     step={0.01}
                     value={(adjustmentPct * 100).toFixed(2)}
                     onChange={e => setAdjustmentPct(Number(e.target.value) / 100)}
-                    className="border rounded px-5 py-2 pr-6 text-center text-[10px] sm:text-sm w-full"
+                    className="border rounded px-1 py-1 pr-6 text-center text-[10px] sm:text-sm w-full"
                   />
                   <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[14px] sm:text-sm pointer-events-none">%</span>
                 </div>
               </div>
               {/* Adjusted As-Is Value */}
-              <div className="flex-1 flex flex-col items-stretch text-center">
-                <span className="text-[10px] sm:text-xs font-semibold mb-1">Adjusted AS-IS Value</span>
-                <span className="bg-green-300 text-black font-bold rounded py-2 px-1 text-[10px] sm:text-sm">${(((avgPrice + avgArvActivePrice) / 2) * (1 - adjustmentPct)).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</span>
+              <div className="flex justify-between items-center">
+                <span className="text-[16px] sm:text-base font-bold">Adjusted AS-IS Value</span>
+                <span className="font-bold bg-green-300 text-green-900 px-1.5 py-0.5 rounded text-[10px] sm:text-lg">
+                  ${(((avgPrice + avgArvActivePrice) / 2) * (1 - adjustmentPct)).toLocaleString(undefined, {maximumFractionDigits:0})}
+                </span>
               </div>
             </div>
           </div>
@@ -600,18 +677,18 @@ export default function WholetailCalculator() {
         <hr className="my-6" />
 
         {/* ARV FORMULA SECTION */}
-        <div className="mb-8">
+        <div className="my-10">
           <div className="font-bold text-blue-700 my-2 text-center text-xl">ARV Formula</div>
 
           {/* ARV Row */}
           <div className="flex justify-between items-center my-5">
-            <span className="text-[14px] sm:text-base font-bold">ARV</span>
-            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-sm">${arv.toLocaleString()}</span>
+            <span className="text-[16px] sm:text-base font-bold">ARV</span>
+            <span className="font-bold bg-green-300 text-green-900 px-1.5 py-0.5 rounded text-[10px] sm:text-lg">${arv.toLocaleString()}</span>
           </div>          
 
           {/* Repair Cost Table */}
           <div className="mb-4">
-            <div className="text-[14px] sm:text-base mb-3 font-bold">Repair Cost</div>
+            <div className="text-[16px] sm:text-base mb-3 font-bold">Repair Cost</div>
             <table className="w-full table-fixed ">
               <thead>
                 <tr className="border-b">
@@ -633,26 +710,26 @@ export default function WholetailCalculator() {
                   <td className="text-center py-1 px-0.5">
                     <input type="number" step="0.01" min="0" value={25.00} className="border rounded px-0.5 py-1 w-16 sm:w-24 text-right text-[10px] sm:text-sm" readOnly />
                   </td>
-                  <td className="text-right py-1 px-0.5 bg-green-200 text-green-900 font-bold text-[10px] sm:text-sm">$0</td>
+                  <td className="text-right py-1 px-0.5 bg-green-200 text-green-900 text-[10px] sm:text-sm">$0</td>
                 </tr>
                 <tr>
                   <td className="py-1 px-0.5 text-[10px] sm:text-sm">Heavy</td>
                   <td className="text-center py-1 px-0.5">
                     <input type="number" step="0.01" min="0" value={50.00} className="border rounded px-0.5 py-1 w-16 sm:w-24 text-right text-[10px] sm:text-sm" readOnly />
                   </td>
-                  <td className="text-right py-1 px-0.5 bg-green-200 text-green-900 font-bold text-[10px] sm:text-sm">$0</td>
+                  <td className="text-right py-1 px-0.5 bg-green-200 text-green-900 text-[10px] sm:text-sm">$0</td>
                 </tr>
               </tbody>
             </table>
             <div className="flex justify-between items-center mt-4 border-t pt-4">
-              <span className="font-bold text-[14px] sm:text-base">Total Repair Cost</span>
-              <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-lg">${repairCost.toLocaleString()}</span>
+              <span className="text-[12px] sm:text-sm">Total Repair Cost</span>
+              <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-sm">${repairCost.toLocaleString()}</span>
             </div>            
           </div>
 
           {/* EXIT (ARV - REPAIRS) */}
           <div className="flex justify-between items-center mt-4 pt-4">
-            <span className="font-bold text-[14px] sm:text-lg">Exit (ARV - Repairs)</span>
+            <span className="font-bold text-[14px] sm:text-base">Exit (ARV - Repairs)</span>
             <div className="flex items-center gap-2 w-24 sm:w-28">
               <input
                 type="number"
@@ -667,37 +744,37 @@ export default function WholetailCalculator() {
                     window.exitPct = val; // for debugging
                   }
                 }}
-                className="border rounded px-1 py-1 text-center text-[10px] sm:text-lg w-full"
+                className="border rounded px-1 py-1 text-center text-[10px] sm:text-base w-full"
                 style={{minWidth: '3.5rem'}}
               />
-              <span className="text-[10px] sm:text-lg">%</span>
+              <span className="text-[10px] sm:text-base">%</span>
             </div>
-            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-lg">${exitValue.toLocaleString()}</span>
+            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-base">${exitValue.toLocaleString()}</span>
           </div>
 
           {/* Gross Wholesale Fee */}
           <div className="flex justify-between items-center mt-4 pt-4">
-            <span className="font-bold text-[14px] sm:text-lg">Gross Wholesale Fee</span>
+            <span className="font-bold text-[16px] sm:text-base">Gross Wholesale Fee</span>
             <input
               type="number"
               value={wholesaleTargetFee}
-              className="border rounded px-2 py-1 text-right text-[10px] sm:text-lg w-24 sm:w-32"
+              className="border rounded px-2 py-1 text-right text-[10px] sm:text-base w-24 sm:w-32"
               readOnly
             />
           </div>
 
           {/* Max Buy */}
           <div className="flex justify-between items-center mt-4 pt-4">
-            <span className="font-bold text-[14px] sm:text-lg">Max Buy</span>
-            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-lg w-24 sm:w-28 text-center">${maxBuy.toLocaleString()}</span>
-            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-lg w-24 sm:w-28 text-center">{(maxBuyPct * 100).toFixed(0)}%</span>
+            <span className="font-bold text-[14px] sm:text-base">Max Buy</span>
+            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-base w-24 sm:w-28 text-center">${maxBuy.toLocaleString()}</span>
+            <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-base w-24 sm:w-28 text-center">{(maxBuyPct * 100).toFixed(0)}%</span>
           </div>
         </div>
 
         <hr className="my-6" />
 
         {/* ARV Comps */}
-        <div className="p-2 sm:p-6 mb-8">
+        <div className="my-10">
           <div className="font-bold text-blue-700 my-2 text-center text-xl">ARV Comps</div>          
           <div className="overflow-x-auto w-full">
             <table className="w-full min-w-[700px] table-fixed">
@@ -784,22 +861,22 @@ export default function WholetailCalculator() {
           <div className="mb-8">
             {/* ARV Average Price */}
             <div className="flex justify-between items-center mt-6">
-              <span className="font-bold text-[14px] sm:text-lg">ARV Average Price (Price/Sqft)</span>
-              <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-lg">
+              <span className="font-bold text-[14px] sm:text-base">ARV Average Price (Price/Sqft)</span>
+              <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-base">
                 ${avgArvSoldPerSqft && avgArvSoldSqft ? (avgArvSoldPerSqft * avgArvSoldSqft).toLocaleString(undefined, {maximumFractionDigits:0}) : '$0'}
               </span>
             </div>
 
             {/* ARV Market Adjustment */}
             <div className="mt-6">
-              <div className="font-bold text-[14px] sm:text-lg mb-2">ARV Market Adjustment</div>
+              <div className="font-bold text-[14px] sm:text-base mb-2">ARV Market Adjustment</div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 items-center">
                 <span className="text-[12px] sm:text-base">6 mo prior</span>                
                 <input
                   type="number"
                   value={arvMarketPrior}
                   onChange={e => setArvMarketPrior(Number(e.target.value))}
-                  className="border rounded px-2 py-1 text-right text-[10px] sm:text-lg w-full"
+                  className="border rounded px-2 py-1 text-right text-[10px] sm:text-base w-full"
                   min={0}
                 />
                 <span className="text-[12px] sm:text-base">Current</span>
@@ -807,15 +884,15 @@ export default function WholetailCalculator() {
                   type="number"
                   value={arvMarketCurrent}
                   onChange={e => setArvMarketCurrent(Number(e.target.value))}
-                  className="border rounded px-2 py-1 text-right text-[10px] sm:text-lg w-full"
+                  className="border rounded px-2 py-1 text-right text-[10px] sm:text-base w-full"
                   min={0}
                 />
                 <span className="font-bold text-[12px] sm:text-base">Gain/Loss</span>
-                <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-lg text-center">
+                <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-base text-center">
                   {arvMarketPrior > 0 ? `${(((arvMarketCurrent - arvMarketPrior) / arvMarketPrior) * 100).toFixed(0)}%` : '0%'}
                 </span>
                 <span className="font-bold text-[12px] sm:text-base">Adjusted ARV</span>
-                <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-lg text-center">
+                <span className="bg-green-300 text-green-900 font-bold px-4 py-1 rounded text-[10px] sm:text-base text-center">
                   ${arvMarketCurrent.toLocaleString(undefined, {maximumFractionDigits:0})}
                 </span>
               </div>
