@@ -646,7 +646,6 @@ export async function notifyAdminNewAliasCreated(payload: {
 `,
 },
 ],
-groups:["1"],
   };
 
   try {
