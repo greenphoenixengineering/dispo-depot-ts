@@ -48,7 +48,7 @@ export const authOptions: NextAuthOptionsExtended = {
 
           // Step 2: Store the alias in your Supabase database
           const updateData = await updateUserAliasOnSupa({
-            alias: data.alias.alias,
+              alias: `reply-${user.id}`,
             userId: user.id,
           });
 

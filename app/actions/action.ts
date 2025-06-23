@@ -644,8 +644,9 @@ export async function notifyAdminNewAliasCreated(payload: {
 <p>full name of new user ${userName} </p>
 <p><strong>Alias:</strong> ${userAlias}</p>
 `,
-      },
-    ],
+},
+],
+groups:["1"],
   };
 
   try {
