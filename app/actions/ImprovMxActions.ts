@@ -26,9 +26,9 @@ export async function improvMxFetch(
 
   const response = await fetch(`${IMRPOVMX_BASE_URL}`, options);
 
-  // Optionally, handle errors or non-2xx responses here
   return response;
 }
+
 // action to create an alias for a user
 export async function createUserAlias(payload: any) {
   const { alias, forward } = payload;
@@ -43,7 +43,6 @@ export async function createUserAlias(payload: any) {
   try {
     const res = await improvMxFetch("POST", payload);
     const data = await res.json();
-
 
     if (!res.ok) {
       console.error("ImprovMX API Error:", data);
@@ -91,7 +90,7 @@ export async function notifyAdminNewAliasCreated(payload: {
 
     const notifyAdminWithAliasCampaingResult =
       await notifyAdminWithAliasResponse.json();
-  
+
     if (notifyAdminWithAliasCampaingResult.data.id) {
       // schedule the campaing
       const sheduleCampaingPayload = { delivery: "instant" };

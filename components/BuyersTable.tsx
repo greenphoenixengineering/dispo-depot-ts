@@ -7,7 +7,6 @@ import { Tag, Mail, Plus, Search } from "lucide-react";
 import { TagChip } from "@/components/tag-ship";
 import { Pagination } from "@/components/pagination";
 import { Buyer } from "@/libs/types";
-import { notifyAdminNewAliasCreated } from "@/app/actions/action";
 
 
 

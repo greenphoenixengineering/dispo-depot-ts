@@ -6,11 +6,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Save } from "lucide-react";
 import {
-  addBuyerToMailerLit,
+  
   linkBuyerToTag,
   addBuyer,
 } from "@/app/actions/action";
 import { useRouter } from "next/navigation";
+import { addBuyerToMailerLit } from "@/app/actions/mailerLiteActions";
 
 export default function AddBuyerForm({ tags }: { tags: any }) {
   const [error, setError] = useState(false);

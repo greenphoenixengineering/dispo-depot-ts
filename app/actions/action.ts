@@ -9,6 +9,7 @@ import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
 
 import { mailerLiteFetch } from "./mailerLiteActions";
+import { SendDealsState } from "@/libs/sendDealTypes";
 
 export async function getBuyersWithTags() {
   const wholesalerData = await getCurrentWholesaler();
@@ -23,7 +24,8 @@ export async function getBuyersWithTags() {
           name
         )
       )`
-    ).eq("wholesaler_id", wholesalerData.id);
+    )
+    .eq("wholesaler_id", wholesalerData.id);
 
   if (error) {
     throw new Error("there was an error getting buyer with tags");
@@ -169,7 +171,9 @@ export async function getSingleBuyer(buyerId: string) {
           name,
           api_id
         )
-      )`).eq("id", buyerId);
+      )`
+    )
+    .eq("id", buyerId);
 
   if (error) {
     throw new Error("error getting a single buyer");
@@ -204,7 +208,7 @@ export async function getTagsWithCounts() {
     });
 
     if (error) {
-      throw new Error(`Database error: ${error.message}`); 
+      throw new Error(`Database error: ${error.message}`);
     }
 
     return data;
@@ -374,8 +378,6 @@ export async function updateUserAliasOnSupa(payload: {
   }
 }
 
-
-
 export async function sendDealsAction(
   prevState: SendDealsState,
   formData: FormData
@@ -504,4 +506,3 @@ export async function sendDealsAction(
     };
   }
 }
-
