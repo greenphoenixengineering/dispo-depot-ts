@@ -5,10 +5,10 @@ import config from "@/config";
 
 import { SupabaseAdapter } from "@auth/supabase-adapter";
 import {
-  createUserAlias,
-  notifyAdminNewAliasCreated,
+
   updateUserAliasOnSupa,
 } from "@/app/actions/action";
+import { createUserAlias, notifyAdminNewAliasCreated } from "@/app/actions/ImprovMxActions";
 
 interface NextAuthOptionsExtended extends NextAuthOptions {
   adapter: any;

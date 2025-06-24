@@ -1,7 +1,7 @@
 import { getCurrentWholesaler, getWholesalerTags } from "@/app/actions/action";
 import EmailAuthorizedBanner from "@/components/EmailAuthorizedBanner";
 import SendDealForm from "@/components/SendDealForm";
-import { AlertTriangle, ArrowLeft } from "lucide-react";
+import {  ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
@@ -9,7 +9,6 @@ const page = async () => {
   const tags = await getWholesalerTags();
   const currentWholesaler = await getCurrentWholesaler();
 
-  console.log("current wholesaler", currentWholesaler);
 
   return (
     <>
