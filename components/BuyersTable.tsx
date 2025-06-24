@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import { Tag, Mail, Plus, Search } from "lucide-react";
 import { TagChip } from "@/components/tag-ship";
 import { Pagination } from "@/components/pagination";
 import { Buyer } from "@/libs/types";
+import { notifyAdminNewAliasCreated } from "@/app/actions/action";
 
 
 
@@ -38,6 +39,7 @@ export default function BuyersTable({
     (currentPage - 1) * 10,
     currentPage * 10
   );
+
 
 
   return (

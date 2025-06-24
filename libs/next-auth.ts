@@ -48,7 +48,7 @@ export const authOptions: NextAuthOptionsExtended = {
 
           // Step 2: Store the alias in your Supabase database
           const updateData = await updateUserAliasOnSupa({
-            alias: data.alias.alias,
+              alias: `reply-${user.id}@mydispodepot.io`,
             userId: user.id,
           });
 
@@ -57,7 +57,7 @@ export const authOptions: NextAuthOptionsExtended = {
             // notify the admin with the new user alias
             const sendEmailResult = await notifyAdminNewAliasCreated({
               userName: user.first_name + user.last_name,
-              userAlias: data.alias.alias,
+              userAlias:`reply-${user.id}@mydispodepot.io`,
             });
             if (sendEmailResult.success) {
               console.log("email sent to admin successfully");

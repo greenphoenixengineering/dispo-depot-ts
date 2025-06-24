@@ -35,3 +35,6 @@ export interface DeleteBuyer {
   buyerId: string;
   buyerApiId: string;
 }
+
+
+
