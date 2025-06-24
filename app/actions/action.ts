@@ -2,20 +2,14 @@
 
 import { authOptions } from "@/libs/next-auth";
 import { supabase } from "@/libs/supabase";
-import {
-  DeleteBuyer,
-  NewBuyer,
-  NewBuyerInSupa,
-  UpdateBuyer,
-} from "@/libs/types";
+import { DeleteBuyer, NewBuyerInSupa, UpdateBuyer } from "@/libs/types";
 
 import { DeletedTag, NewTag } from "@/libs/tagTypes";
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
-import { SendDealsState } from "@/libs/sendDealTypes";
-import { RequestInit } from "next/dist/server/web/spec-extension/request";
 
-const BASE_URL = "https://connect.mailerlite.com/api";
+import { mailerLiteFetch } from "./mailerLiteActions";
+
 export async function getBuyersWithTags() {
   const wholesalerData = await getCurrentWholesaler();
 
@@ -165,35 +159,6 @@ export async function linkBuyerToTag(buyerAndTagData: any) {
   revalidatePath("/dashboard");
 
   return data;
-}
-
-export async function addBuyerToMailerLit(newBuyer: NewBuyer) {
-  const { first_name, last_name, email, phone_num, groupId } = newBuyer;
-
-  const payload: any = {
-    email: email,
-    fields: {
-      name: first_name,
-      ...(last_name && { last_name: last_name }),
-      phone: phone_num,
-    },
-    groups: [groupId],
-    status: "active",
-  };
-
-  try {
-    const response = await mailerLiteFetch(`/subscribers`, "POST", payload);
-
-    const result = await response.json();
-
-    if (response.ok) {
-      return { status: true, newSubscriberId: result?.data?.id };
-    } else {
-      return { status: false };
-    }
-  } catch (e) {
-    throw new Error("error adding buyer to mailerlit");
-  }
 }
 
 export async function getSingleBuyer(buyerId: string) {
@@ -388,7 +353,7 @@ export async function deleteBuyer(DeletePayload: DeleteBuyer) {
   }
 
   const response = await mailerLiteFetch(
-    `${BASE_URL}/subscribers/${DeletePayload.buyerApiId}`,
+    `/subscribers/${DeletePayload.buyerApiId}`,
     "DELETE"
   );
 
@@ -398,166 +363,6 @@ export async function deleteBuyer(DeletePayload: DeleteBuyer) {
 
   return { success: true, message: "Buyer deleted successfully!" };
 }
-
-// SEND DEAL ACTION
-
-export async function sendDealsAction(
-  prevState: SendDealsState,
-  formData: FormData
-): Promise<SendDealsState> {
-  const subject = formData.get("subject") as string;
-  const messageContent = formData.get("message") as string;
-  const selectedTagsApiId = formData.getAll("selectedTagsApiId") as string[];
-  // selectedApiIds
-
-  const errors: SendDealsState["errors"] = {};
-
-  if (selectedTagsApiId.length === 0) {
-    errors.tags = "Please select at least one buyer group.";
-  }
-  if (!subject) {
-    errors.subject = "Subject line is required.";
-  }
-  if (!messageContent) {
-    errors.message = "Message is required.";
-  }
-
-  if (Object.keys(errors).length > 0) {
-    return { errors, success: false };
-  }
-
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const day = String(today.getDate()).padStart(2, "0");
-  const formattedDate = `${year}-${month}-${day}`;
-  const campaignName = `${subject}_${formattedDate}`;
-  const currentWholesaler = await getCurrentWholesaler();
-
-  // ----- STEP 1: Create Campaign Shell (Mailerlite) -----
-  const mailerLitePayload = {
-    name: campaignName,
-    type: "regular",
-    emails: [
-      {
-        subject: subject,
-        from_name: `${currentWholesaler.first_name} ${currentWholesaler.last_name}`,
-        from: `messenger@mydispodepot.io`,
-        reply_to: "support@mydispodepot.io",
-        content: messageContent,
-      },
-    ],
-    groups: selectedTagsApiId,
-  };
-
-  try {
-    const createCampaignResponse = await mailerLiteFetch(
-      "/campaigns",
-      "POST",
-      mailerLitePayload
-    );
-    const createCampaignResult = await createCampaignResponse.json();
-
-    if (
-      !createCampaignResponse.ok ||
-      !createCampaignResult.data ||
-      !createCampaignResult.data.id
-    ) {
-      const apiErrorMsg =
-        createCampaignResult.message ||
-        (createCampaignResult.errors
-          ? JSON.stringify(createCampaignResult.errors)
-          : `API request failed: ${createCampaignResponse.status}`);
-      return {
-        errors: { api: `Failed to create campaign: ${apiErrorMsg}` },
-        success: false,
-      };
-    }
-
-    const campaignId = createCampaignResult.data.id;
-
-    // ----- STEP 2: SAVE CAMPAIGN ID TO SUPABASE -----
-    const { error: supabaseInsertError } = await supabase
-      .from("wholesaler_campaign")
-      .insert({
-        campaign_id: campaignId,
-        wholesaler_id: currentWholesaler?.id,
-      });
-
-    if (supabaseInsertError) {
-      return {
-        errors: {
-          api: `Failed to save campaign to DB: ${supabaseInsertError.message}`,
-        },
-        success: false,
-      };
-    }
-
-    // ----- STEP 3: Schedule / send the campaign (Mailerlite) -----
-    const sendDealActionPayload = { delivery: "instant" };
-
-    const sendCampaignResponse = await mailerLiteFetch(
-      `/campaigns/${campaignId}/schedule`,
-      "POST",
-      sendDealActionPayload
-    );
-
-    const sendCampaignResult = await sendCampaignResponse.json();
-
-    if (!sendCampaignResponse.ok) {
-      console.error(
-        "Mailerlite API Error (Send Campaign):",
-        sendCampaignResult
-      );
-      const errorMessage =
-        sendCampaignResult.message ||
-        (sendCampaignResult.errors
-          ? JSON.stringify(sendCampaignResult.errors)
-          : `Send action failed: ${sendCampaignResponse.status}`);
-      return {
-        errors: { api: `Failed to send campaign: ${errorMessage}` },
-        success: false,
-      };
-    }
-
-    return { message: "Deal sent successfully!", success: true };
-  } catch (error: any) {
-    console.error("Error in sendDeals action:", error);
-    return {
-      errors: { api: error.message || "An unexpected error occurred." },
-      success: false,
-    };
-  }
-}
-
-// GENERIC MAILERLIT FETCH FUNCTION
-export async function mailerLiteFetch(
-  path: string,
-  method: "GET" | "POST" | "PUT" | "DELETE",
-  payload?: any
-) {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-    Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
-  };
-
-  const options: RequestInit = {
-    method,
-    headers,
-  };
-
-  if (payload) {
-    options.body = JSON.stringify(payload);
-  }
-
-  const response = await fetch(`${BASE_URL}${path}`, options);
-
-  // Optionally, handle errors or non-2xx responses here
-  return response;
-}
-
-
 
 export async function updateUserAliasOnSupa(payload: {
   alias: string;

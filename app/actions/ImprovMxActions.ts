@@ -1,5 +1,5 @@
 import { RequestInit } from "next/dist/server/web/spec-extension/request";
-import { mailerLiteFetch } from "./action";
+import { mailerLiteFetch } from "./mailerLiteActions";
 
 const IMRPOVMX_BASE_URL =
   "https://api.improvmx.com/v3/domains/mydispodepot.io/aliases";
