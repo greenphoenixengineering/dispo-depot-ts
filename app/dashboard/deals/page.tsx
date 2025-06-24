@@ -26,7 +26,7 @@ const page = async () => {
           Create and send targeted deals to specific buyer segments
         </p>
       </div>
-      <SendDealForm tags={tags} email_authorized={currentWholesaler?.email_authorized} />
+      <SendDealForm tags={tags} />
     </>
   );
 };

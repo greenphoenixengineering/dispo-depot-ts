@@ -9,7 +9,7 @@ import { SubmitButton } from "./SubmitButton";
 import { Tag } from "@/libs/tagTypes";
 import MultiSelectTagsDropDown from "./MultiSelectTagsDropDown";
 
-export default function SendDealForm({ tags,email_authorized }: { tags: Tag[],email_authorized:boolean }) {
+export default function SendDealForm({ tags }: { tags: Tag[] }) {
   const initialState: SendDealsState = {
     message: null,
     errors: {},
@@ -19,8 +19,6 @@ export default function SendDealForm({ tags,email_authorized }: { tags: Tag[],em
   const [messageVisible, setMessageVisible] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
-
-  console.log("my email authozied",email_authorized)
   const [selectedTagObjects, setSelectedTagObjects] = useState<any[]>([]);
 
   useEffect(() => {
@@ -40,8 +38,6 @@ export default function SendDealForm({ tags,email_authorized }: { tags: Tag[],em
       return () => clearTimeout(timer);
     }
   }, [formState]);
-
-  console.log("form state",formState)
 
   return (
     <div>
