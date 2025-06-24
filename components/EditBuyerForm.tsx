@@ -138,7 +138,6 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
 
     // --- Call the Server Action ---
     const result = await updateBuyerAndTagsAction(payload);
-    console.log("update result", result);
     if (result.success) {
       setBuyerUpdatedSuccessfuly(true);
       setSaveMessage("Buyer updated successfully");

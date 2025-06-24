@@ -44,7 +44,6 @@ export const authOptions: NextAuthOptionsExtended = {
         });
 
         if (data && data.alias) {
-          console.log(`Alias created on ImprovMX: ${data.alias.alias}`);
 
           // Step 2: Store the alias in your Supabase database
           const updateData = await updateUserAliasOnSupa({

@@ -33,7 +33,6 @@ const MultiSelectTagsDropDown = ({
     );
   };
 
-  console.log("selected tags",selectedTagObjects)
 
   const removeTagFromSelection = (tagToRemove: any) => {
     setSelectedTagObjects((prevSelected) =>

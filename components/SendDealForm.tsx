@@ -20,7 +20,6 @@ export default function SendDealForm({ tags,email_authorized }: { tags: Tag[],em
   const formRef = useRef<HTMLFormElement>(null);
 
 
-  console.log("my email authozied",email_authorized)
   const [selectedTagObjects, setSelectedTagObjects] = useState<any[]>([]);
 
   useEffect(() => {
@@ -43,7 +42,6 @@ export default function SendDealForm({ tags,email_authorized }: { tags: Tag[],em
     }
   }, [formState]);
 
-  console.log("form state",formState)
 
   return (
     <div>

@@ -85,7 +85,6 @@ export default function TagWithBuyerTable({
       );
     } finally {
       setIsCreating(false);
-      console.log("Finished create tag attempt.");
     }
   };
   const cancelCreate = () => {
@@ -114,7 +113,6 @@ export default function TagWithBuyerTable({
         tagApiId: deletingTag.api_id,
       });
 
-      console.log("delete result",deleteResult)
 
       if (deleteResult.success) {
         setDeletingTag(null);

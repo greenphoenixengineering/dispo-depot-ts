@@ -44,8 +44,6 @@ export async function createUserAlias(payload: any) {
     const res = await improvMxFetch("POST", payload);
     const data = await res.json();
 
-    console.log("improv mx res", res);
-    console.log("improv mx data", data);
 
     if (!res.ok) {
       console.error("ImprovMX API Error:", data);
@@ -93,10 +91,7 @@ export async function notifyAdminNewAliasCreated(payload: {
 
     const notifyAdminWithAliasCampaingResult =
       await notifyAdminWithAliasResponse.json();
-    console.log(
-      "notify admin campaing result",
-      notifyAdminWithAliasCampaingResult
-    );
+  
     if (notifyAdminWithAliasCampaingResult.data.id) {
       // schedule the campaing
       const sheduleCampaingPayload = { delivery: "instant" };
