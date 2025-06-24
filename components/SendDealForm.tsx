@@ -35,9 +35,7 @@ export default function SendDealForm({ tags,email_authorized }: { tags: Tag[],em
 
       if (formState.success) {
         formRef.current?.reset();
-        setSelectedTagObjects([]);
-        // setSearchTerm("");
-        // setIsDropdownOpen(false);
+        setSelectedTagObjects([]);        
       }
       return () => clearTimeout(timer);
     }
@@ -129,7 +127,7 @@ export default function SendDealForm({ tags,email_authorized }: { tags: Tag[],em
         </div>
 
         <div className="flex justify-end">
-          <SubmitButton email_authorized={email_authorized} />
+          <SubmitButton />
         </div>
       </form>
     </div>

@@ -1,5 +1,4 @@
 import { getCurrentWholesaler, getWholesalerTags } from "@/app/actions/action";
-import EmailAuthorizedBanner from "@/components/EmailAuthorizedBanner";
 import SendDealForm from "@/components/SendDealForm";
 import { AlertTriangle, ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -15,7 +14,6 @@ const page = async () => {
     <>
       <div className="mb-6">
         {/* Authorization Banner */}
-        {!currentWholesaler?.email_authorized && <EmailAuthorizedBanner />}
         <Link
           href="/dashboard"
           className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 mb-4"

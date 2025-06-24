@@ -22,17 +22,14 @@ export async function getBuyersWithTags() {
   const { data, error } = await supabase
     .from("buyer")
     .select(
-      `
-      *,
-      buyer_tags (
+      `*,
+        buyer_tags (
         tags:tag_id (
           id,
           name
         )
-      )
-    `
-    )
-    .eq("wholesaler_id", wholesalerData.id);
+      )`
+    ).eq("wholesaler_id", wholesalerData.id);
 
   if (error) {
     throw new Error("there was an error getting buyer with tags");
@@ -200,19 +197,14 @@ export async function getSingleBuyer(buyerId: string) {
   const { data, error } = await supabase
     .from("buyer")
     .select(
-      `
-    *,
-    buyer_tags (
-      tags:tag_id (
-        id,
-        name,
-        api_id
-
-      )
-    )
-  `
-    )
-    .eq("id", buyerId);
+      `*,
+        buyer_tags (
+        tags:tag_id (
+          id,
+          name,
+          api_id
+        )
+      )`).eq("id", buyerId);
 
   if (error) {
     throw new Error("error getting a single buyer");
@@ -220,8 +212,8 @@ export async function getSingleBuyer(buyerId: string) {
     return data;
   }
 }
-// get single tag
 
+// get single tag
 export async function getSingleTag(id: number) {
   let { data: tag, error } = await supabase
     .from("tags")
@@ -247,7 +239,7 @@ export async function getTagsWithCounts() {
     });
 
     if (error) {
-      throw new Error(`Database error: ${error.message}`); // Throw to be caught below
+      throw new Error(`Database error: ${error.message}`); 
     }
 
     return data;
@@ -298,9 +290,10 @@ export async function addTagToMailerlit(payload: NewTag) {
       return { status: false };
     }
   } catch (e) {
-    throw new Error("error adding buyer to mailerlit");
+    throw new Error("error adding buyer to mailerlite");
   }
 }
+
 export async function addBuyer(newBuyer: NewBuyerInSupa) {
   const wholesalerData = await getCurrentWholesaler();
 
@@ -326,8 +319,8 @@ export async function addBuyer(newBuyer: NewBuyerInSupa) {
 
   return data;
 }
-// update tag
 
+// update tag
 export async function UpdateTag(payload: any) {
   const { tagId, tagApiId, newTagName } = payload;
 
@@ -400,7 +393,6 @@ export async function deleteBuyer(DeletePayload: DeleteBuyer) {
 }
 
 // SEND DEAL ACTION
-
 export async function sendDealsAction(
   prevState: SendDealsState,
   formData: FormData
@@ -408,7 +400,6 @@ export async function sendDealsAction(
   const subject = formData.get("subject") as string;
   const messageContent = formData.get("message") as string;
   const selectedTagsApiId = formData.getAll("selectedTagsApiId") as string[];
-  // selectedApiIds
 
   const errors: SendDealsState["errors"] = {};
 
@@ -557,8 +548,9 @@ export async function mailerLiteFetch(
   return response;
 }
 
+const IMRPOVMX_BASE_URL =
+    "https://api.improvmx.com/v3/domains/mydispodepot.io/aliases";
 // action to create an alias for a user
-
 export async function createUserAlias(payload: any) {
   const { alias, forward } = payload;
 
@@ -569,8 +561,6 @@ export async function createUserAlias(payload: any) {
     );
   }
 
-  const IMRPOVMX_BASE_URL =
-    "https://api.improvmx.com/v3/domains/mydispodepot.io/aliases";
   const apiKey = process.env.IMPROVMX_API_KEY;
 
   if (!apiKey) {
@@ -637,11 +627,11 @@ export async function notifyAdminNewAliasCreated(payload: {
         from_name: "Dispo Depot",
         from: "mike@greenphoenixengineering.com",
         content: `
-<p>Hello Admin,</p>
-<p>A new user alias has been created:</p>
-<p>full name of new user ${userName} </p>
-<p><strong>Alias:</strong> ${userAlias}</p>
-`,
+          <p>Hello Admin,</p>
+          <p>A new user alias has been created:</p>
+          <p>full name of new user ${userName} </p>
+          <p><strong>Alias:</strong> ${userAlias}</p>
+          `,
       },
     ],
   };
@@ -660,7 +650,7 @@ export async function notifyAdminNewAliasCreated(payload: {
       notifyAdminWithAliasCampaingResult
     );
     if (notifyAdminWithAliasCampaingResult.data.id) {
-      // schedule the campaing
+      // schedule the campaign
       const sheduleCampaingPayload = { delivery: "instant" };
 
       const sheduleCampaingResponse = await mailerLiteFetch(
