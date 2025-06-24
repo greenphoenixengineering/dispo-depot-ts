@@ -16,17 +16,14 @@ export async function getBuyersWithTags() {
   const { data, error } = await supabase
     .from("buyer")
     .select(
-      `
-      *,
-      buyer_tags (
+      `*,
+        buyer_tags (
         tags:tag_id (
           id,
           name
         )
-      )
-    `
-    )
-    .eq("wholesaler_id", wholesalerData.id);
+      )`
+    ).eq("wholesaler_id", wholesalerData.id);
 
   if (error) {
     throw new Error("there was an error getting buyer with tags");
@@ -165,19 +162,14 @@ export async function getSingleBuyer(buyerId: string) {
   const { data, error } = await supabase
     .from("buyer")
     .select(
-      `
-    *,
-    buyer_tags (
-      tags:tag_id (
-        id,
-        name,
-        api_id
-
-      )
-    )
-  `
-    )
-    .eq("id", buyerId);
+      `*,
+        buyer_tags (
+        tags:tag_id (
+          id,
+          name,
+          api_id
+        )
+      )`).eq("id", buyerId);
 
   if (error) {
     throw new Error("error getting a single buyer");
@@ -185,8 +177,8 @@ export async function getSingleBuyer(buyerId: string) {
     return data;
   }
 }
-// get single tag
 
+// get single tag
 export async function getSingleTag(id: number) {
   let { data: tag, error } = await supabase
     .from("tags")
@@ -212,7 +204,7 @@ export async function getTagsWithCounts() {
     });
 
     if (error) {
-      throw new Error(`Database error: ${error.message}`); // Throw to be caught below
+      throw new Error(`Database error: ${error.message}`); 
     }
 
     return data;
@@ -263,9 +255,10 @@ export async function addTagToMailerlit(payload: NewTag) {
       return { status: false };
     }
   } catch (e) {
-    throw new Error("error adding buyer to mailerlit");
+    throw new Error("error adding buyer to mailerlite");
   }
 }
+
 export async function addBuyer(newBuyer: NewBuyerInSupa) {
   const wholesalerData = await getCurrentWholesaler();
 
@@ -291,8 +284,8 @@ export async function addBuyer(newBuyer: NewBuyerInSupa) {
 
   return data;
 }
-// update tag
 
+// update tag
 export async function UpdateTag(payload: any) {
   const { tagId, tagApiId, newTagName } = payload;
 
@@ -380,3 +373,135 @@ export async function updateUserAliasOnSupa(payload: {
     return { success: true };
   }
 }
+
+
+
+export async function sendDealsAction(
+  prevState: SendDealsState,
+  formData: FormData
+): Promise<SendDealsState> {
+  const subject = formData.get("subject") as string;
+  const messageContent = formData.get("message") as string;
+  const selectedTagsApiId = formData.getAll("selectedTagsApiId") as string[];
+  // selectedApiIds
+
+  const errors: SendDealsState["errors"] = {};
+
+  if (selectedTagsApiId.length === 0) {
+    errors.tags = "Please select at least one buyer group.";
+  }
+  if (!subject) {
+    errors.subject = "Subject line is required.";
+  }
+  if (!messageContent) {
+    errors.message = "Message is required.";
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return { errors, success: false };
+  }
+
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  const formattedDate = `${year}-${month}-${day}`;
+  const campaignName = `${subject}_${formattedDate}`;
+  const currentWholesaler = await getCurrentWholesaler();
+
+  // ----- STEP 1: Create Campaign Shell (Mailerlite) -----
+  const mailerLitePayload = {
+    name: campaignName,
+    type: "regular",
+    emails: [
+      {
+        subject: subject,
+        from_name: `${currentWholesaler.first_name} ${currentWholesaler.last_name}`,
+        from: `messenger@mydispodepot.io`,
+        reply_to: "support@mydispodepot.io",
+        content: messageContent,
+      },
+    ],
+    groups: selectedTagsApiId,
+  };
+
+  try {
+    const createCampaignResponse = await mailerLiteFetch(
+      "/campaigns",
+      "POST",
+      mailerLitePayload
+    );
+    const createCampaignResult = await createCampaignResponse.json();
+
+    if (
+      !createCampaignResponse.ok ||
+      !createCampaignResult.data ||
+      !createCampaignResult.data.id
+    ) {
+      const apiErrorMsg =
+        createCampaignResult.message ||
+        (createCampaignResult.errors
+          ? JSON.stringify(createCampaignResult.errors)
+          : `API request failed: ${createCampaignResponse.status}`);
+      return {
+        errors: { api: `Failed to create campaign: ${apiErrorMsg}` },
+        success: false,
+      };
+    }
+
+    const campaignId = createCampaignResult.data.id;
+
+    // ----- STEP 2: SAVE CAMPAIGN ID TO SUPABASE -----
+    const { error: supabaseInsertError } = await supabase
+      .from("wholesaler_campaign")
+      .insert({
+        campaign_id: campaignId,
+        wholesaler_id: currentWholesaler?.id,
+      });
+
+    if (supabaseInsertError) {
+      return {
+        errors: {
+          api: `Failed to save campaign to DB: ${supabaseInsertError.message}`,
+        },
+        success: false,
+      };
+    }
+
+    // ----- STEP 3: Schedule / send the campaign (Mailerlite) -----
+    const sendDealActionPayload = { delivery: "instant" };
+
+    const sendCampaignResponse = await mailerLiteFetch(
+      `/campaigns/${campaignId}/schedule`,
+      "POST",
+      sendDealActionPayload
+    );
+
+    const sendCampaignResult = await sendCampaignResponse.json();
+
+    if (!sendCampaignResponse.ok) {
+      console.error(
+        "Mailerlite API Error (Send Campaign):",
+        sendCampaignResult
+      );
+      const errorMessage =
+        sendCampaignResult.message ||
+        (sendCampaignResult.errors
+          ? JSON.stringify(sendCampaignResult.errors)
+          : `Send action failed: ${sendCampaignResponse.status}`);
+      return {
+        errors: { api: `Failed to send campaign: ${errorMessage}` },
+        success: false,
+      };
+    }
+
+    return { message: "Deal sent successfully!", success: true };
+  } catch (error: any) {
+    console.error("Error in sendDeals action:", error);
+    return {
+      errors: { api: error.message || "An unexpected error occurred." },
+      success: false,
+    };
+  }
+}
+

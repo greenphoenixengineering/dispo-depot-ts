@@ -1,15 +1,15 @@
 "use client";
 
 import { ChevronDown, X, Search } from "lucide-react";
-import { sendDealsAction } from "@/app/actions/action";
 import { useFormState } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import { SendDealsState } from "@/libs/sendDealTypes";
 import { SubmitButton } from "./SubmitButton";
 import { Tag } from "@/libs/tagTypes";
 import MultiSelectTagsDropDown from "./MultiSelectTagsDropDown";
+import { sendDealsAction } from "@/app/actions/action";
 
-export default function SendDealForm({ tags,email_authorized }: { tags: Tag[],email_authorized:boolean }) {
+export default function SendDealForm({ tags }: { tags: Tag[] }) {
   const initialState: SendDealsState = {
     message: null,
     errors: {},
@@ -18,7 +18,6 @@ export default function SendDealForm({ tags,email_authorized }: { tags: Tag[],em
   const [formState, formAction] = useFormState(sendDealsAction, initialState);
   const [messageVisible, setMessageVisible] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
-
 
   const [selectedTagObjects, setSelectedTagObjects] = useState<any[]>([]);
 
@@ -34,14 +33,11 @@ export default function SendDealForm({ tags,email_authorized }: { tags: Tag[],em
 
       if (formState.success) {
         formRef.current?.reset();
-        setSelectedTagObjects([]);
-        // setSearchTerm("");
-        // setIsDropdownOpen(false);
+        setSelectedTagObjects([]);        
       }
       return () => clearTimeout(timer);
     }
   }, [formState]);
-
 
   return (
     <div>
@@ -127,7 +123,7 @@ export default function SendDealForm({ tags,email_authorized }: { tags: Tag[],em
         </div>
 
         <div className="flex justify-end">
-          <SubmitButton email_authorized={email_authorized} />
+          <SubmitButton />
         </div>
       </form>
     </div>
