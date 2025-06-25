@@ -1,11 +1,12 @@
 import { NextResponse, NextRequest } from "next/server";
 import { headers } from "next/headers";
 import Stripe from "stripe";
-import connectMongo from "@/libs/mongoose";
 import configFile from "@/config";
-import User from "@/models/User";
 import { findCheckoutSession } from "@/libs/stripe";
+import { supabaseUserService } from "@/libs/supabase";
 
+
+//  Update Stripe Webhook to Store in Supabase
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2023-08-16",
   typescript: true,
@@ -14,11 +15,8 @@ const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 // This is where we receive Stripe webhook events
 // It's used to update user data, send emails, etc...
-// By default, it'll store the user in the database
-// See more: https://shipfa.st/docs/features/payments
+// Now stores user plan data in Supabase only
 export async function POST(req: NextRequest) {
-  await connectMongo();
-
   const body = await req.text();
 
   const signature = headers().get("stripe-signature");
@@ -57,32 +55,21 @@ export async function POST(req: NextRequest) {
           customerId as string
         )) as Stripe.Customer;
 
-        let user;
-
-        // Get or create the user. userId is normally passed in the checkout session (clientReferenceID) to identify the user when we get the webhook event
-        if (userId) {
-          user = await User.findById(userId);
-        } else if (customer.email) {
-          user = await User.findOne({ email: customer.email });
-
-          if (!user) {
-            user = await User.create({
-              email: customer.email,
-              name: customer.name,
-            });
-
-            await user.save();
-          }
-        } else {
-          console.error("No user found");
-          throw new Error("No user found");
+        // Store user plan information in Supabase
+        try {
+          await supabaseUserService.upsertUser({
+            email: customer.email || '',
+            name: customer.name || '',
+            stripe_customer_id: customerId as string,
+            stripe_price_id: priceId,
+            plan_name: plan.name,
+            has_access: true,
+          });
+          console.log('User plan info stored in Supabase successfully');
+        } catch (supabaseError) {
+          console.error('Failed to store user in Supabase:', supabaseError);
+          throw supabaseError;
         }
-
-        // Update user data + Grant user access to your product. It's a boolean in the database, but could be a number of credits, etc...
-        user.priceId = priceId;
-        user.customerId = customerId;
-        user.hasAccess = true;
-        await user.save();
 
         // Extra: send email with user link, product page, etc...
         // try {
@@ -113,14 +100,16 @@ export async function POST(req: NextRequest) {
         const stripeObject: Stripe.Subscription = event.data
           .object as Stripe.Subscription;
 
-        const subscription = await stripe.subscriptions.retrieve(
-          stripeObject.id
-        );
-        const user = await User.findOne({ customerId: subscription.customer });
-
-        // Revoke access to your product
-        user.hasAccess = false;
-        await user.save();
+        // Update Supabase user access
+        try {
+          const supabaseUser = await supabaseUserService.getUserByStripeCustomerId(stripeObject.customer as string);
+          if (supabaseUser) {
+            await supabaseUserService.updateUserAccess(supabaseUser.email, false);
+            console.log('User access revoked in Supabase');
+          }
+        } catch (supabaseError) {
+          console.error('Failed to update Supabase user access:', supabaseError);
+        }
 
         break;
       }
@@ -132,17 +121,18 @@ export async function POST(req: NextRequest) {
         const stripeObject: Stripe.Invoice = event.data
           .object as Stripe.Invoice;
 
-        const priceId = stripeObject.lines.data[0].price.id;
         const customerId = stripeObject.customer;
 
-        const user = await User.findOne({ customerId });
-
-        // Make sure the invoice is for the same plan (priceId) the user subscribed to
-        if (user.priceId !== priceId) break;
-
-        // Grant user access to your product. It's a boolean in the database, but could be a number of credits, etc...
-        user.hasAccess = true;
-        await user.save();
+        // Update Supabase user access
+        try {
+          const supabaseUser = await supabaseUserService.getUserByStripeCustomerId(customerId as string);
+          if (supabaseUser) {
+            await supabaseUserService.updateUserAccess(supabaseUser.email, true);
+            console.log('User access granted in Supabase');
+          }
+        } catch (supabaseError) {
+          console.error('Failed to update Supabase user access:', supabaseError);
+        }
 
         break;
       }

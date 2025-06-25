@@ -1,24 +1,27 @@
 import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/libs/next-auth";
-import connectMongo from "@/libs/mongoose";
 import { createCustomerPortal } from "@/libs/stripe";
-import User from "@/models/User";
+import { supabaseUserService } from "@/libs/supabase";
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
 
   if (session) {
     try {
-      await connectMongo();
-
       const body = await req.json();
 
-      const { id } = session.user;
+      if (!session.user.email) {
+        return NextResponse.json(
+          { error: "User email not found" },
+          { status: 400 }
+        );
+      }
 
-      const user = await User.findById(id);
+      // Get user from Supabase
+      const supabaseUser = await supabaseUserService.getUserByEmail(session.user.email);
 
-      if (!user?.customerId) {
+      if (!supabaseUser?.stripe_customer_id) {
         return NextResponse.json(
           {
             error:
@@ -34,7 +37,7 @@ export async function POST(req: NextRequest) {
       }
 
       const stripePortalUrl = await createCustomerPortal({
-        customerId: user.customerId,
+        customerId: supabaseUser.stripe_customer_id,
         returnUrl: body.returnUrl,
       });
 

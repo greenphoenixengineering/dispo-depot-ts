@@ -71,12 +71,16 @@ export function Pricing() {
                   Get Started
                 </Link>
               ) : (
-                <ButtonSignin 
-                  extraStyle={`block w-full py-2 text-center border border-black rounded-md hover:bg-gray-50 transition-colors ${
-                    plan.isFeatured ? 'bg-green-500 text-white hover:bg-green-600 border-green-500' : ''
-                  }`} 
-                  text="Get Started" 
-                />
+                <Link
+                href={`${config.auth.loginUrl}`}
+                className={`block w-full py-2 text-center rounded-md transition-colors ${
+                  plan.isFeatured
+                    ? 'bg-green-500 text-white hover:bg-green-600'
+                    : 'border border-black hover:bg-gray-50'
+                }`}
+              >
+                Get Started
+              </Link>
               )}
             </div>
           ))}

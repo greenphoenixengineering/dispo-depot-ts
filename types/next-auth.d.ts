@@ -8,6 +8,13 @@ declare module 'next-auth' {
     user: {
       /** The user's id. */
       id: string;
+      /** The user's plan information from Supabase */
+      plan?: {
+        name?: string;
+        hasAccess: boolean;
+        stripeCustomerId?: string;
+        stripePriceId?: string;
+      };
     } & DefaultSession['user'];
   }
 }
