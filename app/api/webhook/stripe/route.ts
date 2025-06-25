@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
   }
 
   eventType = event.type;
-
+  console.log("eventType", eventType);
   try {
     switch (eventType) {
       case "checkout.session.completed": {
@@ -41,20 +41,27 @@ export async function POST(req: NextRequest) {
         // ✅ Grant access to the product
         const stripeObject: Stripe.Checkout.Session = event.data
           .object as Stripe.Checkout.Session;
-
         const session = await findCheckoutSession(stripeObject.id);
 
         const customerId = session?.customer;
         const priceId = session?.line_items?.data[0]?.price.id;
-        const userId = stripeObject.client_reference_id;
+        const clientReferenceId = stripeObject.client_reference_id;
         const plan = configFile.stripe.plans.find((p) => p.priceId === priceId);
-
-        if (!plan) break;
+        
+        if (!plan) {
+          console.error('Plan not found for priceId:', priceId);
+          return NextResponse.json({ error: 'Plan not found' }, { status: 400 });
+        }
 
         const customer = (await stripe.customers.retrieve(
           customerId as string
         )) as Stripe.Customer;
-
+        
+        // If client reference ID exists (user was logged in), check if it matches customer email
+        if (clientReferenceId && clientReferenceId !== customer.email) {
+          console.warn('clientReferenceId does not match customer email. Ref:', clientReferenceId, 'Email:', customer.email);
+        }
+     
         // Store user plan information in Supabase
         try {
           await supabaseUserService.upsertUser({
@@ -71,26 +78,16 @@ export async function POST(req: NextRequest) {
           throw supabaseError;
         }
 
-        // Extra: send email with user link, product page, etc...
-        // try {
-        //   await sendEmail(...);
-        // } catch (e) {
-        //   console.error("Email issue:" + e?.message);
-        // }
-
         break;
       }
 
       case "checkout.session.expired": {
         // User didn't complete the transaction
-        // You don't need to do anything here, but you can send an email to the user to remind them to complete the transaction, for instance
         break;
       }
 
       case "customer.subscription.updated": {
-        // The customer might have changed the plan (higher or lower plan, cancel soon etc...)
-        // You don't need to do anything here, because Stripe will let us know when the subscription is canceled for good (at the end of the billing cycle) in the "customer.subscription.deleted" event
-        // You can update the user data to show a "Subscription ending soon" badge for instance
+        // The customer might have changed the plan
         break;
       }
 
@@ -115,7 +112,7 @@ export async function POST(req: NextRequest) {
       }
 
       case "invoice.paid": {
-        // Customer just paid an invoice (for instance, a recurring payment for a subscription)
+        // Customer just paid an invoice
         // ✅ Grant access to the product
 
         const stripeObject: Stripe.Invoice = event.data
@@ -138,12 +135,7 @@ export async function POST(req: NextRequest) {
       }
 
       case "invoice.payment_failed":
-        // A payment failed (for instance the customer does not have a valid payment method)
-        // ❌ Revoke access to the product
-        // ⏳ OR wait for the customer to pay (more friendly):
-        //      - Stripe will automatically email the customer (Smart Retries)
-        //      - We will receive a "customer.subscription.deleted" when all retries were made and the subscription has expired
-
+        // A payment failed
         break;
 
       default:

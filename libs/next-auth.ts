@@ -4,13 +4,14 @@ import GoogleProvider from "next-auth/providers/google";
 import config from "@/config";
 import { supabaseUserService } from "@/libs/supabase";
 
-// import { SupabaseAdapter } from "@auth/supabase-adapter";
+import { SupabaseAdapter } from "@auth/supabase-adapter";
 
-// interface NextAuthOptionsExtended extends NextAuthOptions {
-//   adapter: any;
-// }
+interface NextAuthOptionsExtended extends NextAuthOptions {
+  adapter: any;
+}
 
-export const authOptions: NextAuthOptions = {
+// Debug logs for environment variables
+export const authOptions: NextAuthOptionsExtended = {
   // Set any random key in .env.local
   secret: process.env.NEXTAUTH_SECRET,
   providers: [
@@ -31,10 +32,33 @@ export const authOptions: NextAuthOptions = {
 
   ],
 
-  // adapter: SupabaseAdapter({
-  //   url: process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
-  //   secret: process.env.SUPABASE_SERVICE_ROLE ?? '',
-  // }) ,
+  adapter: SupabaseAdapter({
+    url: process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
+    secret: process.env.SUPABASE_SERVICE_ROLE ?? '',
+  }),
+
+  events: {
+    createUser: async ({ user }) => {
+      console.log('User created by NextAuth:', user.email);
+      // Make sure the user is also in our custom users table 
+      // with the same email for plan management
+      if (user.email) {
+        try {
+          await supabaseUserService.upsertUser({
+            email: user.email,
+            name: user.name || '',
+            has_access: false,
+          });
+          console.log('User also added to custom users table');
+        } catch (error) {
+          console.error('Failed to add user to custom table:', error);
+        }
+      }
+    },
+    signIn: async ({ user }) => {
+      console.log('User signed in:', user.email);
+    },
+  },
 
   callbacks: {
     session: async ({ session, token }) => {
@@ -51,10 +75,18 @@ export const authOptions: NextAuthOptions = {
               stripeCustomerId: userPlan.stripe_customer_id,
               stripePriceId: userPlan.stripe_price_id,
             };
+          }else{
+            session.user.plan = {
+              name: 'Free',
+              hasAccess: false,
+              stripeCustomerId: null,
+              stripePriceId: null,
+            };
           }
         } catch (error) {
           // User doesn't have plan data yet, which is fine
           console.log('No plan data found for user:', session.user.email);
+          console.error('Error fetching user plan:', error);
         }
       }
       return session;
@@ -69,6 +101,8 @@ export const authOptions: NextAuthOptions = {
     // It will be used in the login flow to display your logo. If you don't add it, it will look faded.
     logo: `https://${config.domainName}/logoAndName.png`,
   },
+  // Debug mode to help identify issues
+  debug: true,
 };
 
 export default NextAuth(authOptions);

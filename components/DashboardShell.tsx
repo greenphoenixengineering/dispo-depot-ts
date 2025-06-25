@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import DashboardSideBar from "@/components/DashboardSideBar";
 import { Menu } from "lucide-react";
 import Link from "next/link";
+import UpgradeButton from "./UpgradeButton";
 
 export default function DashboardShell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -44,7 +45,11 @@ export default function DashboardShell({ children }: { children: React.ReactNode
           <div className="w-10 h-10" />
         </header>
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-3 sm:p-6 bg-gray-100">{children}</main>
+        <main className="flex-1 overflow-y-auto p-3 sm:p-6 bg-gray-100">
+          {children}
+          {/* Upgrade button will only show for free plan users */}
+          <UpgradeButton />
+        </main>
       </div>
     </div>
   );
