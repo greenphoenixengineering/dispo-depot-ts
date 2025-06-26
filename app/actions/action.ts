@@ -257,7 +257,6 @@ export async function addTagToMailerlit(payload: NewTag) {
 
     const result = await response.json();
 
-    console.log("add tag result",result)
     if (response.ok || !result.errors) {
       return { status: true, tagApiId: result?.data?.id };
     } else {

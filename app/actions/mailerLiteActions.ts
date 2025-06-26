@@ -48,10 +48,8 @@ export async function addBuyerToMailerLit(newBuyer: NewBuyer) {
   try {
     const response = await mailerLiteFetch(`/subscribers`, "POST", payload);
 
-    console.log("add buyer res",response)
 
     const result = await response.json();
-   console.log("add buyer result",result)
     if (response.ok) {
       return { status: true, newSubscriberId: result?.data?.id };
     } else {
