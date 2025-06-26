@@ -43,6 +43,8 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
     try {
       const result = await addBuyerToMailerLit(formData);
 
+
+      console.log("add buyer result",result)
       if (!result?.status || !result?.newSubscriberId) {
         throw new Error("Failed to add buyer to MailerLite.");
       }

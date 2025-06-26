@@ -26,6 +26,7 @@ export default function TagWithBuyerTable({
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newTagName, setNewTagName] = useState("");
   const [isErrorDeleting, setIsErrorDeleting] = useState(false);
+  const [isErrorCreatingTag,setIsErrorCreatingTag]=useState(false)
   const [isCreating, setIsCreating] = useState(false);
   const [createMessage, setCreateMessage] = useState("");
 
@@ -59,6 +60,8 @@ export default function TagWithBuyerTable({
 
       const addTagResult = await addTagToMailerlit(newTagPayload);
 
+      console.log("add tag result",addTagResult)
+
       if (addTagResult.status && addTagResult.tagApiId) {
         const addTagToSupabaseResult = await addTagToSupabase({
           name: newTagPayload.name,
@@ -77,7 +80,8 @@ export default function TagWithBuyerTable({
           setCreateMessage("");
         }, 2000);
       } else {
-        setCreateMessage(`Error: 'Failed to create tag in MailerLite.'}`);
+        setCreateMessage(`Failed to create tag in MailerLite.`);
+        setIsErrorCreatingTag(true)
       }
     } catch (error: any) {
       setCreateMessage(
@@ -190,8 +194,8 @@ export default function TagWithBuyerTable({
           </div>
 
           {createMessage && (
-            <div className="mb-4 p-2 bg-green-100 text-green-800 rounded-md flex items-center gap-2">
-              <Check className="w-4 h-4" />
+            <div className={`mb-4 p-2  ${isErrorCreatingTag ? "bg-red-100 text-red-800":"bg-green-100 text-green-800"}  rounded-md flex items-center gap-2`}>
+             { isErrorCreatingTag ? <X className="w-4 h-4" /> :  <Check className="w-4 h-4" />}
               <span>{createMessage}</span>
             </div>
           )}

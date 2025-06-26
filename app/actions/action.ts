@@ -41,12 +41,15 @@ export async function getCurrentWholesaler() {
     throw new Error("Unauthorized: No user session found.");
   }
 
+
+
   const { data, error } = await supabase
     .from("wholesaler")
     .select("*")
     .eq("user_id", session.user.id)
     .single();
 
+    
   if (error) {
     throw new Error(`Failed to fetch wholesaler: ${error.message}`);
   }
@@ -251,9 +254,11 @@ export async function addTagToMailerlit(payload: NewTag) {
   try {
     const response = await mailerLiteFetch(`/groups`, "POST", payload);
 
+
     const result = await response.json();
 
-    if (response.ok) {
+    console.log("add tag result",result)
+    if (response.ok || !result.errors) {
       return { status: true, tagApiId: result?.data?.id };
     } else {
       return { status: false };

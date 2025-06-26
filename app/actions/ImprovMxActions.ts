@@ -79,6 +79,7 @@ export async function notifyAdminNewAliasCreated(payload: {
 `,
       },
     ],
+    groups:["158202808543217427"]
   };
 
   try {
