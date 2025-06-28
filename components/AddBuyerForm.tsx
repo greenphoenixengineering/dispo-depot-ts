@@ -9,7 +9,7 @@ import {
   
   linkBuyerToTag,
   addBuyer,
-} from "@/app/actions/action";
+} from "@/app/actions/supabase";
 import { useRouter } from "next/navigation";
 import { addBuyerToMailerLit } from "@/app/actions/mailerLite";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import Link from "next/link";
 
 import { Tag, Mail, Plus, Search } from "lucide-react";

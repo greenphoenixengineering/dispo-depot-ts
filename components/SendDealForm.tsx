@@ -6,7 +6,7 @@ import { SendDealsState } from "@/libs/sendDealTypes";
 import { SubmitButton } from "./SubmitButton";
 import { Tag } from "@/libs/tagTypes";
 import MultiSelectTagsDropDown from "./MultiSelectTagsDropDown";
-import { sendDealsAction } from "@/app/actions/action";
+import { sendDealsAction } from "@/app/actions/supabase";
 
 export default function SendDealForm({ tags }: { tags: Tag[] }) {
   const initialState: SendDealsState = {

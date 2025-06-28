@@ -11,7 +11,7 @@ import {
   addTagToMailerlite,
   addTagToSupabase,
   deleteTag,
-} from "@/app/actions/action";
+} from "@/app/actions/supabase";
 import { useRouter } from "next/navigation";
 import { TagWithBuyerCount } from "@/libs/tagTypes";
 

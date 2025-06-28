@@ -1,4 +1,4 @@
-import { getWholesalerTags } from "@/app/actions/action";
+import { getWholesalerTags } from "@/app/actions/supabase";
 import SendDealForm from "@/components/SendDealForm";
 import {  ArrowLeft } from "lucide-react";
 import Link from "next/link";

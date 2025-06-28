@@ -5,7 +5,7 @@ import type React from "react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, Save } from "lucide-react";
-import { getSingleTag, UpdateTag } from "@/app/actions/action";
+import { getSingleTag, UpdateTag } from "@/app/actions/supabase";
 import { useRouter, useSearchParams } from "next/navigation";
 
 interface Props {

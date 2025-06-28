@@ -4,11 +4,11 @@ import GoogleProvider from "next-auth/providers/google";
 import config from "@/config";
 
 import { SupabaseAdapter } from "@auth/supabase-adapter";
+import { updateUserAliasOnSupa } from "@/app/actions/supabase";
 import {
-
-  updateUserAliasOnSupa,
-} from "@/app/actions/action";
-import { createUserAlias, notifyAdminNewAliasCreated } from "@/app/actions/improveMx";
+  createUserAlias,
+  notifyAdminNewAliasCreated,
+} from "@/app/actions/improveMx";
 
 interface NextAuthOptionsExtended extends NextAuthOptions {
   adapter: any;
@@ -36,7 +36,6 @@ export const authOptions: NextAuthOptionsExtended = {
   events: {
     createUser: async function ({ user }) {
       try {
-
         // Step 1: Create the alias on the external service
         const data = await createUserAlias({
           alias: `reply-${user.id}`,
@@ -44,10 +43,9 @@ export const authOptions: NextAuthOptionsExtended = {
         });
 
         if (data && data.alias) {
-
           // Step 2: Store the alias in your Supabase database
           const updateData = await updateUserAliasOnSupa({
-              alias: `reply-${user.id}@mydispodepot.io`,
+            alias: `reply-${user.id}@mydispodepot.io`,
             userId: user.id,
           });
 
@@ -56,7 +54,7 @@ export const authOptions: NextAuthOptionsExtended = {
             // notify the admin with the new user alias
             const sendEmailResult = await notifyAdminNewAliasCreated({
               userName: user.first_name + user.last_name,
-              userAlias:`reply-${user.id}@mydispodepot.io`,
+              userAlias: `reply-${user.id}@mydispodepot.io`,
             });
             if (sendEmailResult.success) {
               console.log("email sent to admin successfully");

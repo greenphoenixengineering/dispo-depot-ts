@@ -1,6 +1,6 @@
 import BuyersTable from '@/components/BuyersTable'
 import React from 'react'
-import { getBuyersWithTags } from '../actions/action'
+import { getBuyersWithTags } from '../actions/supabase'
 
 const Dashboard = async () => {
 
