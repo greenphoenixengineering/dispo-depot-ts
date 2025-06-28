@@ -8,7 +8,7 @@ import { DeletedTag, NewTag } from "@/libs/tagTypes";
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
 
-import { mailerLiteFetch } from "./mailerLiteActions";
+import { mailerLiteFetch } from "./mailerLite";
 import { SendDealsState } from "@/libs/sendDealTypes";
 
 export async function getBuyersWithTags() {
@@ -211,7 +211,7 @@ export async function getTagsWithCounts() {
     });
 
     if (error) {
-      throw new Error(`Database error: ${error.message}`);
+      throw new Error(`error fetching tag: ${error.message}`);
     }
 
     return data;
@@ -250,7 +250,7 @@ export async function addTagToSupabase(payload: any) {
   return { success: true };
 }
 
-export async function addTagToMailerlit(payload: NewTag) {
+export async function addTagToMailerlite(payload: NewTag) {
   try {
     const response = await mailerLiteFetch(`/groups`, "POST", payload);
 

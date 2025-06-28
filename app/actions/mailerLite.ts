@@ -4,7 +4,7 @@ import { RequestInit } from "next/dist/server/web/spec-extension/request";
 
 const BASE_URL = "https://connect.mailerlite.com/api";
 
-// GENERIC MAILERLIT FETCH FUNCTION
+// GENERIC MAILERLITE FETCH FUNCTION
 export async function mailerLiteFetch(
   path: string,
   method: "GET" | "POST" | "PUT" | "DELETE",
@@ -27,7 +27,6 @@ export async function mailerLiteFetch(
 
   const response = await fetch(`${BASE_URL}${path}`, options);
 
-  // Optionally, handle errors or non-2xx responses here
   return response;
 }
 
@@ -56,11 +55,11 @@ export async function addBuyerToMailerLit(newBuyer: NewBuyer) {
       return { status: false };
     }
   } catch (e) {
-    throw new Error("error adding buyer to mailerlit");
+    throw new Error("error adding buyer to mailerlite");
   }
 }
 
-export async function addTagToMailerlit(payload: NewTag) {
+export async function addTagToMailerlite(payload: NewTag) {
   try {
     const response = await mailerLiteFetch(`/groups`, "POST", payload);
 

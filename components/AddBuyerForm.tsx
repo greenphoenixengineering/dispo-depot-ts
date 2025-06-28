@@ -11,7 +11,7 @@ import {
   addBuyer,
 } from "@/app/actions/action";
 import { useRouter } from "next/navigation";
-import { addBuyerToMailerLit } from "@/app/actions/mailerLiteActions";
+import { addBuyerToMailerLit } from "@/app/actions/mailerLite";
 
 export default function AddBuyerForm({ tags }: { tags: any }) {
   const [error, setError] = useState(false);

@@ -1,10 +1,10 @@
 import { RequestInit } from "next/dist/server/web/spec-extension/request";
-import { mailerLiteFetch } from "./mailerLiteActions";
+import { mailerLiteFetch } from "./mailerLite";
 
 const IMRPOVMX_BASE_URL =
   "https://api.improvmx.com/v3/domains/mydispodepot.io/aliases";
 
-// GENERIC MAILERLIT FETCH FUNCTION
+// GENERIC IMPROVMX  FETCH FUNCTION
 export async function improvMxFetch(
   method: "GET" | "POST" | "PUT" | "DELETE",
   payload?: any
@@ -45,13 +45,13 @@ export async function createUserAlias(payload: any) {
     const data = await res.json();
 
     if (!res.ok) {
-      console.error("ImprovMX API Error:", data);
-      throw new Error(`API request failed with status ${res.status}`);
+     
+      throw new Error(`error creating user alias: ${res.status}`);
     }
 
     return data;
   } catch (error) {
-    console.error("Failed inside createUserAlias:", error);
+    console.error("error creating user alias:", error);
     throw error;
   }
 }
