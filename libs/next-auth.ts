@@ -8,7 +8,7 @@ import {
 
   updateUserAliasOnSupa,
 } from "@/app/actions/action";
-import { createUserAlias, notifyAdminNewAliasCreated } from "@/app/actions/ImproveMx";
+import { createUserAlias, notifyAdminNewAliasCreated } from "@/app/actions/improveMx";
 
 interface NextAuthOptionsExtended extends NextAuthOptions {
   adapter: any;
