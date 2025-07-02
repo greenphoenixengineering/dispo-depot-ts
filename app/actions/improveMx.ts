@@ -1,3 +1,4 @@
+"use server";
 import { RequestInit } from "next/dist/server/web/spec-extension/request";
 import { mailerLiteFetch } from "./mailerLite";
 
@@ -45,7 +46,6 @@ export async function createUserAlias(payload: any) {
     const data = await res.json();
 
     if (!res.ok) {
-     
       throw new Error(`error creating user alias: ${res.status}`);
     }
 
@@ -79,7 +79,7 @@ export async function notifyAdminNewAliasCreated(payload: {
 `,
       },
     ],
-    groups:["158202808543217427"]
+    groups: ["158202808543217427"],
   };
 
   try {

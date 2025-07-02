@@ -56,6 +56,8 @@ export const authOptions: NextAuthOptionsExtended = {
               userName: user.first_name + user.last_name,
               userAlias: `reply-${user.id}@mydispodepot.io`,
             });
+
+            console.log("send email result",sendEmailResult)
             if (sendEmailResult.success) {
               console.log("email sent to admin successfully");
             } else {

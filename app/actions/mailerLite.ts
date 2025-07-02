@@ -1,3 +1,5 @@
+"use server";
+
 import { NewTag } from "@/libs/tagTypes";
 import { NewBuyer } from "@/libs/types";
 import { RequestInit } from "next/dist/server/web/spec-extension/request";
@@ -47,8 +49,8 @@ export async function addBuyerToMailerLit(newBuyer: NewBuyer) {
   try {
     const response = await mailerLiteFetch(`/subscribers`, "POST", payload);
 
-
     const result = await response.json();
+
     if (response.ok) {
       return { status: true, newSubscriberId: result?.data?.id };
     } else {
