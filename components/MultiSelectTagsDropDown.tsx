@@ -9,8 +9,7 @@ import React, {
 } from "react";
 
 interface MultiSelectTagsDropDownProps {
-  tags: Tag[];
-  //   searchTerm: string;
+  tags: Tag[];  
   selectedTagObjects: Tag[];
 
   setSelectedTagObjects: Dispatch<SetStateAction<Tag[]>>;
@@ -32,7 +31,6 @@ const MultiSelectTagsDropDown = ({
         : [...prevSelected, tagToToggle]
     );
   };
-
 
   const removeTagFromSelection = (tagToRemove: any) => {
     setSelectedTagObjects((prevSelected) =>

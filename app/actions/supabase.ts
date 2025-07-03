@@ -389,7 +389,6 @@ export async function sendDealsAction(
   const subject = formData.get("subject") as string;
   const messageContent = formData.get("message") as string;
   const selectedTagsApiId = formData.getAll("selectedTagsApiId") as string[];
-  // selectedApiIds
 
   const errors: SendDealsState["errors"] = {};
 

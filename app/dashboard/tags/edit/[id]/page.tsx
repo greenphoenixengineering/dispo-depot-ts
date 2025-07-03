@@ -115,10 +115,10 @@ export default function EditTagPage({ params }: Props) {
           className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 mb-4"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to Tags</span>
+          <span className="text-xs sm:text-base">Back to Tags</span>
         </Link>
-        <h1 className="text-2xl font-bold mb-2">Edit Tag</h1>
-        <p className="text-gray-600">Update tag information</p>
+        <h1 className="text-xl sm:text-2xl font-bold mb-2">Edit Tag</h1>
+        <p className="text-sm sm:text-base text-gray-600">Update tag information</p>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm p-6">
@@ -127,7 +127,7 @@ export default function EditTagPage({ params }: Props) {
             <div>
               <label
                 htmlFor="name"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-xs sm:text-sm font-medium text-gray-700 mb-1"
               >
                 Tag Name *
               </label>
@@ -136,12 +136,12 @@ export default function EditTagPage({ params }: Props) {
                 id="name"
                 name="name"
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-xs sm:text-sm"
                 placeholder="Tag Name"
                 value={tagName}
                 onChange={(e) => setTagName(e.target.value)}
               />
-              <p className="mt-2 text-sm text-gray-500">
+              <p className="mt-2 text-xs sm:text-sm text-gray-500">
                 {TagbuyerCount} buyers are currently using this tag
               </p>
             </div>
@@ -149,7 +149,7 @@ export default function EditTagPage({ params }: Props) {
 
           {saveMessage && (
             <div
-              className={`p-3 my-2 rounded-md text-sm font-medium ${
+              className={`p-3 my-2 rounded-md text-xs sm:text-sm font-medium ${
                 error
                   ? "bg-red-100 border border-red-300 text-red-700"
                   : "bg-green-100 border border-green-300 text-green-700"
@@ -164,14 +164,14 @@ export default function EditTagPage({ params }: Props) {
             <div className="flex gap-3">
               <Link
                 href="/dashboard/tags"
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                className="px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors text-xs sm:text-sm"
               >
                 Cancel
               </Link>
               <button
                 type="submit"
                 disabled={isSaving}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors disabled:opacity-50"
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors disabled:opacity-50 text-xs sm:text-sm"
               >
                 {isSaving ? (
                   <>
