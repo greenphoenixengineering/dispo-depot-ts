@@ -43,51 +43,59 @@ export default function TagWithBuyerTable({
   } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleCreateTag = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTagName.trim()) {
-      setCreateMessage("Please enter a tag name.");
-      return;
+const handleCreateTag = async (e: React.FormEvent) => {
+  e.preventDefault();
+  const trimmedName = newTagName.trim();
+
+  if (!trimmedName) {
+    setCreateMessage("Please enter a tag name.");
+    setIsErrorCreatingTag(true); 
+    return;
+  }
+
+  setIsCreating(true);
+  setIsErrorCreatingTag(false);
+  setCreateMessage("");
+  let isSuccess = false;
+
+  try {
+    const addTagResult = await addTagToMailerlite({ name: trimmedName });
+
+    if (!addTagResult.status || !addTagResult.tagApiId) {
+      throw new Error("Failed to create tag in MailerLite.");
     }
 
-    setIsCreating(true);
-    setCreateMessage("");
+    const addTagToSupabaseResult = await addTagToSupabase({
+      name: trimmedName,
+      api_id: addTagResult.tagApiId,
+    });
 
-    try {
-      const newTagPayload = {
-        name: newTagName.trim(),
-      };
+    if (!addTagToSupabaseResult.success) {
+      throw new Error("Tag created in MailerLite, but failed to save to our database.");
+    }
 
-      const addTagResult = await addTagToMailerlite(newTagPayload);
+    isSuccess = true;
+    router.refresh();
+    setNewTagName("");
+    setCreateMessage("Tag created successfully!");
 
-      if (addTagResult.status && addTagResult.tagApiId) {
-        const addTagToSupabaseResult = await addTagToSupabase({
-          name: newTagPayload.name,
-          api_id: addTagResult.tagApiId,
-        });
+  } catch (error: any) {
+    isSuccess = false;
+    setIsErrorCreatingTag(true);
+    setCreateMessage(error.message || "An unexpected error occurred.");
 
-        if (addTagToSupabaseResult.success) {
-          router.refresh();
-          setCreateMessage("Tag created successfully!");
-          setNewTagName("");
-        }
+  } finally {
+    setIsCreating(false);
 
-        setTimeout(() => {
-          setShowCreateForm(false);
-          setCreateMessage("");
-        }, 2000);
-      } else {
-        setCreateMessage(`Failed to create tag in MailerLite.`);
-        setIsErrorCreatingTag(true);
+    setTimeout(() => {
+      setCreateMessage("");
+      setIsErrorCreatingTag(false);
+      if (isSuccess) {
+        setShowCreateForm(false);
       }
-    } catch (error: any) {
-      setCreateMessage(
-        `Error: ${error.message || "An unexpected error occurred."}`
-      );
-    } finally {
-      setIsCreating(false);
-    }
-  };
+    }, 2000);
+  }
+};
   const cancelCreate = () => {
     setShowCreateForm(false);
     setNewTagName("");
