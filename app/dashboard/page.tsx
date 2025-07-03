@@ -1,6 +1,9 @@
 import BuyersTable from '@/components/BuyersTable'
 import React from 'react'
 import { getBuyersWithTags } from '../actions/supabase'
+import Link from 'next/link'
+import { Plus } from 'lucide-react'
+import BuyersCardList from '@/components/BuyersCardList'
 
 const Dashboard = async () => {
   const buyersWithTags = await getBuyersWithTags()
