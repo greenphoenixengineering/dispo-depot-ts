@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import {  useState } from "react";
 import Link from "next/link";
 
 import { Tag, Mail, Plus, Search } from "lucide-react";
@@ -38,6 +38,7 @@ export default function BuyersTable({
     (currentPage - 1) * 10,
     currentPage * 10
   );
+
 
 
   return (

@@ -1,4 +1,4 @@
-import { getWholesalerTags } from "@/app/actions/action";
+import { getWholesalerTags } from "@/app/actions/supabase";
 import AddBuyerForm from "@/components/AddBuyerForm";
 import React from "react";
 

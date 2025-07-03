@@ -1,4 +1,4 @@
-import { getSingleBuyer, getWholesalerTags } from "@/app/actions/action";
+import { getSingleBuyer, getWholesalerTags } from "@/app/actions/supabase";
 import EditBuyerForm from "@/components/EditBuyerForm";
 
 export default async function EditBuyerPage({

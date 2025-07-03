@@ -1,11 +1,13 @@
-import { getWholesalerTags } from "@/app/actions/action";
+import { getWholesalerTags } from "@/app/actions/supabase";
 import SendDealForm from "@/components/SendDealForm";
-import { ArrowLeft } from "lucide-react";
+import {  ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
 const page = async () => {
   const tags = await getWholesalerTags();
+
+
   return (
     <>
       <div className="mb-6">
