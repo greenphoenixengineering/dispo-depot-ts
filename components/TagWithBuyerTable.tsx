@@ -186,7 +186,7 @@ export default function TagWithBuyerTable({
           {/* Modal content */}
           <div
             className="bg-white rounded-lg shadow-lg w-[90%] max-w-md p-6 relative"
-            onClick={(e) => e.stopPropagation()} // que no cierre al hacer click dentro
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Close button */}
             <button
@@ -297,7 +297,7 @@ export default function TagWithBuyerTable({
       {tags?.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
           <p className="mb-2">No tags found.</p>
-          <p className="text-sm">Add one by clicking the Add Tag button above.</p>
+          <p className="text-sm">Add one by clicking the Create Tag button above.</p>
         </div>
       ) : (        
         <div className="hidden md:block bg-white rounded-lg shadow overflow-x-auto">
