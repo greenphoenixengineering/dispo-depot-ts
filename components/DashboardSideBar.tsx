@@ -42,7 +42,7 @@ const DashboardSideBar = ({ open = false, onClose }: DashboardSideBarProps) => {
       <nav className="mt-6">
         {/* Links */}
         {[
-          { href: "/dashboard/tags", icon: Tag, label: "Manage Tags" },
+          { href: "/dashboard/tags", icon: Tag, label: "Tags" },
           { href: "/dashboard", icon: User, label: "Buyers" },        
           { href: "/dashboard/deals", icon: Mail, label: "Send Deals" },
         ].map(({ href, icon: Icon, label }) => (

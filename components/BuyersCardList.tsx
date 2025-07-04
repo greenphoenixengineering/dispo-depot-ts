@@ -33,20 +33,22 @@ export default function BuyersCardList({ buyersWithTags }: { buyersWithTags: Buy
   return (
     <div>
       {/* Search bar */}
-      <div className="bg-white p-3 rounded-lg shadow-sm mb-4">
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <Search className="w-4 h-4 text-gray-400" />
+      {filteredBuyers?.length !== 0 && 
+        <div className="bg-white p-3 rounded-lg shadow-sm mb-4">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <Search className="w-4 h-4 text-gray-400" />
+            </div>
+            <input
+              type="text"
+              className="block w-full pl-8 pr-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              placeholder="Search buyers by name, email, phone or tag..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
-          <input
-            type="text"
-            className="block w-full pl-8 pr-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            placeholder="Search buyers by name, email, phone or tag..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
         </div>
-      </div>
+      }      
 
       {filteredBuyers?.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
