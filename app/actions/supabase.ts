@@ -257,10 +257,12 @@ export async function addTagToMailerlite(payload: NewTag) {
 
     const result = await response.json();
 
+
+    console.log("add tag result",result)
     if (response.ok || !result.errors) {
       return { status: true, tagApiId: result?.data?.id };
     } else {
-      return { status: false };
+      return { status: false , error:result.errors.name[0] };
     }
   } catch (e) {
     throw new Error("error adding buyer to mailerlite");
