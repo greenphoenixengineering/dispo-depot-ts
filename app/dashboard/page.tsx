@@ -13,7 +13,7 @@ const Dashboard = async () => {
       <div className="space-y-2 sm:space-y-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-8">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold">Dashboard</h1>
+            <h1 className="text-xl sm:text-2xl font-bold">Buyers</h1>
             <p className="text-sm sm:text-base text-gray-600">
               Manage your buyers and send targeted deals
             </p>

@@ -1,7 +1,7 @@
-// components/DashboardSideBar.tsx
 "use client";
+
 import React from "react";
-import { Tag, LogOut, Mail, Home, X } from "lucide-react";
+import { Tag, LogOut, Mail, X, User } from "lucide-react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 
@@ -40,15 +40,10 @@ const DashboardSideBar = ({ open = false, onClose }: DashboardSideBarProps) => {
       </div>
 
       <nav className="mt-6">
-        {/* MAIN */}
-        {/* <div className="px-4 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider whitespace-nowrap">
-          Main
-        </div> */}
-
         {/* Links */}
         {[
-          { href: "/dashboard", icon: Home, label: "Dashboard" },
           { href: "/dashboard/tags", icon: Tag, label: "Manage Tags" },
+          { href: "/dashboard", icon: User, label: "Buyers" },        
           { href: "/dashboard/deals", icon: Mail, label: "Send Deals" },
         ].map(({ href, icon: Icon, label }) => (
           <Link
@@ -64,10 +59,6 @@ const DashboardSideBar = ({ open = false, onClose }: DashboardSideBarProps) => {
           </Link>
         ))}
 
-        {/* ACCOUNT */}
-        {/* <div className="px-4 mt-6 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider whitespace-nowrap">
-          Account
-        </div> */}
         <button
           onClick={handleSignOut}
           className="w-full flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-red-500"

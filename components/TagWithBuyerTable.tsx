@@ -161,14 +161,6 @@ export default function TagWithBuyerTable({
     <div className="space-y-0">
       {/* ←— Header & Create Button */}
       <div className="space-y-2 sm:space-y-4">
-        <Link
-          href="/dashboard"
-          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span className="text-xs sm:text-base">Back to Dashboard</span>
-        </Link>
-
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-8">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold">Manage Tags</h1>
