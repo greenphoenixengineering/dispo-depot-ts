@@ -61,7 +61,6 @@ export default function TagWithBuyerTable({
     try {
       const addTagResult = await addTagToMailerlite({ name: trimmedName });
 
-      console.log("add tag result",addTagResult)
       if (!addTagResult.status || !addTagResult.tagApiId) {
         throw new Error(addTagResult.error || "Failed to create tag");
       }
