@@ -60,7 +60,7 @@ export default function SendDealForm({ tags }: { tags: Tag[] }) {
           <input
             key={`hidden-${tag.api_id}`}
             type="hidden"
-            name="selectedTagsApiId"
+            name="selectedTags"
             value={tag.api_id}
           />
         ))}
@@ -69,12 +69,12 @@ export default function SendDealForm({ tags }: { tags: Tag[] }) {
           tags={tags}
           selectedTagObjects={selectedTagObjects}
           setSelectedTagObjects={setSelectedTagObjects}
-        />
+        />      
         {messageVisible && formState.errors?.tags && (
-          <p className="text-xs sm:text-sm text-red-600 mt-1">{formState.errors.tags}</p>
+          <div className="text-xs sm:text-sm text-red-600 mt-1">{formState.errors.tags}</div>
         )}
 
-        <div className="mb-4">
+        <div className="my-4">
           <label
             htmlFor="subject"
             className="block text-xs sm:text-sm font-medium text-gray-700 mb-1"
@@ -95,7 +95,7 @@ export default function SendDealForm({ tags }: { tags: Tag[] }) {
           )}
         </div>
 
-        <div className="mb-6">
+        <div>
           <label
             htmlFor="message"
             className="block text-xs sm:text-sm font-medium text-gray-700 mb-1"
@@ -110,7 +110,7 @@ export default function SendDealForm({ tags }: { tags: Tag[] }) {
             placeholder="Enter your message here..."
           ></textarea>
           {messageVisible && formState.errors?.message && (
-            <p className="text-sm text-red-600 mt-1">
+            <p className="text-sm text-red-600">
               {formState.errors.message}
             </p>
           )}

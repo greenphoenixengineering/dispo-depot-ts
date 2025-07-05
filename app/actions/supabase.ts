@@ -389,11 +389,11 @@ export async function sendDealsAction(
 ): Promise<SendDealsState> {
   const subject = formData.get("subject") as string;
   const messageContent = formData.get("message") as string;
-  const selectedTagsApiId = formData.getAll("selectedTagsApiId") as string[];
+  const selectedTags = formData.getAll("selectedTags") as string[];
 
   const errors: SendDealsState["errors"] = {};
 
-  if (selectedTagsApiId.length === 0) {
+  if (selectedTags.length === 0) {
     errors.tags = "Please select at least one buyer group.";
   }
   if (!subject) {
@@ -428,7 +428,7 @@ export async function sendDealsAction(
         content: messageContent,
       },
     ],
-    groups: selectedTagsApiId,
+    groups: selectedTags,
   };
 
   try {

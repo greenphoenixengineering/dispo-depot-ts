@@ -4,7 +4,7 @@ import type React from "react";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Plus, X, Check, Edit, Trash } from "lucide-react";
+import { Plus, X, Check, Edit, Trash } from "lucide-react";
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal";
 import { TagChip } from "@/components/tag-ship";
 import {
@@ -160,15 +160,7 @@ export default function TagWithBuyerTable({
     <div className="space-y-0">
       {/* ←— Header & Create Button */}
       <div className="space-y-2 sm:space-y-4">
-        <Link
-          href="/dashboard"
-          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span className="text-xs sm:text-base">Back to Dashboard</span>
-        </Link>
-
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-2">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold">Manage Tags</h1>
             <p className="text-sm sm:text-base text-gray-600">
@@ -193,7 +185,7 @@ export default function TagWithBuyerTable({
           {/* Modal content */}
           <div
             className="bg-white rounded-lg shadow-lg w-[90%] max-w-md p-6 relative"
-            onClick={(e) => e.stopPropagation()} // que no cierre al hacer click dentro
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Close button */}
             <button
@@ -301,50 +293,57 @@ export default function TagWithBuyerTable({
       </div>
 
       {/* ←— Desktop: Overflow-scroll Table */}
-      <div className="hidden md:block bg-white rounded-lg shadow overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
-                Tag
-              </th>
-              <th className="px-6 py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
-                Buyers
-              </th>
-              <th className="px-6 py-3 text-right text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {tags.map((tag) => (
-              <tr key={tag.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <TagChip label={tag.name} index={0} />
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
-                  {tag.buyer_count} buyers
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <Link
-                    href={`tags/edit/${tag.id}?buyer_count=${tag.buyer_count}`}
-                  >
-                    <button className="text-gray-600 hover:text-gray-900 mr-3 text-sm sm:text-base">
-                      <Edit className="w-4 h-4" />
-                    </button>
-                  </Link>
-                  <button
-                    onClick={() => startDeleteTag(tag)}
-                    className="text-red-600 hover:text-red-900 text-sm sm:text-base"
-                  >
-                    <Trash className="w-4 h-4" />
-                  </button>
-                </td>
+      {tags?.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">
+          <p className="mb-2">No tags found.</p>
+          <p className="text-sm">Add one by clicking the Create Tag button above.</p>
+        </div>
+      ) : (        
+        <div className="hidden md:block bg-white rounded-lg shadow overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
+                  Tag
+                </th>
+                <th className="px-6 py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
+                  Buyers
+                </th>
+                <th className="px-6 py-3 text-right text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {tags.map((tag) => (
+                <tr key={tag.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <TagChip label={tag.name} index={0} />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
+                    {tag.buyer_count} buyers
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <Link
+                      href={`tags/edit/${tag.id}?buyer_count=${tag.buyer_count}`}
+                    >
+                      <button className="text-gray-600 hover:text-gray-900 mr-3 text-sm sm:text-base">
+                        <Edit className="w-4 h-4" />
+                      </button>
+                    </Link>
+                    <button
+                      onClick={() => startDeleteTag(tag)}
+                      className="text-red-600 hover:text-red-900 text-sm sm:text-base"
+                    >
+                      <Trash className="w-4 h-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>        
+      )}
 
       {/* ←— Delete Confirmation */}
       <DeleteConfirmationModal

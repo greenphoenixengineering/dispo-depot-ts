@@ -65,7 +65,7 @@ const MultiSelectTagsDropDown = ({
   }, [isDropdownOpen]);
 
   return (
-    <div className="mb-6">
+    <div>
       <label className="block text-sm font-medium text-gray-700 mb-2">
         Select Tags to Target
       </label>

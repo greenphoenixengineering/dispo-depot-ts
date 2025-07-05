@@ -118,7 +118,7 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
                 htmlFor="name"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                First Name
+                First Name *
               </label>
               <input
                 type="text"
@@ -136,7 +136,7 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
                 htmlFor="name"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Last Name
+                Last Name *
               </label>
               <input
                 type="text"
