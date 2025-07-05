@@ -1,19 +1,13 @@
-import { getTagsWithCounts, getWholesalerTags } from "@/app/actions/supabase";
+import { getTagsWithCounts } from "@/app/actions/supabase";
 import SendDealForm from "@/components/SendDealForm";
 import { TagWithBuyerCount } from "@/libs/tagTypes";
 
-import React from "react";
-
 const page = async () => {
-  const tags = await getWholesalerTags();
-  const tagsWithBuyerCount:TagWithBuyerCount[] = await getTagsWithCounts();
+  const tagsWithBuyerCount: TagWithBuyerCount[] = await getTagsWithCounts();
 
-
-  const tagsThatHasBuyers=tagsWithBuyerCount?.filter(item=> item.buyer_count > 0)
-
-  console.log("tags with buyer count", tagsWithBuyerCount);
-  console.log("tags that has buyer", tagsThatHasBuyers);
-
+  const tagsThatHasBuyers = tagsWithBuyerCount?.filter(
+    (item) => item.buyer_count > 0
+  );
 
   return (
     <>
