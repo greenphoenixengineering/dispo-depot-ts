@@ -1,11 +1,15 @@
+import Image from "next/image";
+
 export function PricingFAQ() {
     return (
       <div className="py-12 md:py-24 relative overflow-hidden rounded-xl">
         {/* Background image with overlay */}
         <div className="absolute inset-0 w-full h-full z-0">
-          <img
+              <Image
             src="/website-bg.jpg"
             alt="Background"
+            width={500}
+            height={500}
             className="w-full h-full object-cover opacity-90"
             style={{ filter: 'brightness(0.90) blur(0px)' }}
           />
