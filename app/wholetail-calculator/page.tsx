@@ -10,7 +10,7 @@ export default function WholetailCalculator() {
   const [listAgentPct, setListAgentPct] = useState(0.01);
   const [buyerAgentPct, setBuyerAgentPct] = useState(0.03);
   const [fundingPct, setFundingPct] = useState(0.03);
-  const [wholesaleFeePct, setWholesaleFeePct] = useState(0);
+  const [wholesaleFeePct, setWholesaleFeePct] = useState(0.03);
   const [profitPct, setProfitPct] = useState(0.19);
 
   const [firstLoanPct, setFirstLoanPct] = useState(0.8);
@@ -220,14 +220,29 @@ export default function WholetailCalculator() {
               </td>
             </tr>
             <tr className="border-b">
-              <td className="py-1 px-0.5 text-[10px] sm:text-sm">Funding</td>
+              <td className="py-1 px-0.5 text-[10px] sm:text-sm">Loan Cost</td>
               <td className="text-center py-1 px-0.5">
-                <input type="number" step="0.01" min="0" max="100" value={(fundingPct*100).toFixed(2)} onChange={e => setFundingPct(Number(e.target.value)/100)} className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="100"
+                  value={(fundingPct*100).toFixed(2)}
+                  onChange={e => setFundingPct(Number(e.target.value)/100)}
+                  className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm"
+                />
               </td>
               <td className="text-right">
-                <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                  ${fundingCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                </span>
+                <input
+                  type="number"
+                  min="0"
+                  value={fundingCost.toFixed(2)}
+                  onChange={e => {
+                    const val = Number(e.target.value);
+                    setFundingPct(asIsValue > 0 ? val / asIsValue : 0);
+                  }}
+                  className="border rounded px-0.5 py-1 w-24 text-right text-[10px] sm:text-sm"
+                />
               </td>
             </tr>
             <tr className="border-b">
@@ -244,9 +259,16 @@ export default function WholetailCalculator() {
                 />
               </td>
               <td className="text-right">
-                <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                  ${wholesaleFee.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                </span>
+                <input
+                  type="number"
+                  min="0"
+                  value={wholesaleFee.toFixed(2)}
+                  onChange={e => {
+                    const val = Number(e.target.value);
+                    setWholesaleFeePct(asIsValue > 0 ? val / asIsValue : 0);
+                  }}
+                  className="border rounded px-0.5 py-1 w-24 text-right text-[10px] sm:text-sm"
+                />
               </td>
             </tr>
             <tr className="border-b">
