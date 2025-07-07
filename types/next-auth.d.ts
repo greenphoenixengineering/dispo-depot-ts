@@ -17,7 +17,15 @@ declare module 'next-auth' {
   /**
    * The Session object, also extended to include the custom user.
    */
+  interface plan {
+    name?: string;
+    hasAccess: boolean;
+    stripeCustomerId?: string;
+    stripePriceId?: string;
+  }
   interface Session {
-    user: User;
+    user: User & {
+      plan?: plan;
+    };
   }
 }

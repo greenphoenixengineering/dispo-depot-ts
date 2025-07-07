@@ -22,6 +22,12 @@ export type Theme =
   | "dracula"
   | "";
 
+export enum PlanName {
+  FREE = "Free",
+  STANDARD = "Standard", 
+  PRO = "Pro"
+}
+
 export interface ConfigProps {
   appName: string;
   appDescription: string;
@@ -34,7 +40,7 @@ export interface ConfigProps {
     plans: {
       isFeatured?: boolean;
       priceId: string;
-      name: string;
+      name: PlanName;
       description?: string;
       price: number;
       priceAnchor?: number;

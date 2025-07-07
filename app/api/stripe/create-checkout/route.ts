@@ -2,15 +2,26 @@ import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/libs/next-auth";
 import { createCheckout } from "@/libs/stripe";
-import connectMongo from "@/libs/mongoose";
-import User from "@/models/User";
+import { supabaseUserService } from "@/libs/supabase";
+import config from "@/config";
 
 // This function is used to create a Stripe Checkout Session (one-time payment or subscription)
 // It's called by the <ButtonCheckout /> component
-// By default, it doesn't force users to be authenticated. But if they are, it will prefill the Checkout data with their email and/or credit card
+// Requires users to be authenticated and will prefill the Checkout data with their email
 export async function POST(req: NextRequest) {
-  const body = await req.json();
+  const session = await getServerSession(authOptions);
 
+  // Require authentication
+  if (!session?.user?.email) {
+    return NextResponse.json(
+      { error: "Authentication required", redirectUrl: config.auth.loginUrl },
+      { status: 401 }
+    );
+  }
+
+  const body = await req.json();
+  console.log('body',body);
+  
   if (!body.priceId) {
     return NextResponse.json(
       { error: "Price ID is required" },
@@ -32,11 +43,14 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const session = await getServerSession(authOptions);
-
-    await connectMongo();
-
-    const user = await User.findById(session?.user?.id);
+    // Get user from Supabase if they exist
+    let supabaseUser = null;
+    try {
+      supabaseUser = await supabaseUserService.getUserByEmail(session.user.email);
+    } catch (error) {
+      // User doesn't exist in Supabase yet, which is fine
+      console.log('User not found in Supabase, will be created during checkout');
+    }
 
     const { priceId, mode, successUrl, cancelUrl } = body;
 
@@ -45,10 +59,13 @@ export async function POST(req: NextRequest) {
       mode,
       successUrl,
       cancelUrl,
-      // If user is logged in, it will pass the user ID to the Stripe Session so it can be retrieved in the webhook later
-      clientReferenceId: user?._id?.toString(),
-      // If user is logged in, this will automatically prefill Checkout data like email and/or credit card for faster checkout
-      user,
+      // Pass the user email to the Stripe Session so it can be retrieved in the webhook later
+      clientReferenceId: session.user.email,
+      // Automatically prefill Checkout data with email for faster checkout
+      user: {
+        email: session.user.email,
+        customerId: supabaseUser?.stripe_customer_id,
+      },
       // If you send coupons from the frontend, you can pass it here
       // couponId: body.couponId,
     });

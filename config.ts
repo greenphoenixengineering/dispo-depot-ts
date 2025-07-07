@@ -1,5 +1,5 @@
 import themes from "daisyui/src/theming/themes";
-import { ConfigProps } from "./types/config";
+import { ConfigProps, PlanName } from "./types/config";
 
 const config = {
   // REQUIRED
@@ -20,47 +20,52 @@ const config = {
     plans: [
       {
         // REQUIRED — we use this to find the plan in the webhook (for instance if you want to update the user's credits based on the plan)
-        priceId:
-          process.env.NODE_ENV === "development"
-            ? "price_1Niyy5AxyNprDp7iZIqEyD2h"
-            : "price_456",
+        priceId: process.env.STRIPE_FREE_PLAN_PRICE_ID || "",
+        
         //  REQUIRED - Name of the plan, displayed on the pricing page
-        name: "Starter",
+        name: PlanName.FREE,
         // A friendly description of the plan, displayed on the pricing page. Tip: explain why this plan and not others
-        description: "Perfect for small projects",
+        description: "Perfect for getting started",
         // The price you want to display, the one user will be charged on Stripe.
-        price: 99,
+        price: 0,
         // If you have an anchor price (i.e. $29) that you want to display crossed out, put it here. Otherwise, leave it empty
-        priceAnchor: 149,
+        priceAnchor: null,
         features: [
-          {
-            name: "NextJS boilerplate",
-          },
-          { name: "User oauth" },
-          { name: "Database" },
-          { name: "Emails" },
+          { name: "10 buyers" },
+          { name: "1 email by tag/month" },
+          { name: "Basic buyer management" },
+          { name: "Email support" },
         ],
       },
       {
-        priceId:
-          process.env.NODE_ENV === "development"
-            ? "price_1O5KtcAxyNprDp7iftKnrrpw"
-            : "price_456",
+        priceId: process.env.STRIPE_STANDARD_PLAN_PRICE_ID || "",
         // This plan will look different on the pricing page, it will be highlighted. You can only have one plan with isFeatured: true
         isFeatured: true,
-        name: "Advanced",
-        description: "You need more power",
-        price: 149,
-        priceAnchor: 299,
+        name: PlanName.STANDARD,
+        description: "For growing businesses",
+        price: 9,
+        priceAnchor: null,
         features: [
-          {
-            name: "NextJS boilerplate",
-          },
-          { name: "User oauth" },
-          { name: "Database" },
-          { name: "Emails" },
-          { name: "1 year of updates" },
-          { name: "24/7 support" },
+          { name: "500 buyers" },
+          { name: "100 emails by tag/month" },
+          { name: "Advanced buyer management" },
+          { name: "Priority email support" },
+          { name: "CSV/Excel import" },
+        ],
+      },
+      {
+        priceId: process.env.STRIPE_PRO_PLAN_PRICE_ID || "",
+        name: PlanName.PRO,
+        description: "For power users",
+        price: 19,
+        priceAnchor: null,
+        features: [
+          { name: "Unlimited buyers" },
+          { name: "Unlimited emails" },
+          { name: "Advanced analytics" },
+          { name: "Priority phone support" },
+          { name: "API access" },
+          { name: "Custom integrations" },
         ],
       },
     ],
