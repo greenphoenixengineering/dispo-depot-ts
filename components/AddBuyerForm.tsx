@@ -6,11 +6,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Save } from "lucide-react";
 import {
-  addBuyerToMailerLit,
+  
   linkBuyerToTag,
   addBuyer,
-} from "@/app/actions/action";
+} from "@/app/actions/supabase";
 import { useRouter } from "next/navigation";
+import { addBuyerToMailerLit } from "@/app/actions/mailerLite";
 
 export default function AddBuyerForm({ tags }: { tags: any }) {
   const [error, setError] = useState(false);
@@ -41,6 +42,9 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
 
     try {
       const result = await addBuyerToMailerLit(formData);
+  
+
+      console.log("add  buye result from front end",result)
 
       if (!result?.status || !result?.newSubscriberId) {
         throw new Error("Failed to add buyer to MailerLite.");

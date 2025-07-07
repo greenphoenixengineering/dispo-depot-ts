@@ -8,10 +8,10 @@ import { ArrowLeft, Plus, X, Check, Edit, Trash } from "lucide-react";
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal";
 import { TagChip } from "@/components/tag-ship";
 import {
-  addTagToMailerlit,
+  addTagToMailerlite,
   addTagToSupabase,
   deleteTag,
-} from "@/app/actions/action";
+} from "@/app/actions/supabase";
 import { useRouter } from "next/navigation";
 import { TagWithBuyerCount } from "@/libs/tagTypes";
 
@@ -26,6 +26,7 @@ export default function TagWithBuyerTable({
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newTagName, setNewTagName] = useState("");
   const [isErrorDeleting, setIsErrorDeleting] = useState(false);
+  const [isErrorCreatingTag, setIsErrorCreatingTag] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [createMessage, setCreateMessage] = useState("");
 
@@ -57,7 +58,7 @@ export default function TagWithBuyerTable({
         name: newTagName.trim(),
       };
 
-      const addTagResult = await addTagToMailerlit(newTagPayload);
+      const addTagResult = await addTagToMailerlite(newTagPayload);
 
       if (addTagResult.status && addTagResult.tagApiId) {
         const addTagToSupabaseResult = await addTagToSupabase({
@@ -65,8 +66,7 @@ export default function TagWithBuyerTable({
           api_id: addTagResult.tagApiId,
         });
 
-
-        if(addTagToSupabaseResult.success){
+        if (addTagToSupabaseResult.success) {
           router.refresh();
           setCreateMessage("Tag created successfully!");
           setNewTagName("");
@@ -77,7 +77,8 @@ export default function TagWithBuyerTable({
           setCreateMessage("");
         }, 2000);
       } else {
-        setCreateMessage(`Error: 'Failed to create tag in MailerLite.'}`);
+        setCreateMessage(`Failed to create tag in MailerLite.`);
+        setIsErrorCreatingTag(true);
       }
     } catch (error: any) {
       setCreateMessage(
@@ -200,10 +201,20 @@ export default function TagWithBuyerTable({
           <h2 className="text-lg font-semibold mb-4">Create New Tag</h2>
 
           {createMessage && (
-            <div className="mb-4 flex items-center gap-2 p-2 bg-green-100 text-green-800 rounded">
+            <div
+            className={`mb-4 p-2  ${
+              isErrorCreatingTag
+                ? "bg-red-100 text-red-800"
+                : "bg-green-100 text-green-800"
+            }  rounded flex items-center gap-2`}
+          >
+            {isErrorCreatingTag ? (
+              <X className="w-4 h-4" />
+            ) : (
               <Check className="w-4 h-4" />
-              <span>{createMessage}</span>
-            </div>
+            )}
+            <span>{createMessage}</span>
+          </div>
           )}
 
           <form onSubmit={handleCreateTag} className="space-y-4">

@@ -1,12 +1,12 @@
 "use client";
 
-import { sendDealsAction } from "@/app/actions/action";
 import { useFormState } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import { SendDealsState } from "@/libs/sendDealTypes";
 import { SubmitButton } from "./SubmitButton";
 import { Tag } from "@/libs/tagTypes";
 import MultiSelectTagsDropDown from "./MultiSelectTagsDropDown";
+import { sendDealsAction } from "@/app/actions/supabase";
 
 export default function SendDealForm({ tags }: { tags: Tag[] }) {
   const initialState: SendDealsState = {
@@ -32,7 +32,7 @@ export default function SendDealForm({ tags }: { tags: Tag[] }) {
 
       if (formState.success) {
         formRef.current?.reset();
-        setSelectedTagObjects([]);        
+        setSelectedTagObjects([]);
       }
       return () => clearTimeout(timer);
     }
@@ -40,7 +40,6 @@ export default function SendDealForm({ tags }: { tags: Tag[] }) {
 
   return (
     <div>
-      {/* Form Submission Messages */}
       {messageVisible && formState.success && formState.message && (
         <div className="mb-4 p-3 bg-green-100 text-green-700 border border-green-300 rounded text-xs sm:text-sm">
           {formState.message}
@@ -57,7 +56,6 @@ export default function SendDealForm({ tags }: { tags: Tag[] }) {
         action={formAction}
         className="bg-white rounded-lg shadow-sm p-6"
       >
-        {/* Hidden inputs for selected tag API IDs */}
         {selectedTagObjects.map((tag) => (
           <input
             key={`hidden-${tag.api_id}`}
@@ -67,7 +65,6 @@ export default function SendDealForm({ tags }: { tags: Tag[] }) {
           />
         ))}
 
-        {/* Tag Selection Section (New UI) */}
         <MultiSelectTagsDropDown
           tags={tags}
           selectedTagObjects={selectedTagObjects}
@@ -77,7 +74,6 @@ export default function SendDealForm({ tags }: { tags: Tag[] }) {
           <p className="text-xs sm:text-sm text-red-600 mt-1">{formState.errors.tags}</p>
         )}
 
-        {/* Subject Line Input */}
         <div className="mb-4">
           <label
             htmlFor="subject"
@@ -99,7 +95,6 @@ export default function SendDealForm({ tags }: { tags: Tag[] }) {
           )}
         </div>
 
-        {/* Message Textarea */}
         <div className="mb-6">
           <label
             htmlFor="message"

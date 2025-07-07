@@ -1,10 +1,8 @@
 import BuyersTable from '@/components/BuyersTable'
 import React from 'react'
-import { getBuyersWithTags } from '../actions/action'
+import { getBuyersWithTags } from '../actions/supabase'
 import Link from 'next/link'
-import { Edit, Mail, Plus, Tag } from 'lucide-react'
-import { TagChip } from '@/components/tag-ship'
-import { Buyer } from '@/libs/types'
+import { Plus } from 'lucide-react'
 import BuyersCardList from '@/components/BuyersCardList'
 
 const Dashboard = async () => {

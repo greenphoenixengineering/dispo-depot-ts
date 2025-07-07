@@ -1,4 +1,4 @@
-import { getTagsWithCounts } from "@/app/actions/action";
+import { getTagsWithCounts } from "@/app/actions/supabase";
 import TagWithBuyerTable from "@/components/TagWithBuyerTable";
 import { TagWithBuyerCount } from "@/libs/tagTypes";
 import React from "react";

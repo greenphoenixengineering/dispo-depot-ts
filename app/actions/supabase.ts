@@ -2,35 +2,28 @@
 
 import { authOptions } from "@/libs/next-auth";
 import { supabase } from "@/libs/supabase";
-import {
-  DeleteBuyer,
-  NewBuyer,
-  NewBuyerInSupa,
-  UpdateBuyer,
-} from "@/libs/types";
+import { DeleteBuyer, NewBuyerInSupa, UpdateBuyer } from "@/libs/types";
 
 import { DeletedTag, NewTag } from "@/libs/tagTypes";
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
-import { SendDealsState } from "@/libs/sendDealTypes";
-import { RequestInit } from "next/dist/server/web/spec-extension/request";
 
-const BASE_URL = "https://connect.mailerlite.com/api";
+import { mailerLiteFetch } from "./mailerLite";
+import { SendDealsState } from "@/libs/sendDealTypes";
+
 export async function getBuyersWithTags() {
   const wholesalerData = await getCurrentWholesaler();
 
   const { data, error } = await supabase
     .from("buyer")
     .select(
-      `
-      *,
-      buyer_tags (
+      `*,
+        buyer_tags (
         tags:tag_id (
           id,
           name
         )
-      )
-    `
+      )`
     )
     .eq("wholesaler_id", wholesalerData.id);
 
@@ -48,12 +41,15 @@ export async function getCurrentWholesaler() {
     throw new Error("Unauthorized: No user session found.");
   }
 
+
+
   const { data, error } = await supabase
     .from("wholesaler")
     .select("*")
     .eq("user_id", session.user.id)
     .single();
 
+    
   if (error) {
     throw new Error(`Failed to fetch wholesaler: ${error.message}`);
   }
@@ -132,7 +128,7 @@ export async function updateBuyerAndTagsAction(payload: UpdateBuyer) {
     if (!response.ok) {
       return { success: false, message: "Error updating buyer!" };
     }
-    const result = await response.json();
+    await response.json();
   } catch (revalidateError) {
     console.warn(
       "[Action Warning] Failed to revalidate path:",
@@ -167,50 +163,18 @@ export async function linkBuyerToTag(buyerAndTagData: any) {
   return data;
 }
 
-export async function addBuyerToMailerLit(newBuyer: NewBuyer) {
-  const { first_name, last_name, email, phone_num, groupId } = newBuyer;
-
-  const payload: any = {
-    email: email,
-    fields: {
-      name: first_name,
-      ...(last_name && { last_name: last_name }),
-      phone: phone_num,
-    },
-    groups: [groupId],
-    status: "active",
-  };
-
-  try {
-    const response = await mailerLiteFetch(`/subscribers`, "POST", payload);
-
-    const result = await response.json();
-
-    if (response.ok) {
-      return { status: true, newSubscriberId: result?.data?.id };
-    } else {
-      return { status: false };
-    }
-  } catch (e) {
-    throw new Error("error adding buyer to mailerlit");
-  }
-}
-
 export async function getSingleBuyer(buyerId: string) {
   const { data, error } = await supabase
     .from("buyer")
     .select(
-      `
-    *,
-    buyer_tags (
-      tags:tag_id (
-        id,
-        name,
-        api_id
-
-      )
-    )
-  `
+      `*,
+        buyer_tags (
+        tags:tag_id (
+          id,
+          name,
+          api_id
+        )
+      )`
     )
     .eq("id", buyerId);
 
@@ -220,8 +184,8 @@ export async function getSingleBuyer(buyerId: string) {
     return data;
   }
 }
-// get single tag
 
+// get single tag
 export async function getSingleTag(id: number) {
   let { data: tag, error } = await supabase
     .from("tags")
@@ -247,7 +211,7 @@ export async function getTagsWithCounts() {
     });
 
     if (error) {
-      throw new Error(`Database error: ${error.message}`); // Throw to be caught below
+      throw new Error(`error fetching tag: ${error.message}`);
     }
 
     return data;
@@ -264,7 +228,7 @@ export async function addTagToSupabase(payload: any) {
 
   const { name, api_id } = payload;
 
-  const { data, error } = await supabase
+  const {  error } = await supabase
     .from("tags")
     .insert([
       {
@@ -286,21 +250,23 @@ export async function addTagToSupabase(payload: any) {
   return { success: true };
 }
 
-export async function addTagToMailerlit(payload: NewTag) {
+export async function addTagToMailerlite(payload: NewTag) {
   try {
     const response = await mailerLiteFetch(`/groups`, "POST", payload);
 
+
     const result = await response.json();
 
-    if (response.ok) {
+    if (response.ok || !result.errors) {
       return { status: true, tagApiId: result?.data?.id };
     } else {
       return { status: false };
     }
   } catch (e) {
-    throw new Error("error adding buyer to mailerlit");
+    throw new Error("error adding buyer to mailerlite");
   }
 }
+
 export async function addBuyer(newBuyer: NewBuyerInSupa) {
   const wholesalerData = await getCurrentWholesaler();
 
@@ -326,8 +292,8 @@ export async function addBuyer(newBuyer: NewBuyerInSupa) {
 
   return data;
 }
-// update tag
 
+// update tag
 export async function UpdateTag(payload: any) {
   const { tagId, tagApiId, newTagName } = payload;
 
@@ -388,7 +354,7 @@ export async function deleteBuyer(DeletePayload: DeleteBuyer) {
   }
 
   const response = await mailerLiteFetch(
-    `${BASE_URL}/subscribers/${DeletePayload.buyerApiId}`,
+    `/subscribers/${DeletePayload.buyerApiId}`,
     "DELETE"
   );
 
@@ -397,6 +363,23 @@ export async function deleteBuyer(DeletePayload: DeleteBuyer) {
   }
 
   return { success: true, message: "Buyer deleted successfully!" };
+}
+
+export async function updateUserAliasOnSupa(payload: {
+  alias: string;
+  userId: string;
+}) {
+  const { error } = await supabase
+    .from("wholesaler")
+    .update({ alias: payload.alias })
+    .eq("user_id", payload.userId)
+    .select();
+
+  if (error) {
+    return { success: false };
+  } else {
+    return { success: true };
+  }
 }
 
 export async function sendDealsAction(
@@ -439,7 +422,7 @@ export async function sendDealsAction(
       {
         subject: subject,
         from_name: `${currentWholesaler.first_name} ${currentWholesaler.last_name}`,
-        from: "support@mydispodepot.io",
+        from: `messenger@mydispodepot.io`,
         reply_to: "support@mydispodepot.io",
         content: messageContent,
       },
@@ -477,7 +460,7 @@ export async function sendDealsAction(
     const { error: supabaseInsertError } = await supabase
       .from("wholesaler_campaign")
       .insert({
-        campaign_id: campaignId, // Use the campaignId from createCampaignResult
+        campaign_id: campaignId,
         wholesaler_id: currentWholesaler?.id,
       });
 
@@ -525,31 +508,4 @@ export async function sendDealsAction(
       success: false,
     };
   }
-}
-
-// GENERIC MAILERLIT FETCH FUNCTION
-export async function mailerLiteFetch(
-  path: string,
-  method: "GET" | "POST" | "PUT" | "DELETE",
-  payload?: any
-) {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-    Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}`,
-  };
-
-  const options: RequestInit = {
-    method,
-    headers,
-  };
-
-  if (payload) {
-    options.body = JSON.stringify(payload);
-  }
-
-  const response = await fetch(`${BASE_URL}${path}`, options);
-
-  // Optionally, handle errors or non-2xx responses here
-  return response;
 }
