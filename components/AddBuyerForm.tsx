@@ -97,14 +97,7 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
 
   return (
     <div>
-      <div className="mb-6">
-        <Link
-          href="/dashboard"
-          className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 mb-4"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Dashboard</span>
-        </Link>
+      <div className="mb-6">        
         <h1 className="text-2xl font-bold mb-2">Add New Buyer</h1>
         <p className="text-gray-600">Create a new buyer profile</p>
       </div>

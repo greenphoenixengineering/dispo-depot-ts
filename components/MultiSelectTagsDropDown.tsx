@@ -156,7 +156,7 @@ const MultiSelectTagsDropDown = ({
                       )
                     ? "All available tags are selected."
                     : tags.length === 0
-                    ? "No tags available to select."
+                    ? "No Tags available to select. Make sure your buyers have Tags!"
                     : "No unselected tags match the criteria."}
                 </div>
               )}
