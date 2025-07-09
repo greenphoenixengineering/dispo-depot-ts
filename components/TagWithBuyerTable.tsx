@@ -349,7 +349,7 @@ export default function TagWithBuyerTable({
       <DeleteConfirmationModal
         isOpen={Boolean(deletingTag)}
         title="Delete Tag"
-        description={"are you sure you wanna delete tag"}
+        description={"Are you sure you want to delete this tag with X users?"}
         isDeleting={isDeleting}
         isErrorDeleting={isErrorDeleting}
         itemName={deletingTag?.name}
