@@ -4,6 +4,7 @@ import React from "react";
 import { Tag, LogOut, Mail, X, User } from "lucide-react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
+import { usePathname } from "next/navigation";
 
 interface DashboardSideBarProps {
   open?: boolean;
@@ -12,6 +13,7 @@ interface DashboardSideBarProps {
 
 const DashboardSideBar = ({ open = false, onClose }: DashboardSideBarProps) => {
   const handleSignOut = () => signOut({ callbackUrl: "/" });
+  const pathname = usePathname();
 
   return (
     <aside
@@ -45,19 +47,22 @@ const DashboardSideBar = ({ open = false, onClose }: DashboardSideBarProps) => {
           { href: "/dashboard/tags", icon: Tag, label: "Tags" },
           { href: "/dashboard", icon: User, label: "Buyers" },        
           { href: "/dashboard/deals", icon: Mail, label: "Send Deals" },
-        ].map(({ href, icon: Icon, label }) => (
-          <Link
-            key={href}
-            href={href}
-            onClick={onClose}
-            className="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-green-500"
-          >
-            <Icon className="w-6 h-6 flex-shrink-0" />
-            <span className="ml-2 whitespace-nowrap">
-              {label}
-            </span>
-          </Link>
-        ))}
+        ].map(({ href, icon: Icon, label }) => {
+          const isActive = pathname === href || (href === "/dashboard" && pathname === "/dashboard");
+          return (
+            <Link
+              key={href}
+              href={href}
+              onClick={onClose}
+              className={`flex items-center px-6 py-3 transition-colors duration-150 ${isActive ? "bg-green-100 text-green-700 font-bold" : "text-gray-700 hover:bg-gray-100 hover:text-green-500"}`}
+            >
+              <Icon className="w-6 h-6 flex-shrink-0" />
+              <span className="ml-2 whitespace-nowrap">
+                {label}
+              </span>
+            </Link>
+          );
+        })}
 
         <button
           onClick={handleSignOut}
