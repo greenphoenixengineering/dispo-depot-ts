@@ -63,16 +63,6 @@ const DashboardSideBar = ({ open = false, onClose }: DashboardSideBarProps) => {
             </Link>
           );
         })}
-
-        <button
-          onClick={handleSignOut}
-          className="w-full flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-red-500"
-        >
-          <LogOut className="w-6 h-6 flex-shrink-0" />
-          <span className="ml-2 whitespace-nowrap">
-            Logout
-          </span>
-        </button>
       </nav>
     </aside>
   );
