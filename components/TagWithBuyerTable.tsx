@@ -4,7 +4,7 @@ import type React from "react";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Plus, X, Check, Edit, Trash } from "lucide-react";
+import { Plus, X, Check, Edit, Trash } from "lucide-react";
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal";
 import { TagChip } from "@/components/tag-ship";
 import {
@@ -45,47 +45,55 @@ export default function TagWithBuyerTable({
 
   const handleCreateTag = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newTagName.trim()) {
+    const trimmedName = newTagName.trim();
+
+    if (!trimmedName) {
       setCreateMessage("Please enter a tag name.");
+      setIsErrorCreatingTag(true);
       return;
     }
 
     setIsCreating(true);
+    setIsErrorCreatingTag(false);
     setCreateMessage("");
+    let isSuccess = false;
 
     try {
-      const newTagPayload = {
-        name: newTagName.trim(),
-      };
+      const addTagResult = await addTagToMailerlite({ name: trimmedName });
 
-      const addTagResult = await addTagToMailerlite(newTagPayload);
-
-      if (addTagResult.status && addTagResult.tagApiId) {
-        const addTagToSupabaseResult = await addTagToSupabase({
-          name: newTagPayload.name,
-          api_id: addTagResult.tagApiId,
-        });
-
-        if (addTagToSupabaseResult.success) {
-          router.refresh();
-          setCreateMessage("Tag created successfully!");
-          setNewTagName("");
-        }
-
-        setTimeout(() => {
-          setShowCreateForm(false);
-          setCreateMessage("");
-        }, 2000);
-      } else {
-        setCreateMessage(`Failed to create tag in MailerLite.`);
-        setIsErrorCreatingTag(true);
+      if (!addTagResult.status || !addTagResult.tagApiId) {
+        throw new Error(addTagResult.error || "Failed to create tag");
       }
+
+      const addTagToSupabaseResult = await addTagToSupabase({
+        name: trimmedName,
+        api_id: addTagResult.tagApiId,
+      });
+
+      if (!addTagToSupabaseResult.success) {
+        throw new Error(
+          "Tag created in MailerLite, but failed to save to our database."
+        );
+      }
+
+      isSuccess = true;
+      router.refresh();
+      setNewTagName("");
+      setCreateMessage("Tag created successfully!");
     } catch (error: any) {
-      setCreateMessage(
-        `Error: ${error.message || "An unexpected error occurred."}`
-      );
+      isSuccess = false;
+      setIsErrorCreatingTag(true);
+      setCreateMessage(error.message || "An unexpected error occurred.");
     } finally {
       setIsCreating(false);
+
+      setTimeout(() => {
+        setCreateMessage("");
+        setIsErrorCreatingTag(false);
+        if (isSuccess) {
+          setShowCreateForm(false);
+        }
+      }, 2000);
     }
   };
   const cancelCreate = () => {
@@ -148,20 +156,11 @@ export default function TagWithBuyerTable({
     description += ` This action cannot be undone.`;
   }
 
-
   return (
     <div className="space-y-0">
       {/* ←— Header & Create Button */}
       <div className="space-y-2 sm:space-y-4">
-        <Link
-          href="/dashboard"
-          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span className="text-xs sm:text-base">Back to Dashboard</span>
-        </Link>
-
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-2">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold">Manage Tags</h1>
             <p className="text-sm sm:text-base text-gray-600">
@@ -178,86 +177,85 @@ export default function TagWithBuyerTable({
         </div>
       </div>
 
-      
       {showCreateForm && (
-      <div
-        className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50"
-        onClick={cancelCreate}
-      >
-        {/* Modal content */}
         <div
-          className="bg-white rounded-lg shadow-lg w-[90%] max-w-md p-6 relative"
-          onClick={(e) => e.stopPropagation()} // que no cierre al hacer click dentro
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50"
+          onClick={cancelCreate}
         >
-          {/* Close button */}
-          <button
-            onClick={cancelCreate}
-            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-            aria-label="Close modal"
+          {/* Modal content */}
+          <div
+            className="bg-white rounded-lg shadow-lg w-[90%] max-w-md p-6 relative"
+            onClick={(e) => e.stopPropagation()}
           >
-            <X className="w-5 h-5" />
-          </button>
+            {/* Close button */}
+            <button
+              onClick={cancelCreate}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+              aria-label="Close modal"
+            >
+              <X className="w-5 h-5" />
+            </button>
 
-          <h2 className="text-lg font-semibold mb-4">Create New Tag</h2>
+            <h2 className="text-lg font-semibold mb-4">Create New Tag</h2>
 
-          {createMessage && (
-            <div
-            className={`mb-4 p-2  ${
-              isErrorCreatingTag
-                ? "bg-red-100 text-red-800"
-                : "bg-green-100 text-green-800"
-            }  rounded flex items-center gap-2`}
-          >
-            {isErrorCreatingTag ? (
-              <X className="w-4 h-4" />
-            ) : (
-              <Check className="w-4 h-4" />
-            )}
-            <span>{createMessage}</span>
-          </div>
-          )}
-
-          <form onSubmit={handleCreateTag} className="space-y-4">
-            <div>
-              <label
-                htmlFor="tagName"
-                className="block text-xs sm:text-sm font-medium text-gray-700 mb-1"
+            {createMessage && (
+              <div
+                className={`mb-4 p-2  ${
+                  isErrorCreatingTag
+                    ? "bg-red-100 text-red-800"
+                    : "bg-green-100 text-green-800"
+                }  rounded flex items-center gap-2`}
               >
-                Tag Name *
-              </label>
-              <input
-                id="tagName"
-                type="text"
-                required
-                value={newTagName}
-                onChange={(e) => setNewTagName(e.target.value)}
-                placeholder="Enter tag name"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-xs sm:text-sm"
-              />
-            </div>
-
-            <div className="flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={cancelCreate}
-                className="px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition text-sm sm:text-base"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isCreating}
-                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition disabled:opacity-50 text-sm sm:text-base"
-              >
-                {isCreating ? (
-                  <div className="animate-spin h-4 w-4 border-2 border-t-white border-b-white rounded-full" />
+                {isErrorCreatingTag ? (
+                  <X className="w-4 h-4" />
                 ) : (
-                  <Plus className="w-4 h-4" />
+                  <Check className="w-4 h-4" />
                 )}
-                <span>{isCreating ? "Creating..." : "Create Tag"}</span>
-              </button>
-            </div>
-          </form>
+                <span>{createMessage}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleCreateTag} className="space-y-4">
+              <div>
+                <label
+                  htmlFor="tagName"
+                  className="block text-xs sm:text-sm font-medium text-gray-700 mb-1"
+                >
+                  Tag Name *
+                </label>
+                <input
+                  id="tagName"
+                  type="text"
+                  required
+                  value={newTagName}
+                  onChange={(e) => setNewTagName(e.target.value)}
+                  placeholder="Enter tag name"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-xs sm:text-sm"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={cancelCreate}
+                  className="px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition text-sm sm:text-base"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isCreating}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition disabled:opacity-50 text-sm sm:text-base"
+                >
+                  {isCreating ? (
+                    <div className="animate-spin h-4 w-4 border-2 border-t-white border-b-white rounded-full" />
+                  ) : (
+                    <Plus className="w-4 h-4" />
+                  )}
+                  <span>{isCreating ? "Creating..." : "Create Tag"}</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
@@ -265,73 +263,96 @@ export default function TagWithBuyerTable({
       {/* ←— Mobile: Card List */}
       <div className="space-y-4 md:hidden">
         {tags.map((tag) => (
-          <div key={tag.id} className="bg-white rounded-lg shadow p-4 space-y-2">
+          <div
+            key={tag.id}
+            className="bg-white rounded-lg shadow p-4 space-y-2"
+          >
             <div className="flex justify-between items-start">
               <TagChip label={tag.name} index={0} />
               <div className="flex items-center gap-2">
-                <Link href={`tags/edit/${tag.id}?buyer_count=${tag.buyer_count}`}>
+                <Link
+                  href={`tags/edit/${tag.id}?buyer_count=${tag.buyer_count}`}
+                >
                   <button className="flex items-center text-gray-600 hover:text-gray-900 text-sm sm:text-base p-0">
                     <Edit className="w-5 h-5" />
                   </button>
                 </Link>
-                <button onClick={() => startDeleteTag(tag)} className="flex items-center text-red-600 hover:text-red-900 text-sm sm:text-base p-0">
+                <button
+                  onClick={() => startDeleteTag(tag)}
+                  className="flex items-center text-red-600 hover:text-red-900 text-sm sm:text-base p-0"
+                >
                   <Trash className="w-5 h-5" />
                 </button>
               </div>
             </div>
-            <div className="text-xs sm:text-sm text-gray-500">{tag.buyer_count} buyers</div>
+            <div className="text-xs sm:text-sm text-gray-500">
+              {tag.buyer_count} buyers
+            </div>
           </div>
         ))}
       </div>
 
       {/* ←— Desktop: Overflow-scroll Table */}
-      <div className="hidden md:block bg-white rounded-lg shadow overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
-                Tag
-              </th>
-              <th className="px-6 py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
-                Buyers
-              </th>
-              <th className="px-6 py-3 text-right text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {tags.map((tag) => (
-              <tr key={tag.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <TagChip label={tag.name} index={0} />
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
-                  {tag.buyer_count} buyers
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <Link href={`tags/edit/${tag.id}?buyer_count=${tag.buyer_count}`}>
-                    <button className="text-gray-600 hover:text-gray-900 mr-3 text-sm sm:text-base">
-                      <Edit className="w-4 h-4" />
-                    </button>
-                  </Link>
-                  <button onClick={() => startDeleteTag(tag)} className="text-red-600 hover:text-red-900 text-sm sm:text-base">
-                    <Trash className="w-4 h-4" />
-                  </button>
-                </td>
+      {tags?.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">
+          <p className="mb-2">No tags found.</p>
+          <p className="text-sm">Add one by clicking the Create Tag button above.</p>
+        </div>
+      ) : (        
+        <div className="hidden md:block bg-white rounded-lg shadow overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
+                  Tag
+                </th>
+                <th className="px-6 py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
+                  Buyers
+                </th>
+                <th className="px-6 py-3 text-right text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {tags.map((tag) => (
+                <tr key={tag.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <TagChip label={tag.name} index={0} />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
+                    {tag.buyer_count} buyers
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <Link
+                      href={`tags/edit/${tag.id}?buyer_count=${tag.buyer_count}`}
+                    >
+                      <button className="text-gray-600 hover:text-gray-900 mr-3 text-sm sm:text-base">
+                        <Edit className="w-4 h-4" />
+                      </button>
+                    </Link>
+                    <button
+                      onClick={() => startDeleteTag(tag)}
+                      className="text-red-600 hover:text-red-900 text-sm sm:text-base"
+                    >
+                      <Trash className="w-4 h-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>        
+      )}
 
       {/* ←— Delete Confirmation */}
       <DeleteConfirmationModal
         isOpen={Boolean(deletingTag)}
         title="Delete Tag"
-        description={'/* your computed description */'}
+        description={"Are you sure you want to delete this tag with X users?"}
         isDeleting={isDeleting}
         isErrorDeleting={isErrorDeleting}
+        itemName={deletingTag?.name}
         onConfirm={confirmDeleteTag}
         onCancel={() => setDeletingTag(null)}
       />

@@ -44,7 +44,6 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
       const result = await addBuyerToMailerLit(formData);
   
 
-      console.log("add  buye result from front end",result)
 
       if (!result?.status || !result?.newSubscriberId) {
         throw new Error("Failed to add buyer to MailerLite.");
@@ -98,14 +97,7 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
 
   return (
     <div>
-      <div className="mb-6">
-        <Link
-          href="/dashboard"
-          className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 mb-4"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Dashboard</span>
-        </Link>
+      <div className="mb-6">        
         <h1 className="text-2xl font-bold mb-2">Add New Buyer</h1>
         <p className="text-gray-600">Create a new buyer profile</p>
       </div>
@@ -118,7 +110,7 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
                 htmlFor="name"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                First Name
+                First Name *
               </label>
               <input
                 type="text"
@@ -136,7 +128,7 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
                 htmlFor="name"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Last Name
+                Last Name *
               </label>
               <input
                 type="text"

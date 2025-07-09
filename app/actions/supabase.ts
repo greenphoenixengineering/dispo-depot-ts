@@ -257,10 +257,11 @@ export async function addTagToMailerlite(payload: NewTag) {
 
     const result = await response.json();
 
+
     if (response.ok || !result.errors) {
       return { status: true, tagApiId: result?.data?.id };
     } else {
-      return { status: false };
+      return { status: false , error:result.errors.name[0] };
     }
   } catch (e) {
     throw new Error("error adding buyer to mailerlite");
@@ -388,11 +389,11 @@ export async function sendDealsAction(
 ): Promise<SendDealsState> {
   const subject = formData.get("subject") as string;
   const messageContent = formData.get("message") as string;
-  const selectedTagsApiId = formData.getAll("selectedTagsApiId") as string[];
+  const selectedTags = formData.getAll("selectedTags") as string[];
 
   const errors: SendDealsState["errors"] = {};
 
-  if (selectedTagsApiId.length === 0) {
+  if (selectedTags.length === 0) {
     errors.tags = "Please select at least one buyer group.";
   }
   if (!subject) {
@@ -427,7 +428,7 @@ export async function sendDealsAction(
         content: messageContent,
       },
     ],
-    groups: selectedTagsApiId,
+    groups: selectedTags,
   };
 
   try {

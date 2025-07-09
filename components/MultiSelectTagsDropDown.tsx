@@ -65,7 +65,7 @@ const MultiSelectTagsDropDown = ({
   }, [isDropdownOpen]);
 
   return (
-    <div className="mb-6">
+    <div>
       <label className="block text-sm font-medium text-gray-700 mb-2">
         Select Tags to Target
       </label>
@@ -156,7 +156,7 @@ const MultiSelectTagsDropDown = ({
                       )
                     ? "All available tags are selected."
                     : tags.length === 0
-                    ? "No tags available to select."
+                    ? "No Tags available to select. Make sure your buyers have Tags!"
                     : "No unselected tags match the criteria."}
                 </div>
               )}

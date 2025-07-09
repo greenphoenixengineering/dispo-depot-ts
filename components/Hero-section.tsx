@@ -26,8 +26,7 @@ export function HeroSection() {
               <span className="text-green-500">Faster Than Ever</span>
             </h1>
             <p className="mb-8 text-base md:text-lg text-gray-800 md:text-white/90">
-              Streamline your wholesale operations with our powerful CRM platform. Connect, manage, and grow your buyer
-              relationships with intuitive tools designed for real estate professionals.
+            Automate your wholesale workflow with a powerful CRM built for real estate professionals. Analyze deals, estimate repairs and max allowable offers (MAO), and send properties to the right buyer tags — all in one streamlined platform.
             </p>
             <Link
               href="/pricing"

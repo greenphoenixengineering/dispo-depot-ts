@@ -6,7 +6,7 @@ const config = {
   appName: "dispo depo",
   // REQUIRED: a short description of your app for SEO tags (can be overwritten)
   appDescription:
-    "The NextJS boilerplate with all you need to build your SaaS, AI tool, or any other web app.",
+    "Automate your wholesale workflow with a powerful CRM built for real estate professionals. Analyze deals, estimate repairs and max allowable offers (MAO), and send properties to the right buyer tags — all in one streamlined platform.",
   // REQUIRED (no https://, not trailing slash at the end, just the naked domain)
   domainName: "shipfa.st",
   crisp: {
