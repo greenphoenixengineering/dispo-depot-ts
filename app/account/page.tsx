@@ -3,6 +3,7 @@
 import DashboardShell from '@/components/DashboardShell';
 import CurrentPlanCard from './CurrentPlanCard';
 import AvailablePlans from './AvailablePlans';
+import AccountDetails from './AccountDetails';
 
 export default function AccountPage() {
   return (
@@ -16,6 +17,7 @@ export default function AccountPage() {
 
         <CurrentPlanCard />
         <AvailablePlans />
+        <AccountDetails />
       </div>
     </DashboardShell>
   );
