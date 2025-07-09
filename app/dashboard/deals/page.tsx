@@ -5,7 +5,7 @@ import { TagWithBuyerCount } from "@/libs/tagTypes";
 const page = async () => {
   const tagsWithBuyerCount: TagWithBuyerCount[] = await getTagsWithCounts();
 
-  const tagsThatHasBuyers = tagsWithBuyerCount?.filter(
+  const tagsWithBuyers = tagsWithBuyerCount?.filter(
     (item) => item.buyer_count > 0
   );
 
@@ -19,7 +19,7 @@ const page = async () => {
           Create and send targeted deals to specific buyer segments
         </p>
       </div>
-      <SendDealForm tags={tagsThatHasBuyers} />
+      <SendDealForm tags={tagsWithBuyers} />
     </>
   );
 };
