@@ -34,7 +34,7 @@ const ButtonSignin = ({
     return (
       <div className="relative">
         <Popover className="relative z-10">
-          {({ open }: { open: boolean }) => {
+          {({ open, close }: { open: boolean; close: () => void }) => {
             return (
               <>
                 <Popover.Button className={`btn flex items-center justify-center gap-2 px-3 py-1 md:px-4 md:py-2 text-sm md:text-base leading-none text-gray-800 ${extraStyle ? extraStyle : ""}`} style={{ height: 'auto' }}>
@@ -64,7 +64,7 @@ const ButtonSignin = ({
                 >
                   <Popover.Panel className="absolute right-0 z-10 mt-3 w-56 origin-top-right rounded-xl shadow-xl ring-1 ring-base-content ring-opacity-5 bg-base-100 p-1">
                     <div className="space-y-0.5 text-sm">
-                      <Link href="/dashboard/tags" className="flex items-center gap-2 hover:bg-base-300 duration-200 py-1.5 px-4 w-full rounded-lg font-medium">
+                      <Link href="/dashboard/tags" className="flex items-center gap-2 hover:bg-base-300 duration-200 py-1.5 px-4 w-full rounded-lg font-medium" onClick={close}>
                         <span className="w-5 h-5 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6" /></svg></span>
                         Dashboard
                       </Link>
