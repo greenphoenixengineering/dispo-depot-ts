@@ -67,7 +67,7 @@ export const supabaseUserService = {
   // Get user by email
   async getUserByEmail(email: string) {
     const { data, error } = await supabaseService
-      .from('user_subscriptions')
+      .from('wholesaler_subscriptions')
       .select('*')
       .eq('email', email)
       .single();
@@ -83,7 +83,7 @@ export const supabaseUserService = {
   // Get user by Stripe customer ID
   async getUserByStripeCustomerId(customerId: string) {
     const { data, error } = await supabaseService
-      .from('user_subscriptions')
+      .from('wholesaler_subscriptions')
       .select('*')
       .eq('stripe_customer_id', customerId)
       .single();
@@ -99,7 +99,7 @@ export const supabaseUserService = {
   // Update user access
   async updateUserAccess(email: string, hasAccess: boolean) {
     const { data, error } = await supabaseService
-      .from('user_subscriptions')
+      .from('wholesaler_subscriptions')
       .update({ 
         has_access: hasAccess,
         updated_at: new Date().toISOString()

@@ -1,4 +1,6 @@
 import Stripe from "stripe";
+import { supabaseUserService } from "./supabase";
+import configFile from "@/config";
 
 interface CreateCheckoutParams {
   priceId: string;
@@ -18,6 +20,53 @@ interface CreateCustomerPortalParams {
   returnUrl: string;
 }
 
+function getPlanNameFromPriceId(priceId: string): string {
+  const plan = configFile.stripe.plans.find(p => p.priceId === priceId);
+  return plan ? plan.name : "Unknown";
+}
+
+// Helper: Find active subscription for a customer
+export const findActiveSubscription = async (customerId: string): Promise<Stripe.Subscription | null> => {
+  try {
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: "2023-08-16",
+      typescript: true,
+    });
+    const subs = await stripe.subscriptions.list({
+      customer: customerId,
+      status: 'active',
+      limit: 1,
+    });
+    return subs.data[0] || null;
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+};
+
+// Helper: Update subscription to a new plan
+export const updateSubscriptionPlan = async (subscriptionId: string, newPriceId: string): Promise<Stripe.Subscription | null> => {
+  try {
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: "2023-08-16",
+      typescript: true,
+    });
+    // Get subscription to find item id
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+    const itemId = subscription.items.data[0]?.id;
+    if (!itemId) throw new Error('No subscription item found');
+    const updated = await stripe.subscriptions.update(subscriptionId, {
+      items: [{ id: itemId, price: newPriceId }],
+      proration_behavior: 'create_prorations',
+      cancel_at_period_end: false, // <-- This removes the scheduled cancellation!
+    });
+    return updated;
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+};
+
 // This is used to create a Stripe Checkout for one-time payments. It's usually triggered with the <ButtonCheckout /> component. Webhooks are used to update the user's state in the database.
 export const createCheckout = async ({
   user,
@@ -33,6 +82,40 @@ export const createCheckout = async ({
       apiVersion: "2023-08-16", // TODO: update this when Stripe updates their API
       typescript: true,
     });
+
+    // If mode is subscription and user has a customerId, check for active subscription
+    if (mode === 'subscription' && user?.customerId) {
+      const activeSub = await findActiveSubscription(user.customerId);
+      if (activeSub) {
+        const subs = await stripe.subscriptions.list({
+          customer: user.customerId,
+          status: 'active',
+          limit: 10, // get all, not just 1
+        });
+
+        if (subs.data.length > 1) {
+          // Cancel all but the first subscription
+          for (let i = 1; i < subs.data.length; i++) {
+            await stripe.subscriptions.cancel(subs.data[i].id);
+          }
+        }
+
+        // Now update the first (remaining) subscription
+        const updatedSub = await updateSubscriptionPlan(subs.data[0].id, priceId);
+        if (updatedSub) {
+          // Update user in Supabase
+          await supabaseUserService.upsertUser({
+            email: user.email,
+            stripe_customer_id: user.customerId,
+            stripe_price_id: priceId,
+            plan_name: getPlanNameFromPriceId(priceId), // You may need a helper for this
+            has_access: true,
+            // ...other fields as needed
+          });
+        }
+        return '/dashboard';
+      }
+    }
 
     const extraParams: {
       customer?: string;
