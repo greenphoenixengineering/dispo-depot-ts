@@ -6,6 +6,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 export default function WholesaleCalculator() {
   const [arv, setArv] = useState(200000);
   const [repairCost, setRepairCost] = useState(30000);
+  const [arvMultiplier, setArvMultiplier] = useState(0.7); // Default 70%
 
   // Expense defaults
   const [closingPct, setClosingPct] = useState(0);
@@ -35,14 +36,14 @@ export default function WholesaleCalculator() {
   };
 
   const totalExpenses = closingAmt + holdingAmt + hardMoneyAmt + contingencyAmt + wholesaleFee;
-  const mao = arv * .7 - totalExpenses - repairCost;
+  const mao = arv * arvMultiplier - totalExpenses - repairCost;
 
   return (
     <div className="p-4 sm:p-6 w-full max-w-lg mx-auto">
       <div className="mb-20 text-2xl font-bold mb-2 text-center">Wholesale MAO Calculator</div>
       <div className="text-gray-600 text-center mb-20">
         Calculate your Maximum Allowable Offer (MAO) for a wholesale deal.<br />
-        Formula: <span className="font-mono">MAO = ARV x 70% − Expenses − Repair Costs</span>
+        Formula: <span className="font-mono">MAO = ARV × { (arvMultiplier * 100).toFixed(2) }% − Expenses − Repair Costs</span>
       </div>
       <div className="mb-4">
         <label className="block font-medium mb-1">After Repair Value (ARV) <span className="text-gray-400">$</span></label>
@@ -51,6 +52,20 @@ export default function WholesaleCalculator() {
           value={arv}
           min={0}
           onChange={e => setArv(Number(e.target.value))}
+          className="border rounded p-2 w-full text-lg"
+        />
+      </div>
+      <div className="mb-6">
+        <label className="block font-medium mb-1">ARV Multiplier (%)
+          <span className="ml-2 text-gray-400 text-xs">(Adjust for market/investor criteria)</span>
+        </label>
+        <input
+          type="number"
+          min={0}
+          max={100}
+          step={0.01}
+          value={(arvMultiplier * 100).toFixed(2)}
+          onChange={e => setArvMultiplier(Number(e.target.value) / 100)}
           className="border rounded p-2 w-full text-lg"
         />
       </div>
@@ -174,7 +189,7 @@ export default function WholesaleCalculator() {
         <div className="text-3xl font-bold text-green-900">
           ${mao.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </div>
-        <div className="text-xs text-gray-500 mt-2">(ARV x 70% minus all expenses and repairs)</div>
+        <div className="text-xs text-gray-500 mt-2">(ARV × { (arvMultiplier * 100).toFixed(2) }% minus all expenses and repairs)</div>
       </div>
     </div>
   );
