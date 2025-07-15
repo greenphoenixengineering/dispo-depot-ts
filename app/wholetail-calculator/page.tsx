@@ -114,8 +114,11 @@ export default function WholetailCalculator() {
   const avgSoldPerSqft = soldComps.length ? 
     soldComps.filter(comp => comp.sqft > 0 && comp.price > 0)
       .reduce((a, b) => a + (b.price / b.sqft), 0) / soldComps.filter(comp => comp.sqft > 0 && comp.price > 0).length || 0 : 0;
+  // DOM values: always 0 if date is not set
   const domValues = soldComps.map(comp => comp.date ? daysBetween(comp.date) : 0);
-  const avgDays = domValues.length ? domValues.reduce((a, b) => a + b, 0) / domValues.length : 0;
+  // Only include rows with a set date in the average
+  const domRowsWithDate = soldComps.filter(comp => comp.date);
+  const avgDays = domRowsWithDate.length > 0 ? domRowsWithDate.reduce((a, b) => a + daysBetween(b.date), 0) / domRowsWithDate.length : 0;
 
   // Calculate averages for ARV sold comps
   const avgArvSoldSqft = arvSoldComps.length ? 
@@ -136,8 +139,11 @@ export default function WholetailCalculator() {
   const avgArvActivePerSqft = arvActiveComps.length ? 
     arvActiveComps.filter(comp => comp.sqft > 0 && comp.price > 0)
       .reduce((a, b) => a + (b.price / b.sqft), 0) / arvActiveComps.filter(comp => comp.sqft > 0 && comp.price > 0).length || 0 : 0;
+  // DOM values: always 0 if date is not set
   const domActiveValues = arvActiveComps.map(comp => comp.date ? daysBetween(comp.date) : 0);
-  const avgArvActiveDays = domActiveValues.length ? domActiveValues.reduce((a, b) => a + b, 0) / domActiveValues.length : 0;
+  // Only include rows with a set date in the average
+  const domActiveRowsWithDate = arvActiveComps.filter(comp => comp.date);
+  const avgArvActiveDays = domActiveRowsWithDate.length > 0 ? domActiveRowsWithDate.reduce((a, b) => a + daysBetween(b.date), 0) / domActiveRowsWithDate.length : 0;
 
   // At the top, add a helper to calculate days between dates
   function daysBetween(dateString: string) {
@@ -298,7 +304,7 @@ export default function WholetailCalculator() {
         </table>
 
         {/* AS-IS COMPS SECTION */}
-        <div className="my-10">
+        <div className="my-10 w-fit">
           <div className="font-bold text-blue-700 my-2 text-center text-xl">As-Is Comps</div>
           <div className="text-center text-gray-500 text-sm mb-4">
             * As-is value is the average of the comps entered
@@ -371,7 +377,7 @@ export default function WholetailCalculator() {
                         }}
                       />
                     </td>
-                    <td className="border px-0.5 py-1 bg-green-100 text-green-900 font-bold text-center text-[10px] sm:text-sm">{daysBetween(row.date)}</td>
+                    <td className="border px-0.5 py-1 bg-green-100 text-green-900 font-bold text-center text-[10px] sm:text-sm">{row.date ? daysBetween(row.date) : 0}</td>
                   </tr>
                 ))}
                 <tr className="font-bold">
@@ -380,7 +386,7 @@ export default function WholetailCalculator() {
                   <td className="border px-0.5 py-1 text-[10px] sm:text-sm text-right">${avgPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                   <td className="border px-0.5 py-1 text-[10px] sm:text-sm text-right">${avgSoldPerSqft.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                   <td className="border px-0.5 py-1"></td>
-                  <td className="border px-0.5 py-1 text-right">{avgDays ? Math.round(avgDays) : ''}</td>
+                  <td className="border px-0.5 py-1 text-right">{domRowsWithDate.length > 0 ? Math.round(avgDays) : 0}</td>
                 </tr>
               </tbody>
             </table>
@@ -462,7 +468,7 @@ export default function WholetailCalculator() {
                         }}
                       />
                     </td>
-                    <td className="border px-0.5 py-1 bg-green-100 text-green-900 font-bold text-center text-[10px] sm:text-sm">{daysBetween(row.date)}</td>
+                    <td className="border px-0.5 py-1 bg-green-100 text-green-900 font-bold text-center text-[10px] sm:text-sm">{row.date ? daysBetween(row.date) : 0}</td>
                   </tr>
                 ))}
                 <tr className="font-bold">
@@ -471,7 +477,7 @@ export default function WholetailCalculator() {
                   <td className="border px-0.5 py-1 text-[10px] sm:text-sm text-right">${avgArvActivePrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                   <td className="border px-0.5 py-1 text-[10px] sm:text-sm text-right">${avgArvActivePerSqft.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                   <td className="border px-0.5 py-1"></td>
-                  <td className="border px-0.5 py-1 text-right">{avgArvActiveDays ? Math.round(avgArvActiveDays) : ''}</td>
+                  <td className="border px-0.5 py-1 text-right">{domActiveRowsWithDate.length > 0 ? Math.round(avgArvActiveDays) : 0}</td>
                 </tr>
               </tbody>
             </table>
