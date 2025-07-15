@@ -6,7 +6,10 @@ import { ChevronRight } from 'lucide-react';
 export default function WholetailCalculator() {
   const [asIsValue, setAsIsValue] = useState(325000);
 
-  const [closingFeePct, setClosingFeePct] = useState(0.03);
+  const [closingBuyPct, setClosingBuyPct] = useState(0.015); // 1.5% default
+  const [closingSellPct, setClosingSellPct] = useState(0.015); // 1.5% default
+  const [closingBuyAmt, setClosingBuyAmt] = useState(Math.round(asIsValue * closingBuyPct));
+  const [closingSellAmt, setClosingSellAmt] = useState(Math.round(asIsValue * closingSellPct));
   const [cleanUpPct, setCleanUpPct] = useState(0.01);
   const [listAgentPct, setListAgentPct] = useState(0.01);
   const [buyerAgentPct, setBuyerAgentPct] = useState(0.03);
@@ -26,7 +29,7 @@ export default function WholetailCalculator() {
 
   const [adjustmentPct, setAdjustmentPct] = useState(0.1);
 
-  const closingFees = asIsValue * closingFeePct;
+  const closingFees = closingBuyAmt + closingSellAmt;
   const cleanUpCost = asIsValue * cleanUpPct;
   const listAgentFee = asIsValue * listAgentPct;
   const buyerAgentFee = asIsValue * buyerAgentPct;
@@ -34,10 +37,11 @@ export default function WholetailCalculator() {
   const profit = asIsValue * profitPct;
   const wholesaleFee = asIsValue * wholesaleFeePct;
 
-  const totalCostPct = closingFeePct + cleanUpPct + listAgentPct + buyerAgentPct + fundingPct + wholesaleFeePct + profitPct;
+  const totalCostPct = closingBuyPct + closingSellPct + cleanUpPct + listAgentPct + buyerAgentPct + fundingPct + wholesaleFeePct + profitPct;
 
   const totalCost =
-    closingFees +
+    closingBuyAmt +
+    closingSellAmt +
     cleanUpCost +
     listAgentFee +
     buyerAgentFee +
@@ -110,8 +114,8 @@ export default function WholetailCalculator() {
   const avgSoldPerSqft = soldComps.length ? 
     soldComps.filter(comp => comp.sqft > 0 && comp.price > 0)
       .reduce((a, b) => a + (b.price / b.sqft), 0) / soldComps.filter(comp => comp.sqft > 0 && comp.price > 0).length || 0 : 0;
-  const avgDays = soldComps.length ? 
-    soldComps.reduce((a, b) => a + daysBetween(b.date), 0) / soldComps.filter(comp => comp.date).length || 0 : 0;
+  const domValues = soldComps.map(comp => comp.date ? daysBetween(comp.date) : 0);
+  const avgDays = domValues.length ? domValues.reduce((a, b) => a + b, 0) / domValues.length : 0;
 
   // Calculate averages for ARV sold comps
   const avgArvSoldSqft = arvSoldComps.length ? 
@@ -132,8 +136,8 @@ export default function WholetailCalculator() {
   const avgArvActivePerSqft = arvActiveComps.length ? 
     arvActiveComps.filter(comp => comp.sqft > 0 && comp.price > 0)
       .reduce((a, b) => a + (b.price / b.sqft), 0) / arvActiveComps.filter(comp => comp.sqft > 0 && comp.price > 0).length || 0 : 0;
-  const avgArvActiveDays = arvActiveComps.length ? 
-    arvActiveComps.reduce((a, b) => a + daysBetween(b.date), 0) / arvActiveComps.filter(comp => comp.date).length || 0 : 0;
+  const domActiveValues = arvActiveComps.map(comp => comp.date ? daysBetween(comp.date) : 0);
+  const avgArvActiveDays = domActiveValues.length ? domActiveValues.reduce((a, b) => a + b, 0) / domActiveValues.length : 0;
 
   // At the top, add a helper to calculate days between dates
   function daysBetween(dateString: string) {
@@ -147,32 +151,59 @@ export default function WholetailCalculator() {
   const [arvMarketCurrent, setArvMarketCurrent] = useState(0);
   const [showFunding, setShowFunding] = useState(false);
 
+  // For each buy formula item, add state for the amount and update bidirectional logic
+  // Closing Fees
+  // Clean Up
+  const [cleanUpAmt, setCleanUpAmt] = useState(Math.round(asIsValue * cleanUpPct));
+  // List Agent
+  const [listAgentAmt, setListAgentAmt] = useState(Math.round(asIsValue * listAgentPct));
+  // Buyer Agent
+  const [buyerAgentAmt, setBuyerAgentAmt] = useState(Math.round(asIsValue * buyerAgentPct));
+  // Funding
+  const [fundingAmt, setFundingAmt] = useState(Math.round(asIsValue * fundingPct));
+  // Wholesale Fee
+  const [wholesaleFeeAmt, setWholesaleFeeAmt] = useState(Math.round(asIsValue * wholesaleFeePct));
+  // Profit
+  const [profitAmt, setProfitAmt] = useState(Math.round(asIsValue * profitPct));
+
+  // Bidirectional logic for each row
+  const handlePctChange = (
+    setterPct: React.Dispatch<React.SetStateAction<number>>,
+    setterAmt: React.Dispatch<React.SetStateAction<number>>,
+    pct: number,
+    base: number
+  ) => {
+    setterPct(pct);
+    setterAmt(Math.round(base * pct));
+  };
+  const handleAmtChange = (
+    setterAmt: React.Dispatch<React.SetStateAction<number>>,
+    setterPct: React.Dispatch<React.SetStateAction<number>>,
+    amt: number,
+    base: number
+  ) => {
+    setterAmt(amt);
+    setterPct(base > 0 ? amt / base : 0);
+  };
+
   return (
     <div className="p-4 sm:p-6 w-full sm:max-w-xl md:max-w-5xl lg:max-w-7xl sm:mx-auto">
       <div className="sm:max-w-xl sm:mx-auto">
         <div className="text-lg sm:text-2xl font-bold mb-4 text-center">Wholetail Offer Calculator</div>
         <div className='mb-4'>
-          <label className="block font-medium">As-Is Value ($)</label>
+          <label className="block font-medium">As-Is Value</label>
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">$</span>
             <input
               type="text"
-              value={Number.isNaN(asIsValue) ? '' : asIsValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              value={Number.isNaN(asIsValue) ? '' : asIsValue.toLocaleString('en-US')}
               onChange={e => {
-                // Remove all non-numeric except dot and comma, then parse
-                const raw = e.target.value.replace(/[^\d.]/g, '');
+                // Remove all non-numeric
+                const raw = e.target.value.replace(/[^\d]/g, '');
                 setAsIsValue(Number(raw));
               }}
-              onBlur={e => {
-                // Format to two decimals on blur
-                setAsIsValue(prev => Number(Number(prev).toFixed(2)));
-              }}
-              onFocus={e => {
-                // Remove formatting for editing
-                setAsIsValue(Number(asIsValue));
-              }}
               className="border rounded p-2 w-full pl-7 text-right"
-              inputMode="decimal"
+              inputMode="numeric"
             />
           </div>
         </div>
@@ -180,7 +211,7 @@ export default function WholetailCalculator() {
         <hr className="my-6" />
 
         {/* BUY FORMULA SECTION */}
-        <div className="font-bold text-blue-700 mt-10 mb-2 text-center text-xl">Buy Formula</div>      
+        <div className="font-bold text-blue-700 mt-10 mb-2 text-center text-xl">Soft Costs</div>      
         <table className="w-full table-fixed">
           <thead>
             <tr className="border-b">
@@ -191,50 +222,48 @@ export default function WholetailCalculator() {
           </thead>
           <tbody>
             <tr className="border-b">
-              <td className="py-1 px-0.5 text-[10px] sm:text-sm">Closing Fees (buy/sell)</td>
+              <td className="py-1 px-0.5 text-[10px] sm:text-sm">Closing Costs (Buy)</td>
               <td className="text-center py-1 px-0.5">
-                <input type="number" step="0.01" min="0" max="100" 
-                  value={(closingFeePct*100).toFixed(2)} 
-                  onChange={e => setClosingFeePct(Number(e.target.value)/100)} 
-                  className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
+                <input type="number" step="1" min="0" max="100" value={Math.round(closingBuyPct * 100)} onChange={e => handlePctChange(setClosingBuyPct, setClosingBuyAmt, Number(e.target.value) / 100, asIsValue)} className="border rounded px-0.5 py-1 w-16 text-right text-[10px] sm:text-sm" />
               </td>
               <td className="text-right">
-                <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                  ${closingFees.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                </span>
+                <input type="text" min="0" value={closingBuyAmt.toLocaleString('en-US')} onChange={e => handleAmtChange(setClosingBuyAmt, setClosingBuyPct, Number(e.target.value.replace(/[^\d]/g, '')), asIsValue)} className="border rounded px-0.5 py-1 w-24 text-right text-[10px] sm:text-sm" />
               </td>
             </tr>
             <tr className="border-b">
-              <td className="py-1 px-0.5 text-[10px] sm:text-sm">Trash/Clean/Insurance</td>
+              <td className="py-1 px-0.5 text-[10px] sm:text-sm">Closing Costs (Sell)</td>
               <td className="text-center py-1 px-0.5">
-                <input type="number" step="0.01" min="0" max="100" value={(cleanUpPct*100).toFixed(2)} onChange={e => setCleanUpPct(Number(e.target.value)/100)} className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
+                <input type="number" step="1" min="0" max="100" value={Math.round(closingSellPct * 100)} onChange={e => handlePctChange(setClosingSellPct, setClosingSellAmt, Number(e.target.value) / 100, asIsValue)} className="border rounded px-0.5 py-1 w-16 text-right text-[10px] sm:text-sm" />
               </td>
               <td className="text-right">
-                <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                  ${cleanUpCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                </span>
+                <input type="text" min="0" value={closingSellAmt.toLocaleString('en-US')} onChange={e => handleAmtChange(setClosingSellAmt, setClosingSellPct, Number(e.target.value.replace(/[^\d]/g, '')), asIsValue)} className="border rounded px-0.5 py-1 w-24 text-right text-[10px] sm:text-sm" />
+              </td>
+            </tr>
+            <tr className="border-b">
+              <td className="py-1 px-0.5 text-[10px] sm:text-sm">Trash/Clean/Minor repairs</td>
+              <td className="text-center py-1 px-0.5">
+                <input type="number" step="1" min="0" max="100" value={Math.round(cleanUpPct * 100)} onChange={e => handlePctChange(setCleanUpPct, setCleanUpAmt, Number(e.target.value) / 100, asIsValue)} className="border rounded px-0.5 py-1 w-16 text-right text-[10px] sm:text-sm" />
+              </td>
+              <td className="text-right">
+                <input type="text" min="0" value={cleanUpAmt.toLocaleString('en-US')} onChange={e => handleAmtChange(setCleanUpAmt, setCleanUpPct, Number(e.target.value.replace(/[^\d]/g, '')), asIsValue)} className="border rounded px-0.5 py-1 w-24 text-right text-[10px] sm:text-sm" />
               </td>
             </tr>
             <tr className="border-b">
               <td className="py-1 px-0.5 text-[10px] sm:text-sm">List Agent</td>
               <td className="text-center py-1 px-0.5">
-                <input type="number" step="0.01" min="0" max="100" value={(listAgentPct*100).toFixed(2)} onChange={e => setListAgentPct(Number(e.target.value)/100)} className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
+                <input type="number" step="1" min="0" max="100" value={Math.round(listAgentPct * 100)} onChange={e => handlePctChange(setListAgentPct, setListAgentAmt, Number(e.target.value) / 100, asIsValue)} className="border rounded px-0.5 py-1 w-16 text-right text-[10px] sm:text-sm" />
               </td>
               <td className="text-right">
-                <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                  ${listAgentFee.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                </span>
+                <input type="text" min="0" value={listAgentAmt.toLocaleString('en-US')} onChange={e => handleAmtChange(setListAgentAmt, setListAgentPct, Number(e.target.value.replace(/[^\d]/g, '')), asIsValue)} className="border rounded px-0.5 py-1 w-24 text-right text-[10px] sm:text-sm" />
               </td>
             </tr>
             <tr className="border-b">
               <td className="py-1 px-0.5 text-[10px] sm:text-sm">Buyer Agent</td>
               <td className="text-center py-1 px-0.5">
-                <input type="number" step="0.01" min="0" max="100" value={(buyerAgentPct*100).toFixed(2)} onChange={e => setBuyerAgentPct(Number(e.target.value)/100)} className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
+                <input type="number" step="1" min="0" max="100" value={Math.round(buyerAgentPct * 100)} onChange={e => handlePctChange(setBuyerAgentPct, setBuyerAgentAmt, Number(e.target.value) / 100, asIsValue)} className="border rounded px-0.5 py-1 w-16 text-right text-[10px] sm:text-sm" />
               </td>
               <td className="text-right">
-                <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                  ${buyerAgentFee.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                </span>
+                <input type="text" min="0" value={buyerAgentAmt.toLocaleString('en-US')} onChange={e => handleAmtChange(setBuyerAgentAmt, setBuyerAgentPct, Number(e.target.value.replace(/[^\d]/g, '')), asIsValue)} className="border rounded px-0.5 py-1 w-24 text-right text-[10px] sm:text-sm" />
               </td>
             </tr>
             <tr className="border-b">
@@ -242,72 +271,26 @@ export default function WholetailCalculator() {
               <td className="text-center py-1 px-0.5">
                 <input
                   type="number"
-                  step="0.01"
+                  step="1"
                   min="0"
                   max="100"
-                  value={(fundingPct*100).toFixed(2)}
-                  onChange={e => setFundingPct(Number(e.target.value)/100)}
-                  className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm"
+                  value={Math.round(fundingPct * 100)}
+                  onChange={e => handlePctChange(setFundingPct, setFundingAmt, Number(e.target.value) / 100, asIsValue)}
+                  className="border rounded px-0.5 py-1 w-16 text-right text-[10px] sm:text-sm"
                 />
               </td>
               <td className="text-right">
-                <input
-                  type="number"
-                  min="0"
-                  value={fundingCost.toFixed(2)}
-                  onChange={e => {
-                    const val = Number(e.target.value);
-                    setFundingPct(asIsValue > 0 ? val / asIsValue : 0);
-                  }}
-                  className="border rounded px-0.5 py-1 w-24 text-right text-[10px] sm:text-sm"
-                />
+                <input type="text" min="0" value={fundingAmt.toLocaleString('en-US')} onChange={e => handleAmtChange(setFundingAmt, setFundingPct, Number(e.target.value.replace(/[^\d]/g, '')), asIsValue)} className="border rounded px-0.5 py-1 w-24 text-right text-[10px] sm:text-sm" />
               </td>
-            </tr>
-            <tr className="border-b">
-              <td className="py-1 px-0.5 text-[10px] sm:text-sm">Wholesale Fee</td>
-              <td className="text-center py-1 px-0.5">
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  max="100"
-                  value={(wholesaleFeePct * 100).toFixed(2)}
-                  onChange={e => setWholesaleFeePct(Number(e.target.value) / 100)}
-                  className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm"
-                />
-              </td>
-              <td className="text-right">
-                <input
-                  type="number"
-                  min="0"
-                  value={wholesaleFee.toFixed(2)}
-                  onChange={e => {
-                    const val = Number(e.target.value);
-                    setWholesaleFeePct(asIsValue > 0 ? val / asIsValue : 0);
-                  }}
-                  className="border rounded px-0.5 py-1 w-24 text-right text-[10px] sm:text-sm"
-                />
-              </td>
-            </tr>
-            <tr className="border-b">
-              <td className="py-1 px-0.5 text-[10px] sm:text-sm">Profit</td>
-              <td className="text-center py-1 px-0.5">
-                <input type="number" step="0.01" min="0" max="100" value={(profitPct*100).toFixed(2)} onChange={e => setProfitPct(Number(e.target.value)/100)} className="border rounded px-0.5 py-1 w-12 sm:w-24 text-right text-[10px] sm:text-sm" />
-              </td>              
-              <td className="text-right">
-                <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                  ${profit.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                </span>
-              </td>
-            </tr>
+            </tr>                      
             <tr className="border-b font-bold">
-              <td className="py-1 px-0.5 text-[10px] sm:text-sm">Totals</td>
+              <td className="py-1 px-0.5 text-[10px] sm:text-sm">Total Soft Costs</td>
               <td className="text-center py-1 px-0.5 text-[10px] sm:text-sm text-right">
                 {(totalCostPct * 100).toFixed(2)}%
               </td>
               <td className="text-right">
                 <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                  ${totalCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                  ${totalCost.toLocaleString('en-US')}
                 </span>
               </td>
             </tr>
@@ -318,7 +301,7 @@ export default function WholetailCalculator() {
         <div className="my-10">
           <div className="font-bold text-blue-700 my-2 text-center text-xl">As-Is Comps</div>
           <div className="text-center text-gray-500 text-sm mb-4">
-            * Comps are for reference only and are not included in the MAO calculation
+            * As-is value is the average of the comps entered
           </div>
           {/* Solds Table */}
           <div className="font-bold text-red-700 mb-1">Sold</div>
@@ -329,9 +312,9 @@ export default function WholetailCalculator() {
                   <th className="w-[20%] text-left py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Address</th>
                   <th className="w-[13%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Sq. Ft.</th>
                   <th className="w-[17%] text-right py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Sold Price</th>
-                  <th className="w-[15%] text-right py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Sold/Sq. Ft</th>
-                  <th className="w-[20%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Sold Date</th>
-                  <th className="w-[15%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Days</th>
+                  <th className="w-[15%] text-right py-1 px-0.5 text-[10px] sm:text-sm font-semibold">$/Sq. Ft.</th>
+                  <th className="w-28 text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Sold Date</th>
+                  <th className="w-[15%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">DOM</th>
                 </tr>
               </thead>
               <tbody>
@@ -380,7 +363,7 @@ export default function WholetailCalculator() {
                       <input
                         type="date"
                         value={row.date}
-                        className="w-24 border rounded px-0.5 py-1 text-[10px] sm:text-sm"
+                        className="w-28 border rounded px-0.5 py-1 text-[10px] sm:text-sm"
                         onChange={e => {
                           const newComps = [...soldComps];
                           newComps[i].date = e.target.value;
@@ -392,18 +375,18 @@ export default function WholetailCalculator() {
                   </tr>
                 ))}
                 <tr className="font-bold">
-                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm" colSpan={1}>Average</td>
-                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm">{avgSqft.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
-                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm">${avgPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm">${avgSoldPerSqft.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm text-right" colSpan={1}>Average</td>
+                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm text-right">{avgSqft.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm text-right">${avgPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm text-right">${avgSoldPerSqft.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                   <td className="border px-0.5 py-1"></td>
-                  <td className="border px-0.5 py-1"></td>
+                  <td className="border px-0.5 py-1 text-right">{avgDays ? Math.round(avgDays) : ''}</td>
                 </tr>
               </tbody>
             </table>
           </div>
           <div className="flex justify-between items-center pt-2">
-            <span className="font-bold text-[16px] sm:text-base">Sold As-Is Value</span>
+            <span className="font-bold text-[16px] sm:text-base">As-Is Value</span>
             <span className="font-bold bg-green-300 text-green-900 px-1.5 py-0.5 rounded text-[10px] sm:text-lg">
               ${avgPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
             </span>
@@ -419,7 +402,7 @@ export default function WholetailCalculator() {
                   <th className="w-[13%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Sq. Ft.</th>
                   <th className="w-[17%] text-right py-1 px-0.5 text-[10px] sm:text-sm font-semibold">List Price</th>
                   <th className="w-[15%] text-right py-1 px-0.5 text-[10px] sm:text-sm font-semibold">List/Sq. Ft</th>
-                  <th className="w-[20%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">List Date</th>
+                  <th className="w-28 text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">List Date</th>
                   <th className="w-[15%] text-center py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Days</th>
                 </tr>
               </thead>
@@ -471,7 +454,7 @@ export default function WholetailCalculator() {
                       <input
                         type="date"
                         value={row.date}
-                        className="w-24 border rounded px-0.5 py-1 text-[10px] sm:text-sm"
+                        className="w-28 border rounded px-0.5 py-1 text-[10px] sm:text-sm"
                         onChange={e => {
                           const newComps = [...arvActiveComps];
                           newComps[i].date = e.target.value;
@@ -483,18 +466,18 @@ export default function WholetailCalculator() {
                   </tr>
                 ))}
                 <tr className="font-bold">
-                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm" colSpan={1}>Average</td>
-                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm">{avgArvActiveSqft.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
-                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm">${avgArvActivePrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm">${avgArvActivePerSqft.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm text-right" colSpan={1}>Average</td>
+                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm text-right">{avgArvActiveSqft.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm text-right">${avgArvActivePrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                  <td className="border px-0.5 py-1 text-[10px] sm:text-sm text-right">${avgArvActivePerSqft.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                   <td className="border px-0.5 py-1"></td>
-                  <td className="border px-0.5 py-1"></td>
+                  <td className="border px-0.5 py-1 text-right">{avgArvActiveDays ? Math.round(avgArvActiveDays) : ''}</td>
                 </tr>
               </tbody>
             </table>
           </div>
           <div className="flex justify-between items-center pt-2">
-            <span className="font-bold text-[16px] sm:text-base">Active As-Is Value</span>
+            <span className="font-bold text-[16px] sm:text-base">As-Is Value</span>
             <span className="font-bold bg-green-300 text-green-900 px-1.5 py-0.5 rounded text-[10px] sm:text-lg">
               ${avgArvActivePrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
             </span>
@@ -588,7 +571,7 @@ export default function WholetailCalculator() {
                   <td></td>
                   <td className="text-right">
                     <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                      ${totalCapital.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                      ${totalCapital.toLocaleString('en-US')}
                     </span>
                   </td>
                   <td></td>
@@ -603,7 +586,7 @@ export default function WholetailCalculator() {
                   
                   <td className="text-right">
                     <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                      ${firstLoan.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                      ${firstLoan.toLocaleString('en-US')}
                     </span>
                   </td>
                   <td></td>
@@ -617,7 +600,7 @@ export default function WholetailCalculator() {
                   </td>
                   <td className="text-right">
                   <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                    ${firstPoints.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                    ${firstPoints.toLocaleString('en-US')}
                   </span>
                 </td>
                   <td></td>
@@ -631,7 +614,7 @@ export default function WholetailCalculator() {
                   </td>
                   <td className="text-right">
                   <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                    ${firstInterest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                    ${firstInterest.toLocaleString('en-US')}
                   </span>
                 </td>
                   <td className="text-center py-1 px-0.5">
@@ -645,7 +628,7 @@ export default function WholetailCalculator() {
                   <td></td>
                   <td className="text-right">
                   <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                    ${firstMiscFee.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                    ${firstMiscFee.toLocaleString('en-US')}
                   </span>
                 </td>
                   <td></td>
@@ -655,7 +638,7 @@ export default function WholetailCalculator() {
             <div className="flex justify-between items-center mt-2">
               <span className="font-bold text-[10px] sm:text-sm">Total Cost 1st Position</span>
               <span className="bg-green-300 text-green-900 font-bold px-1.5 py-0.5 rounded text-[10px] sm:text-base">
-                ${firstTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                ${firstTotal.toLocaleString('en-US')}
               </span>
             </div>
 
@@ -676,7 +659,7 @@ export default function WholetailCalculator() {
                   <td></td>
                   <td className="text-right">
                   <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                    ${totalCapital.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                    ${totalCapital.toLocaleString('en-US')}
                   </span>
                 </td>
                   <td></td>
@@ -690,7 +673,7 @@ export default function WholetailCalculator() {
                   </td>
                   <td className="text-right">
                     <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                      ${secondLoan.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                      ${secondLoan.toLocaleString('en-US')}
                     </span>
                   </td>
                   <td></td>
@@ -704,7 +687,7 @@ export default function WholetailCalculator() {
                   </td>
                   <td className="text-right">
                     <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                      ${secondPoints.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                      ${secondPoints.toLocaleString('en-US')}
                     </span>
                   </td>
                   <td></td>
@@ -718,7 +701,7 @@ export default function WholetailCalculator() {
                   </td>
                   <td className="text-right">
                     <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                      ${secondInterest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                      ${secondInterest.toLocaleString('en-US')}
                     </span>
                   </td>
                   <td className="text-center py-1 px-0.5">
@@ -730,7 +713,7 @@ export default function WholetailCalculator() {
                   <td></td>
                   <td className="text-right">
                     <span className="bg-green-300 text-green-900 rounded px-1.5 py-0.5 text-[10px] sm:text-sm">
-                      ${secondMiscFee.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                      ${secondMiscFee.toLocaleString('en-US')}
                     </span>
                   </td>
                   <td></td>
@@ -739,13 +722,13 @@ export default function WholetailCalculator() {
             </table>
             <div className="flex justify-between items-center mt-2">
               <span className="font-bold text-[10px] sm:text-sm">Total Cost 2nd Position</span>
-              <span className="bg-green-300 text-green-900 font-bold px-1.5 py-0.5 rounded text-[10px] sm:text-base">${secondTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+              <span className="bg-green-300 text-green-900 font-bold px-1.5 py-0.5 rounded text-[10px] sm:text-base">${secondTotal.toLocaleString('en-US')}</span>
             </div>
 
             <div className="flex justify-between items-center mt-2">
               <span className="font-bold text-[16px] sm:text-base">Total Funding</span>
               <div className="font-bold bg-green-300 text-green-900 px-1.5 py-0.5 rounded text-[10px] sm:text-lg">
-                ${totalFunding.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                ${totalFunding.toLocaleString('en-US')}
               </div>
             </div>
           </div>
