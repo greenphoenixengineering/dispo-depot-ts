@@ -152,7 +152,7 @@ export default function WholetailCalculator() {
       <div className="sm:max-w-xl sm:mx-auto">
         <div className="text-lg sm:text-2xl font-bold mb-4 text-center">Wholetail Offer Calculator</div>
         <div className='mb-4'>
-          <label className="block font-medium">Adjusted As-Is Value ($)</label>
+          <label className="block font-medium">As-Is Value ($)</label>
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">$</span>
             <input
