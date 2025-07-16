@@ -232,46 +232,46 @@ export default function WholetailCalculator() {
           <tr className="border-b">
             <td className="py-1 px-0.5 text-[10px] sm:text-sm">Closing Costs (Buy)</td>
             <td className="text-center py-1 px-0.5">
-              <input type="number" step="1" min="0" max="100" value={Math.round(closingBuyPct * 100)} onChange={e => handlePctChange(setClosingBuyPct, setClosingBuyAmt, Number(e.target.value) / 100, asIsValue)} className="border rounded px-0.5 py-1 w-16 text-right text-[10px] sm:text-sm" />
+              <input type="number" step="1" min="0" max="100" value={Math.round(closingBuyPct * 100)} onChange={e => handlePctChange(setClosingBuyPct, setClosingBuyAmt, Number(e.target.value) / 100, asIsValue)} className="border rounded w-8 sm:w-16 py-1 px-1 text-right text-[10px] sm:text-sm" />
             </td>
             <td className="text-right">
-              <input type="text" min="0" value={closingBuyAmt.toLocaleString('en-US')} onChange={e => handleAmtChange(setClosingBuyAmt, setClosingBuyPct, Number(e.target.value.replace(/[^\d]/g, '')), asIsValue)} className="border rounded px-0.5 py-1 w-24 text-right text-[10px] sm:text-sm" />
+              <input type="text" min="0" value={closingBuyAmt.toLocaleString('en-US')} onChange={e => handleAmtChange(setClosingBuyAmt, setClosingBuyPct, Number(e.target.value.replace(/[^\d]/g, '')), asIsValue)} className="border rounded w-20 sm:w-24 py-1 px-1 text-right text-[10px] sm:text-sm" />
             </td>
           </tr>
           <tr className="border-b">
             <td className="py-1 px-0.5 text-[10px] sm:text-sm">Closing Costs (Sell)</td>
             <td className="text-center py-1 px-0.5">
-              <input type="number" step="1" min="0" max="100" value={Math.round(closingSellPct * 100)} onChange={e => handlePctChange(setClosingSellPct, setClosingSellAmt, Number(e.target.value) / 100, asIsValue)} className="border rounded px-0.5 py-1 w-16 text-right text-[10px] sm:text-sm" />
+              <input type="number" step="1" min="0" max="100" value={Math.round(closingSellPct * 100)} onChange={e => handlePctChange(setClosingSellPct, setClosingSellAmt, Number(e.target.value) / 100, asIsValue)} className="border rounded w-8 sm:w-16 py-1 px-1 text-right text-[10px] sm:text-sm" />
             </td>
             <td className="text-right">
-              <input type="text" min="0" value={closingSellAmt.toLocaleString('en-US')} onChange={e => handleAmtChange(setClosingSellAmt, setClosingSellPct, Number(e.target.value.replace(/[^\d]/g, '')), asIsValue)} className="border rounded px-0.5 py-1 w-24 text-right text-[10px] sm:text-sm" />
+              <input type="text" min="0" value={closingSellAmt.toLocaleString('en-US')} onChange={e => handleAmtChange(setClosingSellAmt, setClosingSellPct, Number(e.target.value.replace(/[^\d]/g, '')), asIsValue)} className="border rounded w-20 sm:w-24 py-1 px-1 text-right text-[10px] sm:text-sm" />
             </td>
           </tr>
           <tr className="border-b">
             <td className="py-1 px-0.5 text-[10px] sm:text-sm">Trash/Clean/Minor repairs</td>
             <td className="text-center py-1 px-0.5">
-              <input type="number" step="1" min="0" max="100" value={Math.round(cleanUpPct * 100)} onChange={e => handlePctChange(setCleanUpPct, setCleanUpAmt, Number(e.target.value) / 100, asIsValue)} className="border rounded px-0.5 py-1 w-16 text-right text-[10px] sm:text-sm" />
+              <input type="number" step="1" min="0" max="100" value={Math.round(cleanUpPct * 100)} onChange={e => handlePctChange(setCleanUpPct, setCleanUpAmt, Number(e.target.value) / 100, asIsValue)} className="border rounded w-8 sm:w-16 py-1 px-1 text-right text-[10px] sm:text-sm" />
             </td>
             <td className="text-right">
-              <input type="text" min="0" value={cleanUpAmt.toLocaleString('en-US')} onChange={e => handleAmtChange(setCleanUpAmt, setCleanUpPct, Number(e.target.value.replace(/[^\d]/g, '')), asIsValue)} className="border rounded px-0.5 py-1 w-24 text-right text-[10px] sm:text-sm" />
+              <input type="text" min="0" value={cleanUpAmt.toLocaleString('en-US')} onChange={e => handleAmtChange(setCleanUpAmt, setCleanUpPct, Number(e.target.value.replace(/[^\d]/g, '')), asIsValue)} className="border rounded w-20 sm:w-24 py-1 px-1 text-right text-[10px] sm:text-sm" />
             </td>
           </tr>
           <tr className="border-b">
             <td className="py-1 px-0.5 text-[10px] sm:text-sm">List Agent</td>
             <td className="text-center py-1 px-0.5">
-              <input type="number" step="1" min="0" max="100" value={Math.round(listAgentPct * 100)} onChange={e => handlePctChange(setListAgentPct, setListAgentAmt, Number(e.target.value) / 100, asIsValue)} className="border rounded px-0.5 py-1 w-16 text-right text-[10px] sm:text-sm" />
+              <input type="number" step="1" min="0" max="100" value={Math.round(listAgentPct * 100)} onChange={e => handlePctChange(setListAgentPct, setListAgentAmt, Number(e.target.value) / 100, asIsValue)} className="border rounded w-8 sm:w-16 py-1 px-1 text-right text-[10px] sm:text-sm" />
             </td>
             <td className="text-right">
-              <input type="text" min="0" value={listAgentAmt.toLocaleString('en-US')} onChange={e => handleAmtChange(setListAgentAmt, setListAgentPct, Number(e.target.value.replace(/[^\d]/g, '')), asIsValue)} className="border rounded px-0.5 py-1 w-24 text-right text-[10px] sm:text-sm" />
+              <input type="text" min="0" value={listAgentAmt.toLocaleString('en-US')} onChange={e => handleAmtChange(setListAgentAmt, setListAgentPct, Number(e.target.value.replace(/[^\d]/g, '')), asIsValue)} className="border rounded w-20 sm:w-24 py-1 px-1 text-right text-[10px] sm:text-sm" />
             </td>
           </tr>
           <tr className="border-b">
             <td className="py-1 px-0.5 text-[10px] sm:text-sm">Buyer Agent</td>
             <td className="text-center py-1 px-0.5">
-              <input type="number" step="1" min="0" max="100" value={Math.round(buyerAgentPct * 100)} onChange={e => handlePctChange(setBuyerAgentPct, setBuyerAgentAmt, Number(e.target.value) / 100, asIsValue)} className="border rounded px-0.5 py-1 w-16 text-right text-[10px] sm:text-sm" />
+              <input type="number" step="1" min="0" max="100" value={Math.round(buyerAgentPct * 100)} onChange={e => handlePctChange(setBuyerAgentPct, setBuyerAgentAmt, Number(e.target.value) / 100, asIsValue)} className="border rounded w-8 sm:w-16 py-1 px-1 text-right text-[10px] sm:text-sm" />
             </td>
             <td className="text-right">
-              <input type="text" min="0" value={buyerAgentAmt.toLocaleString('en-US')} onChange={e => handleAmtChange(setBuyerAgentAmt, setBuyerAgentPct, Number(e.target.value.replace(/[^\d]/g, '')), asIsValue)} className="border rounded px-0.5 py-1 w-24 text-right text-[10px] sm:text-sm" />
+              <input type="text" min="0" value={buyerAgentAmt.toLocaleString('en-US')} onChange={e => handleAmtChange(setBuyerAgentAmt, setBuyerAgentPct, Number(e.target.value.replace(/[^\d]/g, '')), asIsValue)} className="border rounded w-20 sm:w-24 py-1 px-1 text-right text-[10px] sm:text-sm" />
             </td>
           </tr>
           <tr className="border-b">
@@ -284,11 +284,11 @@ export default function WholetailCalculator() {
                 max="100"
                 value={Math.round(fundingPct * 100)}
                 onChange={e => handlePctChange(setFundingPct, setFundingAmt, Number(e.target.value) / 100, asIsValue)}
-                className="border rounded px-0.5 py-1 w-16 text-right text-[10px] sm:text-sm"
+                className="border rounded w-8 sm:w-16 py-1 px-1 text-right text-[10px] sm:text-sm"
               />
             </td>
             <td className="text-right">
-              <input type="text" min="0" value={fundingAmt.toLocaleString('en-US')} onChange={e => handleAmtChange(setFundingAmt, setFundingPct, Number(e.target.value.replace(/[^\d]/g, '')), asIsValue)} className="border rounded px-0.5 py-1 w-24 text-right text-[10px] sm:text-sm" />
+              <input type="text" min="0" value={fundingAmt.toLocaleString('en-US')} onChange={e => handleAmtChange(setFundingAmt, setFundingPct, Number(e.target.value.replace(/[^\d]/g, '')), asIsValue)} className="border rounded w-20 sm:w-24 py-1 px-1 text-right text-[10px] sm:text-sm" />
             </td>
           </tr>                      
           <tr className="border-b font-bold">
@@ -394,8 +394,8 @@ export default function WholetailCalculator() {
           </table>
         </div>
         <div className="flex justify-between items-center pt-2">
-          <span className="font-bold text-[16px] sm:text-base">As-Is Value</span>
-          <span className="font-bold bg-green-300 text-green-900 px-1.5 py-0.5 rounded text-[10px] sm:text-lg">
+          <span className="font-bold text-[10px] sm:text-sm">As-Is Value</span>
+          <span className="font-bold bg-green-300 text-green-900 px-1.5 py-0.5 rounded text-[10px] sm:text-sm">
             ${avgPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
           </span>
         </div>
@@ -485,8 +485,8 @@ export default function WholetailCalculator() {
           </table>
         </div>
         <div className="flex justify-between items-center pt-2">
-          <span className="font-bold text-[16px] sm:text-base">As-Is Value</span>
-          <span className="font-bold bg-green-300 text-green-900 px-1.5 py-0.5 rounded text-[10px] sm:text-lg">
+          <span className="font-bold text-[10px] sm:text-sm">As-Is Value</span>
+          <span className="font-bold bg-green-300 text-green-900 px-1.5 py-0.5 rounded text-[10px] sm:text-sm">
             ${avgArvActivePrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
           </span>
         </div>
