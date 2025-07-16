@@ -192,9 +192,13 @@ export default function WholetailCalculator() {
     setterPct(base > 0 ? amt / base : 0);
   };
 
+  const [listPrice, setListPrice] = useState(0);
+  const [sellCosts, setSellCosts] = useState(0);
+  const profitSectionProfit = listPrice - totalCost - totalFunding - sellCosts;
+
   return (
-    <div className="p-4 sm:p-6 w-full sm:max-w-xl md:max-w-5xl lg:max-w-7xl sm:mx-auto">
-      <div className="sm:max-w-xl sm:mx-auto">
+    <div className="p-4 sm:p-6 w-full md:max-w-5xl lg:max-w-7xl sm:mx-auto">
+      <div className="sm:max-w-min sm:mx-auto">
         <div className="text-lg sm:text-2xl font-bold mb-4 text-center">Wholetail Offer Calculator</div>
         <div className='mb-4'>
           <label className="block font-medium">As-Is Value</label>
@@ -218,7 +222,7 @@ export default function WholetailCalculator() {
 
         {/* BUY FORMULA SECTION */}
         <div className="font-bold text-blue-700 mt-10 mb-2 text-center text-xl">Soft Costs</div>      
-        <table className="w-full table-fixed">
+        <table className="w-full table-fixed mr-2">
           <thead>
             <tr className="border-b">
               <th className="w-[44%] text-left py-1 px-0.5 text-[10px] sm:text-sm font-semibold">Item</th>
@@ -737,6 +741,94 @@ export default function WholetailCalculator() {
                 ${totalFunding.toLocaleString('en-US')}
               </div>
             </div>
+          </div>
+        </div>
+
+        <hr className="my-6" />
+
+        {/* PROFIT SECTION */}
+        <div className="my-10">
+          <div className="font-bold text-green-700 mb-2 text-center text-xl">Profit</div>
+          <div className="flex justify-center">
+            <table className="min-w-[320px] max-w-md w-full border-separate border-spacing-y-1">
+              <tbody>
+                <tr>
+                  <td className="font-medium text-base align-middle">List Price</td>
+                  <td>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">$</span>
+                      <input
+                        type="text"
+                        value={listPrice ? listPrice.toLocaleString('en-US') : ''}
+                        onChange={e => {
+                          const raw = e.target.value.replace(/[^\d]/g, '');
+                          setListPrice(Number(raw));
+                        }}
+                        className="border rounded p-2 w-full pl-7 text-right"
+                        inputMode="numeric"
+                      />
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="font-medium text-base align-middle">Soft Costs</td>
+                  <td>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">$</span>
+                      <input
+                        type="text"
+                        value={totalCost.toLocaleString('en-US')}
+                        readOnly
+                        className="border rounded p-2 w-full pl-7 text-right bg-gray-100 cursor-not-allowed"
+                      />
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="font-medium text-base align-middle">Loan Cost</td>
+                  <td>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">$</span>
+                      <input
+                        type="text"
+                        value={totalFunding.toLocaleString('en-US')}
+                        readOnly
+                        className="border rounded p-2 w-full pl-7 text-right bg-gray-100 cursor-not-allowed"
+                      />
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="font-medium text-base align-middle">Sell Costs</td>
+                  <td>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">$</span>
+                      <input
+                        type="text"
+                        value={sellCosts ? sellCosts.toLocaleString('en-US') : ''}
+                        onChange={e => {
+                          const raw = e.target.value.replace(/[^\d]/g, '');
+                          setSellCosts(Number(raw));
+                        }}
+                        className="border rounded p-2 w-full pl-7 text-right"
+                        inputMode="numeric"
+                      />
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td colSpan={2}><hr className="my-2" /></td>
+                </tr>
+                <tr>
+                  <td className="font-bold text-green-700 text-lg align-middle">Profit</td>
+                  <td>
+                    <span className="font-bold bg-green-300 text-green-900 px-3 py-1 rounded text-lg block text-right">
+                      ${profitSectionProfit.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 

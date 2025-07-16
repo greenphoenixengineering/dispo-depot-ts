@@ -26,8 +26,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 			data-theme={config.colors.theme}
 			className={font.className}
 		>
-			<body className="w-fit">
-				{/* ClientLayout contains all the client wrappers (Crisp chat support, toast messages, tooltips, etc.) */}
+			<body>
+				{/* ClientLayout contains all the client wrappers */}
 				<ClientLayout>{children}</ClientLayout>
 			</body>
 		</html>
