@@ -113,3 +113,24 @@ export const supabaseUserService = {
     return data;
   }
 };
+
+export async function insertIntoUsage(userId: string) {
+  try {
+    // Insert a new record into the 'usage' table for the new user.
+    const { error } = await supabaseService.from("usage").insert({
+      wholesaler_id: userId,
+      current_plan: "Free",
+      // subscription_id is omitted, assuming it can be null or has a default value in your DB schema.
+    });
+
+    if (error) {
+      console.error("Failed to insert initial usage record:", error.message);
+      throw error;
+    }
+  } catch (e) {
+    console.error(
+      "An unexpected error occurred while inserting the usage record.",
+      e
+    );
+  }
+}

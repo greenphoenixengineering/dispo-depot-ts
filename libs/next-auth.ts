@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import config from "@/config";
-import { supabaseUserService } from "@/libs/supabase";
+import { insertIntoUsage, supabaseUserService } from "@/libs/supabase";
 
 import { SupabaseAdapter } from "@auth/supabase-adapter";
 import { updateUserAliasOnSupa } from "@/app/actions/supabase";
@@ -89,6 +89,10 @@ export const authOptions: NextAuthOptionsExtended = {
           e
         );
       }
+
+      await insertIntoUsage(user.id)
+
+      
     },
   },
   adapter: SupabaseAdapter({
