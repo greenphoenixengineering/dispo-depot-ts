@@ -90,7 +90,6 @@ export const authOptions: NextAuthOptionsExtended = {
         );
       }
 
-      await insertIntoUsage(user.id)
 
       
     },

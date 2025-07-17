@@ -114,13 +114,15 @@ export const supabaseUserService = {
   }
 };
 
-export async function insertIntoUsage(userId: string) {
+export async function insertIntoUsage(userId: string,current_plan:string,subscription_id:string) {
   try {
-    // Insert a new record into the 'usage' table for the new user.
     const { error } = await supabaseService.from("usage").insert({
       wholesaler_id: userId,
-      current_plan: "Free",
-      // subscription_id is omitted, assuming it can be null or has a default value in your DB schema.
+      current_plan,
+      subscription_id,
+      buyer_count:0,
+      tag_count:0,
+      email_count:0
     });
 
     if (error) {
