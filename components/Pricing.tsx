@@ -70,7 +70,6 @@ export async function Pricing() {
                 <ButtonCheckout
                   priceId={plan.priceId}
                   mode="subscription"
-                  successUrl={process.env.NEXT_PUBLIC_URL + '/dashboard'}
                   className={`block w-full py-2 text-center rounded-md transition-colors ${
                     plan.isFeatured
                       ? "bg-green-500 text-white hover:bg-green-600"

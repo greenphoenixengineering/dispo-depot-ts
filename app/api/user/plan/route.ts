@@ -37,6 +37,7 @@ export async function GET(req: NextRequest) {
         stripe_price_id: userPlan.stripe_price_id,
         created_at: userPlan.created_at,
         updated_at: userPlan.updated_at,
+        wholesaler_id: userPlan.wholesaler_id,
       }
     });
 
