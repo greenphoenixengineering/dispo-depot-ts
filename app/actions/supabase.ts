@@ -510,3 +510,17 @@ export async function sendDealsAction(
     };
   }
 }
+
+export async function getWholesalerByEmail(email: string) {
+  const { data, error } = await supabase
+    .from("wholesaler")
+    .select("*")
+    .eq("email", email)
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to fetch wholesaler by email: ${error.message}`);
+  }
+
+  return data;
+}

@@ -17,13 +17,11 @@ const ButtonCheckout = ({
   mode = "payment",
   className,
   children,
-  successUrl,
 }: {
   priceId: string;
   mode?: "payment" | "subscription";
   className?: string;
   children?: React.ReactNode;
-  successUrl?: string;
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -35,8 +33,8 @@ const ButtonCheckout = ({
         "/stripe/create-checkout",
         {
           priceId,
-          successUrl: successUrl || process.env.NEXT_PUBLIC_URL + '/dashboard',
-          cancelUrl: process.env.NEXT_PUBLIC_URL + '/#pricing',
+          successUrl:  window?.location?.origin + '/dashboard',
+          cancelUrl: window?.location?.origin + '/#pricing',
           mode,
         }
       );
