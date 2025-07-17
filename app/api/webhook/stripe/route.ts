@@ -120,6 +120,7 @@ export async function POST(req: NextRequest) {
           stripe_price_id: priceId,
           plan_name: plan.name,
           has_access: hasAccess,
+          wholesaler_id:supaUser.wholesaler_id
           // cancel_at: cancelAt,
           // subscription_status: status,
         });
@@ -153,6 +154,7 @@ export async function POST(req: NextRequest) {
               stripe_price_id: null, // Downgrade to no plan
               plan_name: "Free",    // Downgrade to Free plan
               has_access: false,
+              wholesaler_id:supabaseUser.wholesaler_id
             });
             console.log('User access revoked and plan downgraded in Supabase');
           }

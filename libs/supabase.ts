@@ -22,7 +22,6 @@ export interface SupabaseUser {
   stripe_price_id?: string;
   plan_name?: string;
   has_access: boolean;
-  wholesaler_id?: string;
   created_at: string;
   updated_at: string;
 }
@@ -37,7 +36,8 @@ export const supabaseUserService = {
     stripe_price_id?: string;
     plan_name?: string;
     has_access?: boolean;
-    wholesaler_id?: string;
+    wholesaler_id:string
+    
   }) {
     const { data, error } = await supabaseService
       .from('wholesaler_subscriptions')
@@ -48,7 +48,6 @@ export const supabaseUserService = {
         stripe_price_id: userData.stripe_price_id,
         plan_name: userData.plan_name,
         has_access: userData.has_access ?? false,
-        wholesaler_id: userData.wholesaler_id, // Store wholesaler_id
         updated_at: new Date().toISOString()
       }, {
         onConflict: 'email'
@@ -135,7 +134,7 @@ export async function insertIntoUsage(userId: string,current_plan:string,subscri
   } catch (e) {
     console.error(
       "An unexpected error occurred while inserting the usage record.",
-      e
-    );
+      
+      );
   }
 }
