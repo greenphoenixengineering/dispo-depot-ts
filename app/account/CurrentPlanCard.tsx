@@ -1,4 +1,8 @@
-const CurrentPlanCard = () => (
+import { getWholesalerUsage } from "../actions/supabase";
+
+const CurrentPlanCard = async () => (
+   
+   
   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 sm:p-8 flex flex-col sm:flex-row gap-6 sm:gap-10 items-start sm:items-center mb-10">
     <div className="flex-1 min-w-[220px]">
       <div className="text-sm font-semibold text-gray-500 mb-1">

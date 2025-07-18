@@ -561,3 +561,21 @@ export async function increaseTagCount(wholesaler_id: string) {
   }
 }
 
+
+// get user usage
+
+export async function getWholesalerUsage(){
+  const wholesalerData=await getCurrentWholesaler();
+   const {data, error } = await supabase
+      .from("usage")
+      .select("*")
+      .eq("wholesaler_id", wholesalerData.id)
+      .single(); 
+
+      if(error){
+        throw error 
+      }
+        
+      
+      return data
+}

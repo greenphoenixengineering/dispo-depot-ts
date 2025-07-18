@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import Stripe from "stripe";
 import configFile from "@/config";
 import { findCheckoutSession } from "@/libs/stripe";
-import { supabaseUserService } from "@/libs/supabase";
+import { insertIntoUsage, supabaseUserService } from "@/libs/supabase";
 import { getWholesalerByEmail } from '@/app/actions/supabase';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
         
         // Store user plan information in Supabase
         try {
-          await supabaseUserService.upsertUser({
+          const subscriptionInfo= await supabaseUserService.upsertUser({
             email: customer.email || '',
             name: customer.name || '',
             stripe_customer_id: customerId as string,
@@ -74,12 +74,14 @@ export async function POST(req: NextRequest) {
             has_access: true,
             wholesaler_id: wholesaler_id,
           });
+
+          console.log("subscription info",subscriptionInfo)
+          await insertIntoUsage(wholesaler_id,plan.name,subscriptionInfo?.id)
           console.log('User plan info stored in Supabase successfully');
         } catch (supabaseError) {
           console.error('Failed to store user in Supabase:', supabaseError);
           throw supabaseError;
         }
-
         break;
       }
 

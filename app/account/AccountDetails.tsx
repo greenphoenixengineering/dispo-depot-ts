@@ -14,7 +14,7 @@ const AccountDetails = () => (
     <hr className="my-4 border-gray-200" />
     <div>
       <div className="text-base font-semibold text-gray-900 mb-1">Billing</div>
-      <div className="text-gray-600 text-sm">You're currently on the free plan. Upgrade to unlock more features.</div>
+      <div className="text-gray-600 text-sm">You`&apos;`re currently on the free plan. Upgrade to unlock more features.</div>
     </div>
   </section>
 );

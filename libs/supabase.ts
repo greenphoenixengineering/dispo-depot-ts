@@ -116,10 +116,10 @@ export const supabaseUserService = {
   }
 };
 
-export async function insertIntoUsage(userId: string,current_plan:string,subscription_id:string) {
+export async function insertIntoUsage(wholesaler_id: string,current_plan:string,subscription_id:string) {
   try {
     const { error } = await supabaseService.from("usage").insert({
-      wholesaler_id: userId,
+      wholesaler_id,
       current_plan,
       subscription_id,
       buyer_count:0,
