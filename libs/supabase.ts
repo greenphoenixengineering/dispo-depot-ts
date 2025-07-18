@@ -36,7 +36,7 @@ export const supabaseUserService = {
     stripe_price_id?: string;
     plan_name?: string;
     has_access?: boolean;
-    wholesaler_id:string
+    wholesaler_id?:string
     
   }) {
     const { data, error } = await supabaseService

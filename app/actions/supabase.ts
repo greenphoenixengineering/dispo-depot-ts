@@ -322,6 +322,7 @@ export async function UpdateTag(payload: any) {
   }
 }
 
+
 export async function deleteTag(payload: DeletedTag) {
   const { tagId, tagApiId } = payload;
 
@@ -524,3 +525,39 @@ export async function getWholesalerByEmail(email: string) {
 
   return data;
 }
+
+
+export async function increaseTagCount(wholesaler_id: string) {
+  try {
+    // 1. Read the current tag_count from the database first
+    const { data: usageData, error: fetchError } = await supabase
+      .from("usage")
+      .select("tag_count")
+      .eq("wholesaler_id", wholesaler_id)
+      .single(); 
+
+    if (fetchError) {
+      console.error("Error fetching usage data:", fetchError.message);
+      return { success: false, message: "Could not find usage record for the user." };
+    }
+    // 2. Increment the value in your code
+    const newCount = (usageData.tag_count || 0) + 1;
+    // 3. Write the new, calculated value back to the database
+    const { error: updateError } = await supabase
+      .from("usage")
+      .update({ tag_count: newCount }) // Update with the final value
+      .eq("wholesaler_id", wholesaler_id);
+
+    if (updateError) {
+      console.error("Error updating tag count:", updateError.message);
+      return { success: false, message: "Error increasing the count." };
+    }
+    
+    return { success: true };
+
+  } catch (error: any) { 
+    console.error("An unexpected error occurred:", error.message);
+    throw new Error("Unexpected error happens during updating a tag");
+  }
+}
+

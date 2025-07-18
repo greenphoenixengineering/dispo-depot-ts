@@ -110,7 +110,6 @@ export const createCheckout = async ({
             stripe_price_id: priceId,
             plan_name: getPlanNameFromPriceId(priceId), // You may need a helper for this
             has_access: true,
-            // ...other fields as needed
           });
         }
         return '/dashboard';
