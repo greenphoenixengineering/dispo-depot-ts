@@ -11,6 +11,7 @@ import {
   addTagToMailerlite,
   addTagToSupabase,
   deleteTag,
+  increaseTagCount,
 } from "@/app/actions/supabase";
 import { useRouter } from "next/navigation";
 import { TagWithBuyerCount } from "@/libs/tagTypes";
@@ -75,7 +76,10 @@ export default function TagWithBuyerTable({
           "Tag created in MailerLite, but failed to save to our database."
         );
       }
+    //INCREMENT WHOLESALER TAG COUNT
+     await increaseTagCount()
 
+      
       isSuccess = true;
       router.refresh();
       setNewTagName("");

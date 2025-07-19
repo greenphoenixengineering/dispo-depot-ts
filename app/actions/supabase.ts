@@ -527,13 +527,16 @@ export async function getWholesalerByEmail(email: string) {
 }
 
 
-export async function increaseTagCount(wholesaler_id: string) {
+export async function increaseTagCount() {
   try {
+    // get the current wholesaler
+  const wholesalerData=await getCurrentWholesaler();
+
     // 1. Read the current tag_count from the database first
     const { data: usageData, error: fetchError } = await supabase
       .from("usage")
       .select("tag_count")
-      .eq("wholesaler_id", wholesaler_id)
+      .eq("wholesaler_id", wholesalerData.id)
       .single(); 
 
     if (fetchError) {
@@ -546,7 +549,7 @@ export async function increaseTagCount(wholesaler_id: string) {
     const { error: updateError } = await supabase
       .from("usage")
       .update({ tag_count: newCount }) // Update with the final value
-      .eq("wholesaler_id", wholesaler_id);
+      .eq("wholesaler_id", wholesalerData.id);
 
     if (updateError) {
       console.error("Error updating tag count:", updateError.message);
