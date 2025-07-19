@@ -565,6 +565,51 @@ export async function increaseTagCount() {
 }
 
 
+// increase buyer count
+export async function increaseBuyerCount() {
+  try {
+    // Get the current wholesaler
+    const wholesalerData = await getCurrentWholesaler();
+
+    if (!wholesalerData || !wholesalerData.id) {
+      throw new Error("Could not identify the current wholesaler.");
+    }
+
+    // 1. Read the current buyer_count from the database first
+    const { data: usageData, error: fetchError } = await supabase
+      .from("usage")
+      .select("buyer_count") // Changed from tag_count
+      .eq("wholesaler_id", wholesalerData.id)
+      .single();
+
+    if (fetchError) {
+      console.error("Error fetching usage data:", fetchError.message);
+      // It's possible the row doesn't exist yet, handle that if needed
+      return { success: false, message: "Could not find usage record for the wholesaler." };
+    }
+
+    // 2. Increment the value in your code
+    const newCount = (usageData.buyer_count || 0) + 1; 
+
+    // 3. Write the new, calculated value back to the database
+    const { error: updateError } = await supabase
+      .from("usage")
+      .update({ buyer_count: newCount }) 
+      .eq("wholesaler_id", wholesalerData.id);
+
+    if (updateError) {
+      console.error("Error updating buyer count:", updateError.message);
+      return { success: false, message: "Error increasing the buyer count." };
+    }
+
+    return { success: true };
+
+  } catch (error: any) {
+    throw new Error("Unexpected error happens during updating a buyer count");
+  }
+}
+
+
 // get user usage
 
 export async function getWholesalerUsage(){
