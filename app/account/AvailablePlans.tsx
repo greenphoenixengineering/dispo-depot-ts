@@ -1,6 +1,6 @@
 import { Check, Zap, Crown } from 'lucide-react';
 
-const plans = [
+export const plans = [
   {
     name: 'Free',
     icon: <span className="text-lg">☆</span>,

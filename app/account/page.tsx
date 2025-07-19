@@ -9,8 +9,7 @@ export default async function AccountPage() {
   
 
 
-  console.log("usage", usage);
-
+ 
   return (
     <DashboardShell>
       <div className="max-w-5xl mx-auto w-full">
@@ -24,7 +23,7 @@ export default async function AccountPage() {
           </p>
         </div>
 
-        <CurrentPlanCard />
+    <CurrentPlanCard wholesalerUsage={usage} />
         <AvailablePlans />
         <AccountDetails />
       </div>
