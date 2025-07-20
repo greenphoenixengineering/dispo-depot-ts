@@ -578,7 +578,7 @@ export async function increaseBuyerCount() {
     // 1. Read the current buyer_count from the database first
     const { data: usageData, error: fetchError } = await supabase
       .from("usage")
-      .select("buyer_count") // Changed from tag_count
+      .select("buyer_count") 
       .eq("wholesaler_id", wholesalerData.id)
       .single();
 

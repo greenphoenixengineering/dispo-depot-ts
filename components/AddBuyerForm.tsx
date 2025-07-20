@@ -9,6 +9,7 @@ import {
   
   linkBuyerToTag,
   addBuyer,
+  increaseBuyerCount,
 } from "@/app/actions/supabase";
 import { useRouter } from "next/navigation";
 import { addBuyerToMailerLit } from "@/app/actions/mailerLite";
@@ -63,6 +64,12 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
         buyer_id: addedBuyer[0]?.id,
         tag_id: selectedTagId,
       });
+
+
+      // INCREASE BUYER COUNT FOR THE WHOLESALER
+      const data= await increaseBuyerCount();
+
+      console.log("increase count data",data)
 
       setSaveMessage("Buyer created successfully!");
 
