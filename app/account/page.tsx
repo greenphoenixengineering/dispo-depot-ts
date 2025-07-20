@@ -27,7 +27,7 @@ export default async function AccountPage() {
 
     <CurrentPlanCard wholesalerUsage={usage} />
         <AvailablePlans />
-        <AccountDetails />
+        <AccountDetails plan={usage.current_plan} />
       </div>
     </DashboardShell>
   );
