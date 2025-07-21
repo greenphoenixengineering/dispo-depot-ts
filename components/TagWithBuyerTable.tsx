@@ -10,6 +10,7 @@ import { TagChip } from "@/components/tag-ship";
 import {
   addTagToMailerlite,
   addTagToSupabase,
+  decreaseUsageCount,
   deleteTag,
   incrementUsageCount,
 } from "@/app/actions/supabase";
@@ -125,7 +126,9 @@ export default function TagWithBuyerTable({
         tagId: deletingTag.id,
         tagApiId: deletingTag.api_id,
       });
-
+     
+      // DECREASE THE TAG COUNT
+      await decreaseUsageCount("tag_count")
       if (deleteResult.success) {
         setDeletingTag(null);
         router.refresh();

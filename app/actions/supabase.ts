@@ -527,6 +527,7 @@ export async function getWholesalerByEmail(email: string) {
 // GENERIC FUNCTION TO INCREASE THE BUYER_COUNT OR TAG_COUNT or EMAIL_COUNT ON USAGE TABLE
 
 type UsageMetric = "buyer_count" | "tag_count" | "email_count";
+type DecrementableUsageMetric = "buyer_count" | "tag_count";
 type UsageData = {
   [key in UsageMetric]?: number; // An object where keys are from UsageMetric and values are numbers
 };
@@ -585,7 +586,7 @@ export async function incrementUsageCount(metricName: UsageMetric) {
 
 // GENERIC FUNCTION TO DECREASE A USAGE METRIC
 
-export async function decreaseUsageCount(metricName: UsageMetric) {
+export async function decreaseUsageCount(metricName: DecrementableUsageMetric){
   try {
     // 1. Get the current user/wholesaler
     const wholesalerData = await getCurrentWholesaler();
