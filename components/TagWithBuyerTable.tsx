@@ -11,7 +11,7 @@ import {
   addTagToMailerlite,
   addTagToSupabase,
   deleteTag,
-  increaseTagCount,
+  incrementUsageCount,
 } from "@/app/actions/supabase";
 import { useRouter } from "next/navigation";
 import { TagWithBuyerCount } from "@/libs/tagTypes";
@@ -77,7 +77,7 @@ export default function TagWithBuyerTable({
         );
       }
     //INCREMENT WHOLESALER TAG COUNT
-     await increaseTagCount()
+     await  incrementUsageCount("tag_count")
 
       
       isSuccess = true;

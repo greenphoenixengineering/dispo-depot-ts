@@ -41,15 +41,12 @@ export async function getCurrentWholesaler() {
     throw new Error("Unauthorized: No user session found.");
   }
 
-
-
   const { data, error } = await supabase
     .from("wholesaler")
     .select("*")
     .eq("user_id", session.user.id)
     .single();
 
-    
   if (error) {
     throw new Error(`Failed to fetch wholesaler: ${error.message}`);
   }
@@ -228,7 +225,7 @@ export async function addTagToSupabase(payload: any) {
 
   const { name, api_id } = payload;
 
-  const {  error } = await supabase
+  const { error } = await supabase
     .from("tags")
     .insert([
       {
@@ -254,14 +251,12 @@ export async function addTagToMailerlite(payload: NewTag) {
   try {
     const response = await mailerLiteFetch(`/groups`, "POST", payload);
 
-
     const result = await response.json();
-
 
     if (response.ok || !result.errors) {
       return { status: true, tagApiId: result?.data?.id };
     } else {
-      return { status: false , error:result.errors.name[0] };
+      return { status: false, error: result.errors.name[0] };
     }
   } catch (e) {
     throw new Error("error adding buyer to mailerlite");
@@ -321,7 +316,6 @@ export async function UpdateTag(payload: any) {
     throw new Error("unexptected error happens during updating a tag");
   }
 }
-
 
 export async function deleteTag(payload: DeletedTag) {
   const { tagId, tagApiId } = payload;
@@ -502,6 +496,9 @@ export async function sendDealsAction(
       };
     }
 
+    // INREASE THE EMAIL COUNT FOR THE WHOLESALER
+    await incrementUsageCount("email_count");
+
     return { message: "Deal sent successfully!", success: true };
   } catch (error: any) {
     console.error("Error in sendDeals action:", error);
@@ -526,104 +523,77 @@ export async function getWholesalerByEmail(email: string) {
   return data;
 }
 
+// GENERIC FUNCTION TO INCREASE THE BUYER_COUNT OR TAG_COUNT or EMAIL_COUNT ON USAGE TABLE
 
-export async function increaseTagCount() {
+type UsageMetric = "buyer_count" | "tag_count" | "email_count";
+type UsageData = {
+  [key in UsageMetric]?: number; // An object where keys are from UsageMetric and values are numbers
+};
+
+export async function incrementUsageCount(metricName: UsageMetric) {
   try {
-    // get the current wholesaler
-  const wholesalerData=await getCurrentWholesaler();
-
-    // 1. Read the current tag_count from the database first
-    const { data: usageData, error: fetchError } = await supabase
-      .from("usage")
-      .select("tag_count")
-      .eq("wholesaler_id", wholesalerData.id)
-      .single(); 
-
-    if (fetchError) {
-      console.error("Error fetching usage data:", fetchError.message);
-      return { success: false, message: "Could not find usage record for the user." };
-    }
-    // 2. Increment the value in your code
-    const newCount = (usageData.tag_count || 0) + 1;
-    // 3. Write the new, calculated value back to the database
-    const { error: updateError } = await supabase
-      .from("usage")
-      .update({ tag_count: newCount }) // Update with the final value
-      .eq("wholesaler_id", wholesalerData.id);
-
-    if (updateError) {
-      console.error("Error updating tag count:", updateError.message);
-      return { success: false, message: "Error increasing the count." };
-    }
-    
-    return { success: true };
-
-  } catch (error: any) { 
-    console.error("An unexpected error occurred:", error.message);
-    throw new Error("Unexpected error happens during updating a tag");
-  }
-}
-
-
-// increase buyer count
-export async function increaseBuyerCount() {
-  try {
-    // Get the current wholesaler
+    // 1. Get the current user/wholesaler
     const wholesalerData = await getCurrentWholesaler();
-
     if (!wholesalerData || !wholesalerData.id) {
       throw new Error("Could not identify the current wholesaler.");
     }
+    const wholesalerId = wholesalerData.id;
 
-    // 1. Read the current buyer_count from the database first
-    const { data: usageData, error: fetchError } = await supabase
+    const { data, error: fetchError } = await supabase
       .from("usage")
-      .select("buyer_count") 
-      .eq("wholesaler_id", wholesalerData.id)
+      .select(metricName)
+      .eq("wholesaler_id", wholesalerId)
       .single();
 
+    // Cast the data to your defined type
+    const usageData = data as UsageData;
     if (fetchError) {
-      console.error("Error fetching usage data:", fetchError.message);
-      // It's possible the row doesn't exist yet, handle that if needed
-      return { success: false, message: "Could not find usage record for the wholesaler." };
+      console.error(
+        `Error fetching usage data for ${metricName}:`,
+        fetchError.message
+      );
+      throw fetchError;
     }
 
-    // 2. Increment the value in your code
-    const newCount = (usageData.buyer_count || 0) + 1; 
+    // 3. Increment the value in your code
+    const currentCount = usageData ? usageData[metricName] : 0;
+    const newCount = (currentCount || 0) + 1;
 
-    // 3. Write the new, calculated value back to the database
+    // 4. Write the new, calculated value back to the database
     const { error: updateError } = await supabase
       .from("usage")
-      .update({ buyer_count: newCount }) 
-      .eq("wholesaler_id", wholesalerData.id);
+      .update({ [metricName]: newCount })
+      .eq("wholesaler_id", wholesalerId);
 
     if (updateError) {
-      console.error("Error updating buyer count:", updateError.message);
-      return { success: false, message: "Error increasing the buyer count." };
+      console.error(`Error updating ${metricName}:`, updateError.message);
+      return { success: false, message: `Error increasing the ${metricName}.` };
     }
 
-    return { success: true };
-
+    console.log(`${metricName} was successfully updated to ${newCount}.`);
+    return { success: true, newCount };
   } catch (error: any) {
-    throw new Error("Unexpected error happens during updating a buyer count");
+    // Make the generic error message more informative
+    const metric = typeof metricName === "string" ? metricName : "a count";
+    return {
+      success: false,
+      message: `An unexpected error occurred while updating ${metric}. Details: ${error.message}`,
+    };
   }
 }
 
-
 // get user usage
+export async function getWholesalerUsage() {
+  const wholesalerData = await getCurrentWholesaler();
+  const { data, error } = await supabase
+    .from("usage")
+    .select("*")
+    .eq("wholesaler_id", wholesalerData.id)
+    .single();
 
-export async function getWholesalerUsage(){
-  const wholesalerData=await getCurrentWholesaler();
-   const {data, error } = await supabase
-      .from("usage")
-      .select("*")
-      .eq("wholesaler_id", wholesalerData.id)
-      .single(); 
+  if (error) {
+    throw error;
+  }
 
-      if(error){
-        throw error 
-      }
-        
-      
-      return data
+  return data;
 }

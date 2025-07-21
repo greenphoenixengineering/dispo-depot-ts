@@ -4,12 +4,12 @@ import type React from "react";
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Save } from "lucide-react";
+import {  Save } from "lucide-react";
 import {
   
   linkBuyerToTag,
   addBuyer,
-  increaseBuyerCount,
+  incrementUsageCount,
 } from "@/app/actions/supabase";
 import { useRouter } from "next/navigation";
 import { addBuyerToMailerLit } from "@/app/actions/mailerLite";
@@ -67,9 +67,9 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
 
 
       // INCREASE BUYER COUNT FOR THE WHOLESALER
-      const data= await increaseBuyerCount();
+      await incrementUsageCount('buyer_count');
 
-      console.log("increase count data",data)
+
 
       setSaveMessage("Buyer created successfully!");
 
