@@ -78,7 +78,6 @@ export const authOptions: NextAuthOptionsExtended = {
               name: user.name || '',
               has_access: false,
             });
-            console.log('User also added to custom users table');
           } catch (error) {
             console.error('Failed to add user to custom table:', error);
           }

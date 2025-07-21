@@ -159,9 +159,8 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
 
     await deleteBuyer({ buyerId: buyer.id, buyerApiId: buyer.api_id });
     // DECREASE THE COUNT
-   const data= await decreaseUsageCount("buyer_count")
+    await decreaseUsageCount("buyer_count")
 
-   console.log("decrease count data",data)
 
     setIsDeleting(false);
     setShowDeleteModal(false);
