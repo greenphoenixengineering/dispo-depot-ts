@@ -8,7 +8,6 @@ export default async function AccountPage() {
   const usage = await getWholesalerUsage();
   
 
-  console.log("usage",usage)
 
 
  

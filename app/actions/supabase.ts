@@ -585,7 +585,6 @@ export async function incrementUsageCount(metricName: UsageMetric) {
 }
 
 // GENERIC FUNCTION TO DECREASE A USAGE METRIC
-
 export async function decreaseUsageCount(metricName: DecrementableUsageMetric){
   try {
     // 1. Get the current user/wholesaler
@@ -596,7 +595,6 @@ export async function decreaseUsageCount(metricName: DecrementableUsageMetric){
     const wholesalerId = wholesalerData.id;
 
     // 2. Read the current counts from the database
-    // Select all potential metrics to maintain a consistent object shape for TypeScript
     const { data: usageData, error: fetchError } = await supabase
       .from("usage")
       .select("buyer_count, tag_count, email_count")
@@ -604,10 +602,6 @@ export async function decreaseUsageCount(metricName: DecrementableUsageMetric){
       .single();
 
     if (fetchError) {
-      console.error(
-        `Error fetching usage data for ${metricName}:`,
-        fetchError.message
-      );
       throw fetchError;
     }
 
