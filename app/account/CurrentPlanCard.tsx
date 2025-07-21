@@ -1,6 +1,5 @@
-import { plans } from "./AvailablePlans"; // Assuming 'plans' is your array of plan objects
+import { plans } from "./AvailablePlans"; 
 
-// Your Interfaces (no change needed)
 interface WholesalerUsageProps {
   id: number;
   created_at: string;
@@ -23,8 +22,8 @@ const PLAN_LIMITS = {
     tags: 'Unlimited' as const
   },
   standard: {
-    buyers: 100,
-    emails: 1000,
+    buyers: 500,
+    emails: 5000,
     tags: 'Unlimited' as const,
   },
   pro: {
@@ -60,13 +59,11 @@ const CurrentPlanCard = ({ wholesalerUsage }: CurrentPlanCardProps) => {
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 sm:p-8 flex flex-col sm:flex-row gap-6 sm:gap-10 items-start sm:items-center mb-10">
-      {/* Left Side: Plan Details */}
       <div className="flex-1 min-w-[220px]">
         <div className="text-sm font-semibold text-gray-500 mb-1">
           Current Plan & Usage
         </div>
         <div className="flex items-center gap-2 mb-1 text-lg text-gray-900">
-          {/* Render the icon directly from your plan object */}
           {currentPlanInfo.icon} 
           <span className="font-bold">{currentPlanInfo.name} Plan</span>
         </div>
@@ -79,10 +76,8 @@ const CurrentPlanCard = ({ wholesalerUsage }: CurrentPlanCardProps) => {
         </div>
       </div>
 
-      {/* Right Side: Usage Bars */}
       <div className="flex-1 w-full max-w-md">
         <div className="space-y-4">
-          {/* Buyers */}
           <div>
             <div className="flex justify-between text-xs font-medium text-gray-600 mb-1">
               <span>Buyers</span>
@@ -98,7 +93,6 @@ const CurrentPlanCard = ({ wholesalerUsage }: CurrentPlanCardProps) => {
             </div>
           </div>
           
-          {/* Emails */}
           <div>
             <div className="flex justify-between text-xs font-medium text-gray-600 mb-1">
               <span>Emails This Month</span>
@@ -114,7 +108,6 @@ const CurrentPlanCard = ({ wholesalerUsage }: CurrentPlanCardProps) => {
             </div>
           </div>
 
-          {/* Tags */}
           <div>
             <div className="flex justify-between text-xs font-medium text-gray-600 mb-1">
               <span>Tags Created</span>
