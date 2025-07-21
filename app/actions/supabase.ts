@@ -10,6 +10,7 @@ import { revalidatePath } from "next/cache";
 
 import { mailerLiteFetch } from "./mailerLite";
 import { SendDealsState } from "@/libs/sendDealTypes";
+import { error } from "console";
 
 export async function getBuyersWithTags() {
   const wholesalerData = await getCurrentWholesaler();
@@ -578,6 +579,66 @@ export async function incrementUsageCount(metricName: UsageMetric) {
     return {
       success: false,
       message: `An unexpected error occurred while updating ${metric}. Details: ${error.message}`,
+    };
+  }
+}
+
+// GENERIC FUNCTION TO DECREASE A USAGE METRIC
+
+export async function decreaseUsageCount(metricName: UsageMetric) {
+  try {
+    // 1. Get the current user/wholesaler
+    const wholesalerData = await getCurrentWholesaler();
+    if (!wholesalerData || !wholesalerData.id) {
+      throw new Error("Could not identify the current wholesaler.");
+    }
+    const wholesalerId = wholesalerData.id;
+
+    // 2. Read the current counts from the database
+    // Select all potential metrics to maintain a consistent object shape for TypeScript
+    const { data: usageData, error: fetchError } = await supabase
+      .from("usage")
+      .select("buyer_count, tag_count, email_count")
+      .eq("wholesaler_id", wholesalerId)
+      .single();
+
+    if (fetchError) {
+      console.error(
+        `Error fetching usage data for ${metricName}:`,
+        fetchError.message
+      );
+      throw fetchError;
+    }
+
+    // 3. Get the current count and perform the safety check
+    const currentCount = usageData ? usageData[metricName] : 0;
+
+    // If the count is already zero, do nothing and report success.
+    if (currentCount <= 0) {
+      console.log(
+        `Attempted to decrease ${metricName}, but it is already at 0.`
+      );
+    }
+
+    // 4. Calculate the new, decreased value
+    const newCount = currentCount - 1;
+
+    // 5. Write the new value back to the database
+    const { error: updateError } = await supabase
+      .from("usage")
+      .update({ [metricName]: newCount })
+      .eq("wholesaler_id", wholesalerId);
+
+    if (updateError) {
+      throw error(`Error decreasing ${metricName}:`, updateError.message);
+    }
+
+    return { success: true, newCount };
+  } catch (error: any) {
+    const metric = typeof metricName === "string" ? metricName : "a count";
+    return {
+      success: false,
+      message: `An unexpected error occurred while decreasing ${metric}. Details: ${error.message}`,
     };
   }
 }
