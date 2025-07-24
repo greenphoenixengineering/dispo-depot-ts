@@ -5,7 +5,8 @@ import AccountDetails from "./AccountDetails";
 import { getWholesalerUsage } from "../actions/supabase";
 
 export default async function AccountPage() {
-  const usage = await getWholesalerUsage();
+  // const usage = await getWholesalerUsage();
+  
   
 
 
@@ -24,9 +25,9 @@ export default async function AccountPage() {
           </p>
         </div>
 
-    <CurrentPlanCard wholesalerUsage={usage} />
+    {/* <CurrentPlanCard wholesalerUsage={usage} /> */}
         <AvailablePlans />
-        <AccountDetails plan={usage.current_plan} />
+        {/* <AccountDetails plan={usage.current_plan} /> */}
       </div>
     </DashboardShell>
   );
