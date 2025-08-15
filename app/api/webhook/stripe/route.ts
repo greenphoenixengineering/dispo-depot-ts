@@ -192,16 +192,6 @@ export async function POST(req: NextRequest) {
         break;
       }
 
-      // ────────────────────────────────────────────────────────────────
-      // 5) TRIAL ENDING SOON (optional email)
-      // ────────────────────────────────────────────────────────────────
-      case "customer.subscription.trial_will_end": {
-        const sub = object as Stripe.Subscription;
-        console.log("⏰ Trial ending soon for", sub.customer);
-        // fire off an email reminder if you like
-        break;
-      }
-
       default:
         console.log("⚡ Unhandled event type:", type);
     }
