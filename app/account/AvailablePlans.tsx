@@ -7,7 +7,7 @@ import { getCurrentWholesaler } from '../actions/supabase';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/libs/next-auth';
 
-const plans = [
+export const plans = [
   {
     name: 'Free',
     icon: <span className="text-lg">☆</span>,
