@@ -62,6 +62,7 @@ export default function DealAnalysisPage() {
   const [dealData, setDealData] = useState<DealData>({ spaces: [] })
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [propertyAddress, setPropertyAddress] = useState("")
+  const [propertyDetails, setPropertyDetails] = useState<any>(null)
   const [isCalculatingARV, setIsCalculatingARV] = useState(false)
   const [hasTriggeredARV, setHasTriggeredARV] = useState(false)
   const [selectedRepairTotal, setSelectedRepairTotal] = useState(0)
@@ -70,12 +71,28 @@ export default function DealAnalysisPage() {
 
   const steps = ["Property Address", "Space Info", "AI Analysis", "ARV Calculation", "Send Deal"]
 
+  const calculateDefaultSpaces = () => {
+    if (!propertyDetails) return 5; // Default fallback
+    
+    const beds = propertyDetails.beds || 0;
+    const baths = propertyDetails.baths || 0;
+    
+    // Calculate: beds + baths + kitchen + living room
+    const totalSpaces = beds + baths + 2;
+    
+    // Ensure minimum of 3 spaces and maximum of 15
+    return Math.max(3, Math.min(15, totalSpaces));
+  }
+
   const handleAddressSubmit = async () => {
     if (propertyAddress.trim()) {
       try {
         // Make API call to get property details
-        const propertyDetails = await getPropertyDetails(propertyAddress);
-        console.log('Property details fetched:', propertyDetails);
+        const details = await getPropertyDetails(propertyAddress);
+        console.log('Property details fetched:', details);
+        
+        // Store property details for use in space calculation
+        setPropertyDetails(details);
         
         // Proceed to next step
         setCurrentStep(1);
@@ -100,6 +117,21 @@ export default function DealAnalysisPage() {
         repair_level: "moderate" as const,
       }))
     setDealData({ spaces: initialSpaces })
+  }
+
+  const addMoreSpaces = () => {
+    const currentCount = dealData.spaces.length;
+    const newSpace: SpaceData = {
+      size: "",
+      materials: "",
+      image: null as File | null,
+      imagePreview: null as string | null,
+      repair_description: "",
+      repair_level: "moderate" as const,
+    }
+    
+    setDealData({ spaces: [...dealData.spaces, newSpace] })
+    setNumberOfSpaces(currentCount + 1)
   }
 
   const handleSpaceUpdate = (index: number, spaceData: SpaceData) => {
@@ -236,8 +268,15 @@ export default function DealAnalysisPage() {
                 Select the number of rooms or parts of the house you need to analyze for this deal.
               </p>
 
+              <div className="mb-4">
+                <p className="text-sm text-gray-600 mb-3">
+                  Based on your property ({propertyDetails?.beds || 0} beds, {propertyDetails?.baths || 0} baths), 
+                  we recommend starting with <strong>{calculateDefaultSpaces()} spaces</strong> (including kitchen and living room).
+                </p>
+              </div>
+
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
-                {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
+                {Array.from({ length: calculateDefaultSpaces() }, (_, i) => i + 1).map((num) => (
                   <button
                     key={num}
                     onClick={() => handleSpaceCountSubmit(num)}
@@ -249,8 +288,10 @@ export default function DealAnalysisPage() {
                 ))}
               </div>
 
-              <div className="text-center">
-                <p className="text-sm text-gray-500">You can select between 1-10 spaces for analysis</p>
+              <div className="text-center space-y-3">
+                <p className="text-sm text-gray-500">
+                  Need more spaces? You can do so in the following screen.
+                </p>              
               </div>
             </div>
           ) : (
@@ -276,15 +317,23 @@ export default function DealAnalysisPage() {
                   <span className="text-sm text-gray-600">
                     {numberOfSpaces} {numberOfSpaces === 1 ? "Space" : "Spaces"}
                   </span>
-                  <button
-                    onClick={() => {
-                      setNumberOfSpaces(null)
-                      setDealData({ spaces: [] })
-                    }}
-                    className="text-sm text-blue-600 hover:text-blue-800 underline"
-                  >
-                    Change number of spaces
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={addMoreSpaces}
+                      className="text-sm text-green-600 hover:text-green-800 border border-green-300 px-3 py-1 rounded hover:bg-green-50 transition-colors"
+                    >
+                      + Add 1 More
+                    </button>
+                    <button
+                      onClick={() => {
+                        setNumberOfSpaces(null)
+                        setDealData({ spaces: [] })
+                      }}
+                      className="text-sm text-blue-600 hover:text-blue-800 underline"
+                    >
+                      Change number of spaces
+                    </button>
+                  </div>
                 </div>
               </div>
 
