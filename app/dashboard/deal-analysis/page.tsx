@@ -24,7 +24,7 @@ interface DealData {
   spaces: SpaceData[]
 }
 
-// Mock data for testing Step 2
+// Mock data for testing Step 3 (AI Analysis)
 const mockMaterials = [
   {
     name: "Drywall Sheets (4x8)",
@@ -67,7 +67,13 @@ export default function DealAnalysisPage() {
   const [selectedVendors, setSelectedVendors] = useState<{ [materialIndex: number]: number }>({})
   const [laborCosts, setLaborCosts] = useState(0)
 
-  const steps = ["Space Info", "AI Analysis", "ARV Calculation", "Send Deal"]
+  const steps = ["Property Address", "Space Info", "AI Analysis", "ARV Calculation", "Send Deal"]
+
+  const handleAddressSubmit = () => {
+    if (propertyAddress.trim()) {
+      setCurrentStep(1)
+    }
+  }
 
   const handleSpaceCountSubmit = (count: number) => {
     setNumberOfSpaces(count)
@@ -102,7 +108,7 @@ export default function DealAnalysisPage() {
 
   const handleNextStep = () => {
     if (canProceedToNextStep()) {
-      setCurrentStep(1)
+      setCurrentStep(2)
       setIsAnalyzing(true)
 
       setTimeout(() => {
@@ -114,35 +120,33 @@ export default function DealAnalysisPage() {
   }
 
   const handleBackToSpaces = () => {
-    setCurrentStep(0)
+    setCurrentStep(1)
     setIsAnalyzing(false)
   }
 
-  const handleProceedToStep3 = (selectedTotal: number, selectedVendors: { [materialIndex: number]: number }) => {
+  const handleProceedToStep4 = (selectedTotal: number, selectedVendors: { [materialIndex: number]: number }) => {
     setSelectedRepairTotal(selectedTotal)
     setSelectedVendors(selectedVendors)
-    setCurrentStep(2)
-  }
-
-  const handleAddressSubmit = () => {
-    if (propertyAddress.trim()) {
-      setHasTriggeredARV(true)
-      setIsCalculatingARV(true)
-
-      setTimeout(() => {
-        setIsCalculatingARV(false)
-      }, 5000)
-    }
-  }
-
-  const handleProceedToStep4 = (finalLaborCosts: number) => {
-    setLaborCosts(finalLaborCosts)
     setCurrentStep(3)
+    // Automatically trigger ARV calculation
+    setHasTriggeredARV(true)
+    setIsCalculatingARV(true)
+
+    setTimeout(() => {
+      setIsCalculatingARV(false)
+    }, 5000)
+  }
+
+
+
+  const handleProceedToStep5 = (finalLaborCosts: number) => {
+    setLaborCosts(finalLaborCosts)
+    setCurrentStep(4)
     console.log("Proceeding to Send Deal step")
   }
 
-  const handleBackToStep3 = () => {
-    setCurrentStep(2)
+  const handleBackToStep4 = () => {
+    setCurrentStep(3)
   }
 
   const calculateTotalCost = () => {
@@ -153,8 +157,8 @@ export default function DealAnalysisPage() {
     }, 0)
   }
 
-  const handleBackToStep2 = () => {
-    setCurrentStep(1)
+  const handleBackToStep3 = () => {
+    setCurrentStep(2)
   }
 
   return (
@@ -170,13 +174,52 @@ export default function DealAnalysisPage() {
 
       <PizzaTracker currentStep={currentStep} steps={steps} />
 
-      {/* Step 1: Space Information Collection */}
+      {/* Step 1: Property Address Input */}
       {currentStep === 0 && (
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <h2 className="text-xl font-semibold mb-4">Property Information</h2>
+          <p className="text-gray-600 mb-6">
+            Enter the property address to get started with your deal analysis. We'll use this to gather basic property information.
+          </p>
+
+          <div className="space-y-4 max-w-md">
+            <div>
+              <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
+                Property Address
+              </label>
+              <input
+                type="text"
+                id="address"
+                value={propertyAddress}
+                onChange={(e) => setPropertyAddress(e.target.value)}
+                placeholder="123 Main St, City, State 12345"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end items-center mt-6">
+            <button
+              onClick={handleAddressSubmit}
+              disabled={!propertyAddress.trim()}
+              className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Continue to Space Information
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Step 2: Space Information Collection */}
+      {currentStep === 1 && (
         <div>
           {numberOfSpaces === null ? (
             // Space Count Selection
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-xl font-semibold mb-4">How many spaces do you want to estimate?</h2>
+              <div className="mb-4">
+                <h2 className="text-xl font-semibold mb-2">Property: {propertyAddress}</h2>
+                <p className="text-gray-600">How many spaces do you want to estimate for this property?</p>
+              </div>
               <p className="text-gray-600 mb-6">
                 Select the number of rooms or parts of the house you need to analyze for this deal.
               </p>
@@ -214,18 +257,23 @@ export default function DealAnalysisPage() {
                     Back
                   </button>
                   <h2 className="text-xl font-semibold">
-                    Collecting Information for {numberOfSpaces} {numberOfSpaces === 1 ? "Space" : "Spaces"}
+                    Property: {propertyAddress}
                   </h2>
                 </div>
-                <button
-                  onClick={() => {
-                    setNumberOfSpaces(null)
-                    setDealData({ spaces: [] })
-                  }}
-                  className="text-sm text-blue-600 hover:text-blue-800 underline"
-                >
-                  Change number of spaces
-                </button>
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-gray-600">
+                    {numberOfSpaces} {numberOfSpaces === 1 ? "Space" : "Spaces"}
+                  </span>
+                  <button
+                    onClick={() => {
+                      setNumberOfSpaces(null)
+                      setDealData({ spaces: [] })
+                    }}
+                    className="text-sm text-blue-600 hover:text-blue-800 underline"
+                  >
+                    Change number of spaces
+                  </button>
+                </div>
               </div>
 
               {dealData.spaces.map((space, index) => (
@@ -268,8 +316,8 @@ export default function DealAnalysisPage() {
         </div>
       )}
 
-      {/* Step 2: AI Analysis */}
-      {currentStep === 1 && (
+      {/* Step 3: AI Analysis */}
+      {currentStep === 2 && (
         <div>
           {isAnalyzing ? (
             <AIAnalysisLoading />
@@ -277,74 +325,32 @@ export default function DealAnalysisPage() {
             <AnalysisResults
               materials={mockMaterials}
               totalCost={calculateTotalCost()}
-              onNext={handleProceedToStep3}
+              onNext={handleProceedToStep4}
               onBack={handleBackToSpaces}
             />
           )}
         </div>
       )}
 
-      {/* Step 3: ARV Calculation */}
-      {currentStep === 2 && (
+      {/* Step 4: ARV Calculation */}
+      {currentStep === 3 && (
         <div>
-          {!hasTriggeredARV ? (
-            // Address Input
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-xl font-semibold mb-4">Property Information</h2>
-              <p className="text-gray-600 mb-6">
-                Enter the property details to calculate the After Repair Value (ARV).
-              </p>
-
-              <div className="space-y-4 max-w-md">
-                <div>
-                  <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
-                    Property Address
-                  </label>
-                  <input
-                    type="text"
-                    id="address"
-                    value={propertyAddress}
-                    onChange={(e) => setPropertyAddress(e.target.value)}
-                    placeholder="123 Main St, City, State 12345"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-between items-center mt-6">
-                <button
-                  onClick={() => setCurrentStep(1)}
-                  className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  Back to Material Selection
-                </button>
-
-                <button
-                  onClick={handleAddressSubmit}
-                  disabled={!propertyAddress.trim()}
-                  className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Calculate ARV
-                </button>
-              </div>
-            </div>
-          ) : isCalculatingARV ? (
+          {isCalculatingARV ? (
             <ARVLoading />
           ) : (
             <ARVResults
               address={propertyAddress}
               arv={285000}
               repairCosts={selectedRepairTotal}
-              onNext={handleProceedToStep4}
-              onBack={handleBackToStep2}
+              onNext={handleProceedToStep5}
+              onBack={handleBackToStep3}
             />
           )}
         </div>
       )}
 
-      {/* Step 4: Send Deal */}
-      {currentStep === 3 && (
+      {/* Step 5: Send Deal */}
+      {currentStep === 4 && (
         <SendDealForm
           dealData={{
             address: propertyAddress,
@@ -354,7 +360,7 @@ export default function DealAnalysisPage() {
             mao: Math.round(285000 * 0.7 - selectedRepairTotal - laborCosts),
             spaces: dealData.spaces,
           }}
-          onBack={handleBackToStep3}
+          onBack={handleBackToStep4}
         />
       )}
     </div>
