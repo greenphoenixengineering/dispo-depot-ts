@@ -118,10 +118,10 @@ export function ARVResults({ address, arv, repairCosts, onNext, onBack }: ARVRes
       </div>
 
       {/* Back Button */}
-      <div className="flex justify-start">
+      <div className="flex justify-between items-center pt-4 border-t border-gray-200 mt-6">
         <button
           onClick={onBack}
-          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Property Information
