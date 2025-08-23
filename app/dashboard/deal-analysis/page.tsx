@@ -10,6 +10,7 @@ import { ARVLoading } from "@/components/arv-loading"
 import { ARVResults } from "@/components/arv-results"
 import { SendDealForm } from "@/components/send-deal-form"
 import { PizzaTracker } from "@/components/pizza-tracker"
+import { getPropertyDetails } from "@/app/actions/rapid"
 
 interface SpaceData {
   size: string
@@ -69,9 +70,20 @@ export default function DealAnalysisPage() {
 
   const steps = ["Property Address", "Space Info", "AI Analysis", "ARV Calculation", "Send Deal"]
 
-  const handleAddressSubmit = () => {
+  const handleAddressSubmit = async () => {
     if (propertyAddress.trim()) {
-      setCurrentStep(1)
+      try {
+        // Make API call to get property details
+        const propertyDetails = await getPropertyDetails(propertyAddress);
+        console.log('Property details fetched:', propertyDetails);
+        
+        // Proceed to next step
+        setCurrentStep(1);
+      } catch (error) {
+        console.error('Error in handleAddressSubmit:', error);
+        // Still proceed to next step even if API call fails
+        setCurrentStep(1);
+      }
     }
   }
 
@@ -82,8 +94,8 @@ export default function DealAnalysisPage() {
       .map(() => ({
         size: "",
         materials: "",
-        image: null,
-        imagePreview: null,
+        image: null as File | null,
+        imagePreview: null as string | null,
         repair_description: "",
         repair_level: "moderate" as const,
       }))
@@ -342,7 +354,7 @@ export default function DealAnalysisPage() {
               address={propertyAddress}
               arv={285000}
               repairCosts={selectedRepairTotal}
-              onNext={handleProceedToStep5}
+              onNext={() => handleProceedToStep5(0)}
               onBack={handleBackToStep3}
             />
           )}
