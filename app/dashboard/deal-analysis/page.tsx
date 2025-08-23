@@ -10,6 +10,7 @@ import { ARVLoading } from "@/components/arv-loading"
 import { ARVResults } from "@/components/arv-results"
 import { SendDealForm } from "@/components/send-deal-form"
 import { PizzaTracker } from "@/components/pizza-tracker"
+import { PropertyDataLoading } from "@/components/property-data-loading"
 import { getPropertyDetails } from "@/app/actions/rapid"
 
 interface SpaceData {
@@ -63,6 +64,7 @@ export default function DealAnalysisPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [propertyAddress, setPropertyAddress] = useState("")
   const [propertyDetails, setPropertyDetails] = useState<any>(null)
+  const [isLoadingPropertyData, setIsLoadingPropertyData] = useState(false)
   const [isCalculatingARV, setIsCalculatingARV] = useState(false)
   const [hasTriggeredARV, setHasTriggeredARV] = useState(false)
   const [selectedRepairTotal, setSelectedRepairTotal] = useState(0)
@@ -87,6 +89,9 @@ export default function DealAnalysisPage() {
   const handleAddressSubmit = async () => {
     if (propertyAddress.trim()) {
       try {
+        // Show loading state
+        setIsLoadingPropertyData(true);
+        
         // Make API call to get property details
         const details = await getPropertyDetails(propertyAddress);
         console.log('Property details fetched:', details);
@@ -94,11 +99,13 @@ export default function DealAnalysisPage() {
         // Store property details for use in space calculation
         setPropertyDetails(details);
         
-        // Proceed to next step
+        // Hide loading and proceed to next step
+        setIsLoadingPropertyData(false);
         setCurrentStep(1);
       } catch (error) {
         console.error('Error in handleAddressSubmit:', error);
-        // Still proceed to next step even if API call fails
+        // Hide loading and still proceed to next step even if API call fails
+        setIsLoadingPropertyData(false);
         setCurrentStep(1);
       }
     }
@@ -206,23 +213,28 @@ export default function DealAnalysisPage() {
   }
 
   return (
-    <div>
-      <div className="mb-6">
-        <Link href="/dashboard" className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 mb-4">
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Dashboard</span>
+    <div className="px-3 sm:px-4 lg:px-6 max-w-7xl mx-auto">
+      <div className="mb-4 sm:mb-6">
+        <Link href="/dashboard" className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 mb-3 sm:mb-4">
+          <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />
+          <span className="text-sm sm:text-base">Back to Dashboard</span>
         </Link>
-        <h1 className="text-2xl font-bold mb-2">Deal Analysis</h1>
-        <p className="text-gray-600">Complete workflow for analyzing and sending deals to buyers</p>
+        <h1 className="text-xl sm:text-2xl font-bold mb-2">Deal Analysis</h1>
+        <p className="text-sm sm:text-base text-gray-600">Complete workflow for analyzing and sending deals to buyers</p>
       </div>
 
       <PizzaTracker currentStep={currentStep} steps={steps} />
 
+      {/* Property Data Loading Screen */}
+      {isLoadingPropertyData && (
+        <PropertyDataLoading />
+      )}
+
       {/* Step 1: Property Address Input */}
-      {currentStep === 0 && (
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-xl font-semibold mb-4">Property Information</h2>
-          <p className="text-gray-600 mb-6">
+      {currentStep === 0 && !isLoadingPropertyData && (
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">Property Information</h2>
+          <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
             Enter the property address to get started with your deal analysis. We'll use this to gather basic property information.
           </p>
 
@@ -237,16 +249,16 @@ export default function DealAnalysisPage() {
                 value={propertyAddress}
                 onChange={(e) => setPropertyAddress(e.target.value)}
                 placeholder="123 Main St, City, State 12345"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
           </div>
 
-          <div className="flex justify-end items-center mt-6">
+          <div className="flex justify-end items-center mt-4 sm:mt-6">
             <button
               onClick={handleAddressSubmit}
               disabled={!propertyAddress.trim()}
-              className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-blue-500 text-white px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Continue to Space Information
             </button>
@@ -259,68 +271,71 @@ export default function DealAnalysisPage() {
         <div>
           {numberOfSpaces === null ? (
             // Space Count Selection
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="mb-4">
-                <h2 className="text-xl font-semibold mb-2">Property: {propertyAddress}</h2>
-                <p className="text-gray-600">How many spaces do you want to estimate for this property?</p>
+            <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+              <div className="mb-3 sm:mb-4">
+                <h2 className="text-lg sm:text-xl font-semibold mb-2">Property: {propertyAddress}</h2>                
               </div>
-              <p className="text-gray-600 mb-6">
-                Select the number of rooms or parts of the house you need to analyze for this deal.
+              <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
+                Select the number of rooms or spaces of the property you need to analyze for this deal.
               </p>
 
-              <div className="mb-4">
-                <p className="text-sm text-gray-600 mb-3">
+              <div className="mb-3 sm:mb-4">
+                <p className="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">
                   Based on your property ({propertyDetails?.beds || 0} beds, {propertyDetails?.baths || 0} baths), 
                   we recommend starting with <strong>{calculateDefaultSpaces()} spaces</strong> (including kitchen and living room).
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3 mb-4 sm:mb-6">
                 {Array.from({ length: calculateDefaultSpaces() }, (_, i) => i + 1).map((num) => (
                   <button
                     key={num}
                     onClick={() => handleSpaceCountSubmit(num)}
-                    className="p-4 border-2 border-gray-200 rounded-lg hover:border-green-500 hover:bg-green-50 transition-colors text-center"
+                    className="p-2 sm:p-4 border-2 border-gray-200 rounded-lg hover:border-green-500 hover:bg-green-50 transition-colors text-center"
                   >
-                    <span className="text-2xl font-bold text-gray-700">{num}</span>
-                    <p className="text-sm text-gray-500 mt-1">{num === 1 ? "Space" : "Spaces"}</p>
+                    <span className="text-lg sm:text-2xl font-bold text-gray-700">{num}</span>
+                    <p className="text-xs sm:text-sm text-gray-500 mt-1">{num === 1 ? "Space" : "Spaces"}</p>
                   </button>
                 ))}
               </div>
 
-              <div className="text-center space-y-3">
-                <p className="text-sm text-gray-500">
+              <div className="text-center space-y-2 sm:space-y-3 mb-4">
+                <p className="text-xs sm:text-sm text-gray-500">
                   Need more spaces? You can do so in the following screen.
                 </p>              
+              </div>
+              
+              <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+                <button
+                  onClick={() => setCurrentStep(0)}
+                  className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Back to Address
+                </button>
+                <div></div> {/* Spacer for consistent layout */}
               </div>
             </div>
           ) : (
             // Space Information Collection
             <div>
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
-                  <button
-                    onClick={() => {
-                      setNumberOfSpaces(null)
-                      setDealData({ spaces: [] })
-                    }}
-                    className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                    Back
-                  </button>
-                  <h2 className="text-xl font-semibold">
-                    Property: {propertyAddress}
-                  </h2>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-sm text-gray-600">
-                    {numberOfSpaces} {numberOfSpaces === 1 ? "Space" : "Spaces"}
+              <div className="mb-4 sm:mb-6">
+                <h2 className="text-lg sm:text-xl font-semibold mb-2">
+                  Property: {propertyAddress}
+                </h2>              
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+                  <span className="text-md text-gray-600 mb-2">
+                    For each space, provide detailed repair information so that the AI engine can put together a detailed BOM.
                   </span>
-                  <div className="flex items-center gap-3">
+                </div>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">                  
+                  <span className="text-sm text-gray-600">
+                    Currently: {numberOfSpaces} {numberOfSpaces === 1 ? "Space" : "Spaces"}
+                  </span>
+                  <div className="flex items-center gap-2 sm:gap-3">
                     <button
                       onClick={addMoreSpaces}
-                      className="text-sm text-green-600 hover:text-green-800 border border-green-300 px-3 py-1 rounded hover:bg-green-50 transition-colors"
+                      className="text-xs sm:text-sm text-green-600 hover:text-green-800 border border-green-300 px-2 sm:px-3 py-1 rounded hover:bg-green-50 transition-colors"
                     >
                       + Add 1 More
                     </button>
@@ -329,7 +344,7 @@ export default function DealAnalysisPage() {
                         setNumberOfSpaces(null)
                         setDealData({ spaces: [] })
                       }}
-                      className="text-sm text-blue-600 hover:text-blue-800 underline"
+                      className="text-xs sm:text-sm text-blue-600 hover:text-blue-800 underline"
                     >
                       Change number of spaces
                     </button>
@@ -346,10 +361,10 @@ export default function DealAnalysisPage() {
                 />
               ))}
 
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <div className="flex justify-between items-center">
+              <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                   <div>
-                    <h3 className="font-semibold text-gray-900">Ready to proceed?</h3>
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900">Ready to proceed?</h3>
                     <p className="text-sm text-gray-600">
                       Make sure all spaces have complete information before continuing.
                     </p>
@@ -357,7 +372,7 @@ export default function DealAnalysisPage() {
                   <button
                     onClick={() => handleNextStep()}
                     disabled={!canProceedToNextStep()}
-                    className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="bg-green-500 text-white px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Proceed to AI Analysis
                   </button>
@@ -365,12 +380,26 @@ export default function DealAnalysisPage() {
 
                 {!canProceedToNextStep() && (
                   <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <p className="text-sm text-yellow-800">
+                    <p className="text-xs sm:text-sm text-yellow-800">
                       Please complete all required fields (size, materials, description, image, and repair level) for
                       each space before proceeding.
                     </p>
                   </div>
                 )}
+              </div>
+              
+              <div className="flex justify-between items-center pt-4 border-t border-gray-200 mt-6">
+                <button
+                  onClick={() => {
+                    setNumberOfSpaces(null)
+                    setDealData({ spaces: [] })
+                  }}
+                  className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Back to Space Selection
+                </button>
+                <div></div> {/* Spacer for consistent layout */}
               </div>
             </div>
           )}
@@ -424,6 +453,9 @@ export default function DealAnalysisPage() {
           onBack={handleBackToStep4}
         />
       )}
+      
+      {/* Bottom spacing for mobile */}
+      <div className="h-6 sm:h-8 lg:h-12"></div>
     </div>
   )
 }

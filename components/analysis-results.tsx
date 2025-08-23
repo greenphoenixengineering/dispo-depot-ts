@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Check } from "lucide-react"
+import { Check, ArrowLeft } from "lucide-react"
 
 interface MaterialItem {
   name: string
@@ -126,16 +126,17 @@ export function AnalysisResults({ materials, totalCost, onNext, onBack }: Analys
             </div>
           </div>
 
-          <div className="flex justify-between mt-8">
+          <div className="flex justify-between items-center pt-4 border-t border-gray-200 mt-8">
             <button
               onClick={onBack}
-              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+              className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
             >
+              <ArrowLeft className="w-4 h-4" />
               Back to Spaces
             </button>
             <button
               onClick={handleNext}
-              className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
               Next Step
             </button>
