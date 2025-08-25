@@ -1,6 +1,18 @@
 # Supabase Setup Guide
 
-This project uses Supabase for the database backend. Follow these steps to set up your local development environment with Supabase.
+This project uses Supabase for the database backend and NextAuth.js for authentication. Follow these steps to set up your local development environment.
+
+## Table of Contents
+
+1. [Prerequisites](#prerequisites)
+2. [Setup Process](#setup-process)
+   - [Step 1: Run the Setup Script](#step-1-run-the-setup-script)
+   - [Step 2: Set Up Google OAuth Credentials](#step-2-set-up-google-oauth-credentials)
+   - [Testing Your Setup](#testing-your-setup)
+3. [Manual Setup](#manual-setup)
+4. [Working with the Database](#working-with-the-database)
+5. [Troubleshooting](#troubleshooting)
+6. [Production Deployment](#production-deployment)
 
 ## Prerequisites
 
@@ -9,9 +21,11 @@ Before starting, make sure you have the following installed:
 1. **Docker Desktop** - [Download here](https://www.docker.com/products/docker-desktop/)
 2. **Node.js** (version 16+) and npm
 
-## One-Command Setup (Recommended)
+## Setup Process
 
-We've created a setup script that will handle all the necessary steps for you:
+### Step 1: Run the Setup Script
+
+We've created a setup script that will handle the initial Supabase setup for you:
 
 ```bash
 # Make the script executable
@@ -24,9 +38,74 @@ chmod +x setup-local.sh
 This script will:
 - Check if Docker and Supabase CLI are installed
 - Install Supabase CLI if needed (on macOS)
-- Create a local .env.local file from env.example
+- Create a local .env file from env.example
 - Start the local Supabase instance
-- Apply database migrations and seed data
+- Apply database migrations
+
+After running the script, you'll need to:
+
+1. Copy the following Supabase connection variables from the terminal output to your `.env` file:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key_from_terminal
+SUPABASE_SERVICE_ROLE=your_service_role_key_from_terminal
+```
+
+The actual values will be displayed in the terminal after the script completes. Look for the "ENVIRONMENT VARIABLES FOR YOUR PROJECT" section in the output.
+
+### Step 2: Set Up Google OAuth Credentials
+
+For authentication to work properly, you need to set up Google OAuth credentials:
+
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select an existing one
+3. Navigate to "APIs & Services" > "Credentials"
+4. Click "Create Credentials" and select "OAuth client ID"
+5. Set up the OAuth consent screen if prompted
+6. For "Application type", select "Web application"
+7. Add the following authorized redirect URIs:
+   - For local development: `http://localhost:3000/api/auth/callback/google`
+8. Click "Create" to generate your client ID and secret
+9. Add these credentials to your `.env` file along with the required NextAuth configuration:
+
+```
+# Google OAuth
+GOOGLE_ID=your_client_id
+GOOGLE_SECRET=your_client_secret
+
+# NextAuth Configuration
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_random_secret_key
+```
+
+For `NEXTAUTH_SECRET`, use a random string to encrypt tokens. You can generate one using:
+```bash
+openssl rand -base64 32
+```
+
+After adding these environment variables, restart your Next.js development server for the changes to take effect.
+
+### Testing Your Setup
+
+To verify that everything is working correctly:
+
+1. Start your Next.js development server:
+   ```bash
+   npm run dev
+   ```
+
+2. Navigate to the sign-in page in your application
+   
+3. Try signing in with Google
+   
+4. After successful authentication, you should be redirected back to your application
+   
+5. Check the Supabase Studio (http://localhost:54323) to verify that:
+   - A new user was created in the `next_auth.users` table
+   - A new wholesaler record was created in the `public.wholesaler` table
+
+If you encounter any issues, check the browser console and server logs for errors.
 
 ## Manual Setup
 
