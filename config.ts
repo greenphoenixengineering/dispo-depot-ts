@@ -43,7 +43,7 @@ const config = {
         isFeatured: true,
         name: PlanName.STANDARD,
         description: "For growing businesses",
-        price: 9,
+        price: 1,
         priceAnchor: null,
         features: [
           { name: "500 buyers" },
