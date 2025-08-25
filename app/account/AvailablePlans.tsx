@@ -3,7 +3,6 @@ import SubscriptionManager from '@/components/SubscriptionManager';
 import { getPlanOperation } from '@/libs/stripe';
 import { PlanName } from '@/types/config';
 import config from '@/config';
-import { getCurrentWholesaler } from '../actions/supabase';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/libs/next-auth';
 
@@ -24,7 +23,7 @@ export const plans = [
     name: 'Standard',
     icon: <Zap className="w-5 h-5 inline-block text-green-600" />,
     description: 'For growing businesses',
-    price: 9,
+    price: 1,
     features: [
       'Everything in Free plus:',
       '500 Buyers',
@@ -118,7 +117,7 @@ export default async function AvailablePlans() {
     <section className="mb-10">
       <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-5">Available Plans</h2>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {plans.map((plan, idx) => (
+        {plans.map((plan) => (
           <div
             key={plan.name}
             className={`relative bg-white rounded-xl border ${plan.highlight ? 'border-2 border-green-500 shadow-lg' : 'border-gray-200'} p-6 flex flex-col items-start min-h-[420px]`}
