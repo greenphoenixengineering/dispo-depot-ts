@@ -235,7 +235,7 @@ export default function DealAnalysisPage() {
         <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
           <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">Property Information</h2>
           <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
-            Enter the property address to get started with your deal analysis. We'll use this to gather basic property information.
+            Enter the property address to get started with your deal analysis. We&apos;ll use this to gather basic property information.
           </p>
 
           <div className="space-y-4 max-w-md">
