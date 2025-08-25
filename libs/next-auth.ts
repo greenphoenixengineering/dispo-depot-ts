@@ -2,10 +2,10 @@ import NextAuth from "next-auth";
 import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import config from "@/config";
-import { insertIntoUsage, supabaseUserService } from "@/libs/supabase";
+import { supabaseUserService } from "@/libs/supabase";
 
 import { SupabaseAdapter } from "@auth/supabase-adapter";
-import { updateUserAliasOnSupa } from "@/app/actions/supabase";
+import { createWholesaler, updateUserAliasOnSupa } from "@/app/actions/supabase";
 import {
   createUserAlias,
   notifyAdminNewAliasCreated,
@@ -37,6 +37,25 @@ export const authOptions: NextAuthOptionsExtended = {
   ],
   events: {
     createUser: async function ({ user }) {
+      // create wholesaler in development mode
+      try {
+        if (process.env.NODE_ENV === 'development') {
+          await createWholesaler({
+            first_name: user.first_name || '',
+            last_name: user.last_name || '',
+            email: user.email,
+            user_id: user.id,
+          });
+          return await supabaseUserService.upsertUser({
+            email: user.email,
+            name: user.name || '',
+            has_access: false,
+          });
+        }
+      } catch (error) {
+        console.error('Error in development createUser event:', error);
+        throw error;
+      }
       try {
         // Step 1: Create the alias on the external service
         const data = await createUserAlias({

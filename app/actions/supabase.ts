@@ -529,7 +529,7 @@ export async function getWholesalerByEmail(email: string) {
 type UsageMetric = "buyer_count" | "tag_count" | "email_count";
 type DecrementableUsageMetric = "buyer_count" | "tag_count";
 type UsageData = {
-  [key in UsageMetric]?: number; // An object where keys are from UsageMetric and values are numbers
+  [metric in UsageMetric]?: number; // An object where keys are from UsageMetric and values are numbers
 };
 
 export async function incrementUsageCount(metricName: UsageMetric) {
@@ -652,4 +652,40 @@ export async function getWholesalerUsage() {
   }
 
   return data;
+}
+
+/**
+ * Creates a new wholesaler record in the database without subscription
+ * 
+ * @param wholesalerData - Object containing wholesaler information
+ * @returns The created wholesaler record or error information
+ */
+export async function createWholesaler(wholesalerData: {
+  first_name: string;
+  last_name: string;
+  email: string;
+  user_id: string;
+}) {
+  try {
+    // Insert the wholesaler record only
+    const { data: wholesaler, } = await supabase
+      .from("wholesaler")
+      .insert([
+        {
+          first_name: wholesalerData.first_name,
+          last_name: wholesalerData.last_name,
+          email: wholesalerData.email,
+          user_id: wholesalerData.user_id,
+          alias: `reply-${wholesalerData.user_id}@mydispodepot.io`,
+          email_authorized: true
+        }
+      ])
+      .select()
+      .single();
+    // Return success with the created wholesaler data
+    return wholesaler
+  } catch (error: any) {
+    console.error("Unexpected error creating wholesaler:", error);
+    return null
+  }
 }
