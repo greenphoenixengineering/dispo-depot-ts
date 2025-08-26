@@ -56,7 +56,7 @@ export function Header() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-4 ml-auto">
-          <ButtonSignin extraStyle="bg-green-500 text-white px-4 py-2 rounded-full font-medium hover:bg-green-600 transition-colors font-normal" text="sign up" />
+          <ButtonSignin extraStyle="bg-green-500 text-white px-4 py-2 rounded-full font-medium hover:bg-green-600 transition-colors font-normal" />
         </div>
 
         {/* Mobile menu button */}
@@ -90,7 +90,6 @@ export function Header() {
           <div className="flex flex-col items-center justify-center h-full gap-8">
             <ButtonSignin 
               extraStyle="bg-green-500 text-white px-6 py-3 rounded-full font-medium hover:bg-green-600 transition-colors text-lg" 
-              text="sign up"
             />
           </div>
         </div>

@@ -56,7 +56,7 @@ export default function UpgradeButton() {
       {/* Only show upgrade button if user is on free plan */}
       {session?.user?.plan?.name === PlanName.FREE ? (
         <Link
-          href="/#pricing"
+          href="/account"
           className="fixed bottom-6 right-6 bg-green-500 hover:bg-green-600 text-white rounded-full px-4 py-2 flex items-center gap-2 shadow-lg transition-all z-50"
         >
           <span>Upgrade</span>
@@ -64,6 +64,7 @@ export default function UpgradeButton() {
         </Link>
       ) : (
         <button
+          title='Check your next estimated payment'
           onClick={handleManagePlan}
           className="fixed bottom-6 right-6 bg-gray-500 hover:bg-gray-600 text-white rounded-full px-4 py-2 flex items-center gap-2 shadow-lg transition-all z-50"
         >
