@@ -83,13 +83,17 @@ SERVICE_ROLE_KEY=$(supabase status | grep 'service_role key' | awk '{print $3}')
 
 echo ""
 echo "🔄 Applying database migrations..."
-echo "   This will create application-specific schemas and tables..."
+echo "   This will create application-specific schemas, tables, and functions..."
 echo "   (Default Supabase schemas like auth, storage, etc. are already created)"
 
 # Try to apply migrations, with error handling
 if ! supabase db reset --no-seed; then
   echo ""
   echo "⚠️  Migration encountered errors, but this might be okay if tables already exist."
+  echo "   The following functions should now be available:"
+  echo "     - get_tags_with_buyer_count: Returns tags with their buyer counts"
+  echo "     - handle_new_user_to_wholesaler: Creates wholesaler record for new users"
+  echo "     - update_buyer_and_sync_tags: Updates buyer info and their tags"
   echo "   Continuing with setup..."
 fi
 
