@@ -32,12 +32,12 @@ export function PricingComparison() {
               </tr>
               <tr>
                 <td className="py-3 md:py-4 px-4 md:px-6 text-sm font-medium text-gray-900">Emails per month</td>
-                <td className="py-3 md:py-4 px-4 md:px-6 text-sm text-gray-500 text-center">1 per tag</td>
-                <td className="py-3 md:py-4 px-4 md:px-6 text-sm text-gray-500 text-center">100 per tag</td>
+                <td className="py-3 md:py-4 px-4 md:px-6 text-sm text-gray-500 text-center">10</td>
+                <td className="py-3 md:py-4 px-4 md:px-6 text-sm text-gray-500 text-center">5000</td>
                 <td className="py-3 md:py-4 px-4 md:px-6 text-sm text-gray-500 text-center">Unlimited</td>
               </tr>
               <tr>
-                <td className="py-3 md:py-4 px-4 md:px-6 text-sm font-medium text-gray-900">Buyer Tags</td>
+                <td className="py-3 md:py-4 px-4 md:px-6 text-sm font-medium text-gray-900">Buyer/Tag Management</td>
                 <td className="py-3 md:py-4 px-4 md:px-6 text-center">
                   <Check className="w-5 h-5 text-green-500 mx-auto" />
                 </td>
@@ -61,7 +61,7 @@ export function PricingComparison() {
                 </td>
               </tr>
               <tr>
-                <td className="py-3 md:py-4 px-4 md:px-6 text-sm font-medium text-gray-900">Analytics Dashboard</td>
+                <td className="py-3 md:py-4 px-4 md:px-6 text-sm font-medium text-gray-900">AI Deal Analyzer</td>
                 <td className="py-3 md:py-4 px-4 md:px-6 text-center">
                   <X className="w-5 h-5 text-gray-300 mx-auto" />
                 </td>
@@ -73,7 +73,7 @@ export function PricingComparison() {
                 </td>
               </tr>
               <tr>
-                <td className="py-3 md:py-4 px-4 md:px-6 text-sm font-medium text-gray-900">API Access</td>
+                <td className="py-3 md:py-4 px-4 md:px-6 text-sm font-medium text-gray-900">AI Deal Email Generator</td>
                 <td className="py-3 md:py-4 px-4 md:px-6 text-center">
                   <X className="w-5 h-5 text-gray-300 mx-auto" />
                 </td>
@@ -85,19 +85,7 @@ export function PricingComparison() {
                 </td>
               </tr>
               <tr>
-                <td className="py-3 md:py-4 px-4 md:px-6 text-sm font-medium text-gray-900">Priority Support</td>
-                <td className="py-3 md:py-4 px-4 md:px-6 text-center">
-                  <X className="w-5 h-5 text-gray-300 mx-auto" />
-                </td>
-                <td className="py-3 md:py-4 px-4 md:px-6 text-center">
-                  <Check className="w-5 h-5 text-green-500 mx-auto" />
-                </td>
-                <td className="py-3 md:py-4 px-4 md:px-6 text-center">
-                  <Check className="w-5 h-5 text-green-500 mx-auto" />
-                </td>
-              </tr>
-              <tr>
-                <td className="py-3 md:py-4 px-4 md:px-6 text-sm font-medium text-gray-900">Phone Support</td>
+                <td className="py-3 md:py-4 px-4 md:px-6 text-sm font-medium text-gray-900">Enhanced Email Automations</td>
                 <td className="py-3 md:py-4 px-4 md:px-6 text-center">
                   <X className="w-5 h-5 text-gray-300 mx-auto" />
                 </td>

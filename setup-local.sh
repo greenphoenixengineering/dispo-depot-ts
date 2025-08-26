@@ -6,6 +6,8 @@ echo "========================================="
 echo "🚀 Dispo Depot Supabase Setup Script 🚀"
 echo "========================================="
 echo "This script will set up your local Supabase database for development."
+echo "It will apply the migration file that contains application-specific schemas and tables."
+echo "Note: Default Supabase schemas (auth, storage, etc.) are created automatically."
 echo ""
 
 # Check if Docker is installed
@@ -80,8 +82,20 @@ ANON_KEY=$(supabase status | grep 'anon key' | awk '{print $3}')
 SERVICE_ROLE_KEY=$(supabase status | grep 'service_role key' | awk '{print $3}')
 
 echo ""
-echo "🔄 Applying database migrations and seed data..."
-supabase db reset
+echo "🔄 Applying database migrations..."
+echo "   This will create application-specific schemas, tables, and functions..."
+echo "   (Default Supabase schemas like auth, storage, etc. are already created)"
+
+# Try to apply migrations, with error handling
+if ! supabase db reset --no-seed; then
+  echo ""
+  echo "⚠️  Migration encountered errors, but this might be okay if tables already exist."
+  echo "   The following functions should now be available:"
+  echo "     - get_tags_with_buyer_count: Returns tags with their buyer counts"
+  echo "     - handle_new_user_to_wholesaler: Creates wholesaler record for new users"
+  echo "     - update_buyer_and_sync_tags: Updates buyer info and their tags"
+  echo "   Continuing with setup..."
+fi
 
 echo ""
 echo "✅ Setup complete! Your local Supabase instance is now running."

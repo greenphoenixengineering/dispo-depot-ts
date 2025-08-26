@@ -10,6 +10,7 @@ import { revalidatePath } from "next/cache";
 
 import { mailerLiteFetch } from "./mailerLite";
 import { SendDealsState } from "@/libs/sendDealTypes";
+import { error } from "console";
 
 export async function getBuyersWithTags() {
   const wholesalerData = await getCurrentWholesaler();
@@ -41,15 +42,12 @@ export async function getCurrentWholesaler() {
     throw new Error("Unauthorized: No user session found.");
   }
 
-
-
   const { data, error } = await supabase
     .from("wholesaler")
     .select("*")
     .eq("user_id", session.user.id)
     .single();
 
-    
   if (error) {
     throw new Error(`Failed to fetch wholesaler: ${error.message}`);
   }
@@ -228,7 +226,7 @@ export async function addTagToSupabase(payload: any) {
 
   const { name, api_id } = payload;
 
-  const {  error } = await supabase
+  const { error } = await supabase
     .from("tags")
     .insert([
       {
@@ -254,14 +252,12 @@ export async function addTagToMailerlite(payload: NewTag) {
   try {
     const response = await mailerLiteFetch(`/groups`, "POST", payload);
 
-
     const result = await response.json();
-
 
     if (response.ok || !result.errors) {
       return { status: true, tagApiId: result?.data?.id };
     } else {
-      return { status: false , error:result.errors.name[0] };
+      return { status: false, error: result.errors.name[0] };
     }
   } catch (e) {
     throw new Error("error adding buyer to mailerlite");
@@ -501,6 +497,9 @@ export async function sendDealsAction(
       };
     }
 
+    // INREASE THE EMAIL COUNT FOR THE WHOLESALER
+    await incrementUsageCount("email_count");
+
     return { message: "Deal sent successfully!", success: true };
   } catch (error: any) {
     console.error("Error in sendDeals action:", error);
@@ -523,4 +522,170 @@ export async function getWholesalerByEmail(email: string) {
   }
 
   return data;
+}
+
+// GENERIC FUNCTION TO INCREASE THE BUYER_COUNT OR TAG_COUNT or EMAIL_COUNT ON USAGE TABLE
+
+type UsageMetric = "buyer_count" | "tag_count" | "email_count";
+type DecrementableUsageMetric = "buyer_count" | "tag_count";
+type UsageData = {
+  [metric in UsageMetric]?: number; // An object where keys are from UsageMetric and values are numbers
+};
+
+export async function incrementUsageCount(metricName: UsageMetric) {
+  try {
+    // 1. Get the current user/wholesaler
+    const wholesalerData = await getCurrentWholesaler();
+    if (!wholesalerData || !wholesalerData.id) {
+      throw new Error("Could not identify the current wholesaler.");
+    }
+    const wholesalerId = wholesalerData.id;
+
+    const { data, error: fetchError } = await supabase
+      .from("usage")
+      .select(metricName)
+      .eq("wholesaler_id", wholesalerId)
+      .single();
+
+    // Cast the data to your defined type
+    const usageData = data as UsageData;
+    if (fetchError) {
+      console.error(
+        `Error fetching usage data for ${metricName}:`,
+        fetchError.message
+      );
+      throw fetchError;
+    }
+
+    // 3. Increment the value in your code
+    const currentCount = usageData ? usageData[metricName] : 0;
+    const newCount = (currentCount || 0) + 1;
+
+    // 4. Write the new, calculated value back to the database
+    const { error: updateError } = await supabase
+      .from("usage")
+      .update({ [metricName]: newCount })
+      .eq("wholesaler_id", wholesalerId);
+
+    if (updateError) {
+      console.error(`Error updating ${metricName}:`, updateError.message);
+      return { success: false, message: `Error increasing the ${metricName}.` };
+    }
+
+    console.log(`${metricName} was successfully updated to ${newCount}.`);
+    return { success: true, newCount };
+  } catch (error: any) {
+    // Make the generic error message more informative
+    const metric = typeof metricName === "string" ? metricName : "a count";
+    return {
+      success: false,
+      message: `An unexpected error occurred while updating ${metric}. Details: ${error.message}`,
+    };
+  }
+}
+
+// GENERIC FUNCTION TO DECREASE A USAGE METRIC
+export async function decreaseUsageCount(metricName: DecrementableUsageMetric){
+  try {
+    // 1. Get the current user/wholesaler
+    const wholesalerData = await getCurrentWholesaler();
+    if (!wholesalerData || !wholesalerData.id) {
+      throw new Error("Could not identify the current wholesaler.");
+    }
+    const wholesalerId = wholesalerData.id;
+
+    // 2. Read the current counts from the database
+    const { data: usageData, error: fetchError } = await supabase
+      .from("usage")
+      .select("buyer_count, tag_count, email_count")
+      .eq("wholesaler_id", wholesalerId)
+      .single();
+
+    if (fetchError) {
+      throw fetchError;
+    }
+
+    // 3. Get the current count and perform the safety check
+    const currentCount = usageData ? usageData[metricName] : 0;
+
+    // If the count is already zero, do nothing and report success.
+    if (currentCount <= 0) {
+      console.log(
+        `Attempted to decrease ${metricName}, but it is already at 0.`
+      );
+    }
+
+    // 4. Calculate the new, decreased value
+    const newCount = currentCount - 1;
+
+    // 5. Write the new value back to the database
+    const { error: updateError } = await supabase
+      .from("usage")
+      .update({ [metricName]: newCount })
+      .eq("wholesaler_id", wholesalerId);
+
+    if (updateError) {
+      throw error(`Error decreasing ${metricName}:`, updateError.message);
+    }
+
+    return { success: true, newCount };
+  } catch (error: any) {
+    const metric = typeof metricName === "string" ? metricName : "a count";
+    return {
+      success: false,
+      message: `An unexpected error occurred while decreasing ${metric}. Details: ${error.message}`,
+    };
+  }
+}
+
+// get user usage
+export async function getWholesalerUsage() {
+  const wholesalerData = await getCurrentWholesaler();
+  const { data, error } = await supabase
+    .from("usage")
+    .select("*")
+    .eq("wholesaler_id", wholesalerData.id)
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
+/**
+ * Creates a new wholesaler record in the database without subscription
+ * 
+ * @param wholesalerData - Object containing wholesaler information
+ * @returns The created wholesaler record or error information
+ */
+export async function createWholesaler(wholesalerData: {
+  first_name: string;
+  last_name: string;
+  email: string;
+  user_id: string;
+}) {
+  try {
+    // Insert the wholesaler record only
+    const { data: wholesaler, } = await supabase
+      .from("wholesaler")
+      .insert([
+        {
+          first_name: wholesalerData.first_name,
+          last_name: wholesalerData.last_name,
+          email: wholesalerData.email,
+          user_id: wholesalerData.user_id,
+          alias: `reply-${wholesalerData.user_id}@mydispodepot.io`,
+          email_authorized: true
+        }
+      ])
+      .select()
+      .single();
+    // Return success with the created wholesaler data
+    return wholesaler
+  } catch (error: any) {
+    console.error("Unexpected error creating wholesaler:", error);
+    return null
+  }
 }

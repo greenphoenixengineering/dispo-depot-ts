@@ -1,6 +1,7 @@
 import Stripe from "stripe";
 import { supabaseUserService } from "./supabase";
 import configFile from "@/config";
+import { PlanName } from "@/types/config";
 
 interface CreateCheckoutParams {
   priceId: string;
@@ -20,10 +21,43 @@ interface CreateCustomerPortalParams {
   returnUrl: string;
 }
 
+interface ManageSubscriptionParams {
+  user: {
+    customerId?: string;
+    email?: string;
+  };
+  newPriceId: string;
+  operation: 'upgrade' | 'downgrade' | 'new';
+}
+
+interface ManageSubscriptionResult {
+  action: string;
+  url?: string;
+  subscription?: Stripe.Subscription;
+  error?: string;
+}
+
 function getPlanNameFromPriceId(priceId: string): string {
   const plan = configFile.stripe.plans.find(p => p.priceId === priceId);
   return plan ? plan.name : "Unknown";
 }
+
+// Helper function to determine if a plan change is an upgrade or downgrade
+export const getPlanOperation = (currentPlanName: string, newPlanName: string): 'upgrade' | 'downgrade' | 'new' => {
+  const planHierarchy = {
+    [PlanName.FREE]: 0,
+    [PlanName.STANDARD]: 1,
+    [PlanName.PRO]: 2,
+  };
+
+  const currentLevel = planHierarchy[currentPlanName as PlanName] ?? -1;
+  const newLevel = planHierarchy[newPlanName as PlanName] ?? -1;
+
+  if (currentLevel === -1) return 'new';
+  if (newLevel > currentLevel) return 'upgrade';
+  if (newLevel < currentLevel) return 'downgrade';
+  return 'new'; // Same level, treat as new
+};
 
 // Helper: Find active subscription for a customer
 export const findActiveSubscription = async (customerId: string): Promise<Stripe.Subscription | null> => {
@@ -44,30 +78,169 @@ export const findActiveSubscription = async (customerId: string): Promise<Stripe
   }
 };
 
-// Helper: Update subscription to a new plan
-export const updateSubscriptionPlan = async (subscriptionId: string, newPriceId: string): Promise<Stripe.Subscription | null> => {
+// For immediate upgrades (with proration)
+export const upgradeSubscription = async (
+  subscriptionId: string, 
+  newPriceId: string
+): Promise<Stripe.Subscription | null> => {
   try {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
       apiVersion: "2023-08-16",
       typescript: true,
     });
-    // Get subscription to find item id
+    
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
     const itemId = subscription.items.data[0]?.id;
+    
     if (!itemId) throw new Error('No subscription item found');
+    
     const updated = await stripe.subscriptions.update(subscriptionId, {
       items: [{ id: itemId, price: newPriceId }],
       proration_behavior: 'create_prorations',
-      cancel_at_period_end: false, // <-- This removes the scheduled cancellation!
+      cancel_at_period_end: false,
     });
+    
     return updated;
   } catch (e) {
-    console.error(e);
+    console.error('Upgrade subscription error:', e);
     return null;
   }
 };
 
-// This is used to create a Stripe Checkout for one-time payments. It's usually triggered with the <ButtonCheckout /> component. Webhooks are used to update the user's state in the database.
+// For downgrades (schedule for end of period)
+export const downgradeSubscription = async (
+  subscriptionId: string, 
+  newPriceId: string
+): Promise<Stripe.Subscription | null> => {
+  try {
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: "2023-08-16",
+      typescript: true,
+    });
+    
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+    const itemId = subscription.items.data[0]?.id;
+    
+    if (!itemId) throw new Error('No subscription item found');
+    
+    const updated = await stripe.subscriptions.update(subscriptionId, {
+      items: [{ id: itemId, price: newPriceId }],
+      proration_behavior: 'none',
+      cancel_at_period_end: false,
+    });
+    
+    return updated;
+  } catch (e) {
+    console.error('Downgrade subscription error:', e);
+    return null;
+  }
+};
+
+// For cancellations (schedule for end of period)
+export const cancelSubscriptionAtPeriodEnd = async (
+  subscriptionId: string
+): Promise<Stripe.Subscription | null> => {
+  try {
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: "2023-08-16",
+      typescript: true,
+    });
+    
+    const updated = await stripe.subscriptions.update(subscriptionId, {
+      cancel_at_period_end: true,
+    });
+    
+    return updated;
+  } catch (e) {
+    console.error('Cancel subscription error:', e);
+    return null;
+  }
+};
+
+// Smart subscription manager that decides which action to take
+export const manageSubscription = async ({
+  user,
+  newPriceId,
+  operation
+}: ManageSubscriptionParams): Promise<ManageSubscriptionResult> => {
+  try {
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: "2023-08-16", // TODO: update this when Stripe updates their API
+      typescript: true,
+    });
+
+    // If user has no customerId, they need to create a new subscription
+    if (!user.customerId) {
+      const checkoutUrl = await createCheckout({
+        user,
+        mode: 'subscription',
+        priceId: newPriceId,
+        successUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard`,
+        cancelUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/#pricing`,
+      });
+      
+      return {
+        action: 'new_subscription',
+        url: checkoutUrl
+      };
+    }
+
+    // Check for existing subscription
+    const activeSub = await findActiveSubscription(user.customerId);
+    
+    if (!activeSub) {
+      // No active subscription, create new one
+      const checkoutUrl = await createCheckout({
+        user,
+        mode: 'subscription',
+        priceId: newPriceId,
+        successUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard`,
+        cancelUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/#pricing`,
+      });
+      
+      return {
+        action: 'new_subscription',
+        url: checkoutUrl
+      };
+    }
+
+    // User has active subscription
+    if (operation === 'upgrade') {
+      const updated = await upgradeSubscription(activeSub.id, newPriceId);
+      if (updated) {
+        // Update user in database
+        await supabaseUserService.upsertUser({
+          email: user.email,
+          stripe_customer_id: user.customerId,
+          stripe_price_id: newPriceId,
+          plan_name: getPlanNameFromPriceId(newPriceId),
+          has_access: true,
+        });
+        return { action: 'upgraded', subscription: updated };
+      }
+    } else if (operation === 'downgrade') {
+      const updated = await downgradeSubscription(activeSub.id, newPriceId);
+      if (updated) {
+        // Update user in database
+        await supabaseUserService.upsertUser({
+          email: user.email,
+          stripe_customer_id: user.customerId,
+          stripe_price_id: newPriceId,
+          plan_name: getPlanNameFromPriceId(newPriceId),
+          has_access: true,
+        });
+        return { action: 'downgraded', subscription: updated };
+      }
+    }
+
+    return { action: 'error', error: 'Failed to manage subscription' };
+  } catch (e) {
+    console.error('Manage subscription error:', e);
+    return { action: 'error', error: e instanceof Error ? e.message : 'Unknown error' };
+  }
+};
+
+// This is used to create a Stripe Checkout for one-time payments or new subscriptions
 export const createCheckout = async ({
   user,
   mode,
@@ -76,46 +249,12 @@ export const createCheckout = async ({
   cancelUrl,
   priceId,
   couponId,
-}: CreateCheckoutParams): Promise<string> => {
+}: CreateCheckoutParams): Promise<string | null> => {
   try {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: "2023-08-16", // TODO: update this when Stripe updates their API
+      apiVersion: "2023-08-16",
       typescript: true,
     });
-
-    // If mode is subscription and user has a customerId, check for active subscription
-    if (mode === 'subscription' && user?.customerId) {
-      const activeSub = await findActiveSubscription(user.customerId);
-      if (activeSub) {
-        const subs = await stripe.subscriptions.list({
-          customer: user.customerId,
-          status: 'active',
-          limit: 10, // get all, not just 1
-        });
-
-        if (subs.data.length > 1) {
-          // Cancel all but the first subscription
-          for (let i = 1; i < subs.data.length; i++) {
-            await stripe.subscriptions.cancel(subs.data[i].id);
-          }
-        }
-
-        // Now update the first (remaining) subscription
-        const updatedSub = await updateSubscriptionPlan(subs.data[0].id, priceId);
-        if (updatedSub) {
-          // Update user in Supabase
-          await supabaseUserService.upsertUser({
-            email: user.email,
-            stripe_customer_id: user.customerId,
-            stripe_price_id: priceId,
-            plan_name: getPlanNameFromPriceId(priceId), // You may need a helper for this
-            has_access: true,
-            // ...other fields as needed
-          });
-        }
-        return '/dashboard';
-      }
-    }
 
     const extraParams: {
       customer?: string;
@@ -131,8 +270,6 @@ export const createCheckout = async ({
     } else {
       if (mode === "payment") {
         extraParams.customer_creation = "always";
-        // The option below costs 0.4% (up to $2) per invoice. Alternatively, you can use https://zenvoice.io/ to create unlimited invoices automatically.
-        // extraParams.invoice_creation = { enabled: true };
         extraParams.payment_intent_data = { setup_future_usage: "on_session" };
       }
       if (user?.email) {
@@ -165,7 +302,7 @@ export const createCheckout = async ({
 
     return stripeSession.url;
   } catch (e) {
-    console.error(e);
+    console.error('Create checkout error:', e);
     return null;
   }
 };
@@ -188,7 +325,7 @@ export const createCustomerPortal = async ({
   return portalSession.url;
 };
 
-// This is used to get the uesr checkout session and populate the data so we get the planId the user subscribed to
+// This is used to get the user checkout session and populate the data so we get the planId the user subscribed to
 export const findCheckoutSession = async (sessionId: string) => {
   try {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
