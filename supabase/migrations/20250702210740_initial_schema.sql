@@ -157,8 +157,108 @@ CREATE TABLE IF NOT EXISTS public.wholesaler_campaign (
   CONSTRAINT wholesaler_campaign_wholesaler_id_fkey FOREIGN KEY (wholesaler_id) REFERENCES public.wholesaler(id)
 );
 
+-- Create the get_tags_with_buyer_count function
+CREATE OR REPLACE FUNCTION public.get_tags_with_buyer_count(wholesaler_id_input BIGINT)
+RETURNS TABLE (
+  id BIGINT,
+  name TEXT,
+  api_id TEXT,
+  created_at TIMESTAMPTZ,
+  buyer_count BIGINT
+) 
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+      t.id,
+      t.name,
+      t.api_id,
+      t.created_at,
+      COALESCE(COUNT(DISTINCT bt.buyer_id), 0)::BIGINT AS buyer_count
+  FROM
+      tags t
+  LEFT JOIN
+      buyer_tags bt ON t.id = bt.tag_id
+  WHERE
+      t.wholesaler_id = wholesaler_id_input
+  GROUP BY
+      t.id, t.name, t.api_id
+  ORDER BY
+      t.name;
+END;
+$$;
+
+-- Create the handle_new_user_to_wholesaler function
+CREATE OR REPLACE FUNCTION public.handle_new_user_to_wholesaler()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  -- Insert a new row into the public.wholesaler table
+  INSERT INTO public.wholesaler (user_id, first_name, last_name, email, alias, email_authorized)
+  VALUES (
+    NEW.id,             -- The user_id from the new row in next_auth.users
+    NEW.first_name,     -- The first_name from the new user
+    NEW.last_name,      -- The last_name from the new user
+    NEW.email,          -- The email from the new user
+    split_part(NEW.email, '@', 1), -- We'll create a default alias from the email (e.g., 'bghanbi50')
+    false               -- Set a default value for email_authorized
+  );
+  RETURN NEW;
+END;
+$$;
+
+-- Create the trigger for handle_new_user_to_wholesaler
+CREATE OR REPLACE TRIGGER on_auth_user_created
+  AFTER INSERT ON next_auth.users
+  FOR EACH ROW
+  EXECUTE FUNCTION public.handle_new_user_to_wholesaler();
+
+-- Create the update_buyer_and_sync_tags function
+CREATE OR REPLACE FUNCTION public.update_buyer_and_sync_tags(
+  p_buyer_id BIGINT,
+  p_first_name TEXT,
+  p_last_name TEXT,
+  p_email TEXT,
+  p_phone_num TEXT,
+  p_tag_ids BIGINT[]
+)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  -- Step 1: Update buyer info (uses bigint comparison)
+  UPDATE public.buyer -- Check table name
+  SET
+      first_name = p_first_name,
+      last_name = p_last_name,
+      email = p_email,
+      phone_num = p_phone_num
+  WHERE id = p_buyer_id; -- Comparison is now bigint = bigint
+
+  -- Step 2: Delete tags (uses bigint comparison)
+  DELETE FROM public.buyer_tags -- Check table name
+  WHERE buyer_id = p_buyer_id; -- Assuming buyer_tags.buyer_id is also bigint/int8
+
+  -- Step 3: Insert tags
+  IF p_tag_ids IS NOT NULL AND array_length(p_tag_ids, 1) > 0 THEN
+      INSERT INTO public.buyer_tags (buyer_id, tag_id) -- Check table name
+      SELECT p_buyer_id, unnest(p_tag_ids);
+  END IF;
+END;
+$$;
+
 -- Grant explicit permissions to existing next_auth tables
 GRANT ALL PRIVILEGES ON TABLE next_auth.users TO service_role, anon, authenticated;
 GRANT ALL PRIVILEGES ON TABLE next_auth.accounts TO service_role, anon, authenticated;
 GRANT ALL PRIVILEGES ON TABLE next_auth.sessions TO service_role, anon, authenticated;
 GRANT ALL PRIVILEGES ON TABLE next_auth.verification_tokens TO service_role, anon, authenticated;
+
+-- Grant execute permissions on functions
+GRANT EXECUTE ON FUNCTION public.get_tags_with_buyer_count(BIGINT) TO authenticated, anon, service_role;
+GRANT EXECUTE ON FUNCTION public.handle_new_user_to_wholesaler() TO authenticated, anon, service_role;
+GRANT EXECUTE ON FUNCTION public.update_buyer_and_sync_tags(BIGINT, TEXT, TEXT, TEXT, TEXT, BIGINT[]) TO authenticated, anon, service_role;
