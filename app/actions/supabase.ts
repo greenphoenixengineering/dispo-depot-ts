@@ -403,12 +403,55 @@ export async function sendDealsAction(
     return { errors, success: false };
   }
 
+  // Check email sending limits using simple usage table
+  try {
+    const wholesaler = await getCurrentWholesaler();
+    
+    // Reset monthly count if needed before checking limits
+    await supabase.rpc('reset_monthly_email_count', {
+      wholesaler_id_input: wholesaler.id
+    });
+    
+    const usage = await getWholesalerUsage();
+    
+    // Get user plan to check limits
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return {
+        errors: { api: "Unauthorized: No user session found." },
+        success: false,
+      };
+    }
+
+    const currentPlan = usage.current_plan || 'Free';
+    
+    // Simple email limit check using plan limits
+    const { getPlanLimits } = await import("@/libs/planLimits");
+    const planLimits = getPlanLimits(currentPlan as any);
+    
+    if (planLimits.emailsPerTagPerMonth !== Infinity) {
+      const currentEmailCount = usage.email_count || 0;
+      console.log("currentEmailCount",currentEmailCount,planLimits.emailsPerTagPerMonth);
+      if (currentEmailCount >= planLimits.emailsPerTagPerMonth) {
+        return {
+          errors: { api: `Email limit reached (${currentEmailCount}/${planLimits.emailsPerTagPerMonth} emails this month). Please upgrade your plan or wait until next month.` },
+          success: false,
+        };
+      }
+    }
+  } catch (limitError) {
+    console.error('Error checking email limits:', limitError);
+    // Continue with the request if limit checking fails
+  }
+
   const today = new Date();
   const year = today.getFullYear();
   const month = String(today.getMonth() + 1).padStart(2, "0");
   const day = String(today.getDate()).padStart(2, "0");
   const formattedDate = `${year}-${month}-${day}`;
   const campaignName = `${subject}_${formattedDate}`;
+  
+  // Get wholesaler for email payload
   const currentWholesaler = await getCurrentWholesaler();
 
   // ----- STEP 1: Create Campaign Shell (Mailerlite) -----
@@ -497,8 +540,15 @@ export async function sendDealsAction(
       };
     }
 
-    // INREASE THE EMAIL COUNT FOR THE WHOLESALER
-    await incrementUsageCount("email_count");
+    // INCREMENT EMAIL USAGE COUNT WITH MONTHLY RESET
+    const { error: incrementError } = await supabase.rpc('increment_email_count_with_reset', {
+      wholesaler_id_input: currentWholesaler.id
+    });
+    
+    if (incrementError) {
+      console.error('Error incrementing email count:', incrementError);
+      // Continue anyway - don't fail the email send for tracking issues
+    }
 
     return { message: "Deal sent successfully!", success: true };
   } catch (error: any) {
@@ -529,7 +579,7 @@ export async function getWholesalerByEmail(email: string) {
 type UsageMetric = "buyer_count" | "tag_count" | "email_count";
 type DecrementableUsageMetric = "buyer_count" | "tag_count";
 type UsageData = {
-  [metric in UsageMetric]?: number; // An object where keys are from UsageMetric and values are numbers
+  [key in UsageMetric]?: number; // An object where keys are from UsageMetric and values are numbers
 };
 
 export async function incrementUsageCount(metricName: UsageMetric) {
@@ -630,10 +680,9 @@ export async function decreaseUsageCount(metricName: DecrementableUsageMetric){
 
     return { success: true, newCount };
   } catch (error: any) {
-    const metric = typeof metricName === "string" ? metricName : "a count";
     return {
       success: false,
-      message: `An unexpected error occurred while decreasing ${metric}. Details: ${error.message}`,
+      message: `An unexpected error occurred while decreasing ${metricName}. Details: ${error.message}`,
     };
   }
 }
@@ -687,5 +736,85 @@ export async function createWholesaler(wholesalerData: {
   } catch (error: any) {
     console.error("Unexpected error creating wholesaler:", error);
     return null
+  }
+}
+
+// EMAIL TRACKING FUNCTIONS - NOW USING SIMPLE USAGE TABLE
+
+/**
+ * Get current email usage from usage table
+ */
+export async function getCurrentEmailUsage() {
+  try {
+    const currentWholesaler = await getCurrentWholesaler();
+    
+    // Reset monthly count if needed before getting usage
+    await supabase.rpc('reset_monthly_email_count', {
+      wholesaler_id_input: currentWholesaler.id
+    });
+    
+    const usage = await getWholesalerUsage();
+    const currentPlan = usage.current_plan || 'Free';
+    const { getPlanLimits } = await import("@/libs/planLimits");
+    const planLimits = getPlanLimits(currentPlan as any);
+    
+    return {
+      success: true,
+      data: {
+        current: usage.email_count || 0,
+        limit: planLimits.emailsPerTagPerMonth,
+        plan: currentPlan,
+        canSend: planLimits.emailsPerTagPerMonth === Infinity || (usage.email_count || 0) < planLimits.emailsPerTagPerMonth
+      } as {
+        current: number;
+        limit: number | typeof Infinity;
+        plan: string;
+        canSend: boolean;
+      }
+    };
+  } catch (error: any) {
+    console.error('Error getting email usage:', error);
+    return { success: false, data: null as any, error: error.message };
+  }
+}
+
+/**
+ * Check if wholesaler can send emails based on simple usage count
+ */
+export async function canSendEmails() {
+  try {
+    const currentWholesaler = await getCurrentWholesaler();
+    
+    // Reset monthly count if needed before checking limits
+    await supabase.rpc('reset_monthly_email_count', {
+      wholesaler_id_input: currentWholesaler.id
+    });
+    
+    const usage = await getWholesalerUsage();
+    const currentPlan = usage.current_plan || 'Free';
+    const { getPlanLimits } = await import("@/libs/planLimits");
+    const planLimits = getPlanLimits(currentPlan as any);
+    
+    const currentEmailCount = usage.email_count || 0;
+    const canSend = planLimits.emailsPerTagPerMonth === Infinity || currentEmailCount < planLimits.emailsPerTagPerMonth;
+    
+    return {
+      success: true,
+      canSend,
+      data: {
+        current: currentEmailCount,
+        limit: planLimits.emailsPerTagPerMonth,
+        plan: currentPlan,
+        reason: canSend ? 'Within limit' : `Limit reached (${currentEmailCount}/${planLimits.emailsPerTagPerMonth} emails this month)`
+      } as {
+        current: number;
+        limit: number | typeof Infinity;
+        plan: string;
+        reason: string;
+      }
+    };
+  } catch (error: any) {
+    console.error('Error checking email permissions:', error);
+    return { success: false, canSend: false, data: null as any, error: error.message };
   }
 }

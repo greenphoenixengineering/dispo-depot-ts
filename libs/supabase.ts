@@ -10,7 +10,7 @@ export const supabase = createClient(
 // Service client for server-side operations (private)
 export const supabaseService = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE!
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
 // Types for user data
@@ -116,15 +116,15 @@ export const supabaseUserService = {
   }
 };
 
-export async function insertIntoUsage(wholesaler_id: string,current_plan:string,subscription_id:string) {
+export async function insertIntoUsage(wholesaler_id: string, current_plan: string, subscription_id?: string) {
   try {
     const { error } = await supabaseService.from("usage").insert({
       wholesaler_id,
       current_plan,
-      subscription_id,
-      buyer_count:0,
-      tag_count:0,
-      email_count:0
+      subscription_id: subscription_id || null, // Allow NULL for free users
+      buyer_count: 0,
+      tag_count: 0,
+      email_count: 0
     });
 
     if (error) {
@@ -134,7 +134,7 @@ export async function insertIntoUsage(wholesaler_id: string,current_plan:string,
   } catch (e) {
     console.error(
       "An unexpected error occurred while inserting the usage record.",
-      
-      );
+      e
+    );
   }
 }
