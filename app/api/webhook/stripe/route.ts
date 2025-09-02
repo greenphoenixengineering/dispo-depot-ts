@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
             wholesaler_id: wholesaler_id,
           });
 
-          await insertIntoUsage(wholesaler_id,plan.name,subscriptionInfo?.id)
+          await insertIntoUsage(wholesaler_id, plan.name, subscriptionInfo?.id)
         } catch (supabaseError) {
           console.error('Failed to store user in Supabase:', supabaseError);
           throw supabaseError;

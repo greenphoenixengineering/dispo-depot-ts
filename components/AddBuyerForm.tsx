@@ -13,6 +13,8 @@ import {
 } from "@/app/actions/supabase";
 import { useRouter } from "next/navigation";
 import { addBuyerToMailerLit } from "@/app/actions/mailerLite";
+import { useFeatureGuard } from "@/libs/hooks/useFeatureGuard";
+import { UpgradePrompt } from "./UpgradePrompt";
 
 export default function AddBuyerForm({ tags }: { tags: any }) {
   const [error, setError] = useState(false);
@@ -28,6 +30,8 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
   const [selectedTagId, setSelectedTagId] = useState<string>("");
+  
+  const { featureGuard, loading } = useFeatureGuard();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -38,6 +42,19 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check buyer limit before proceeding
+    if (!featureGuard?.canAddBuyer()) {
+      const upgradeRec = featureGuard?.getUpgradeRecommendation();
+      setError(true);
+      setSaveMessage(upgradeRec?.reason || "You've reached your buyer limit for your current plan.");
+      setTimeout(() => {
+        setSaveMessage("");
+        setError(false);
+      }, 4000);
+      return;
+    }
+    
     setIsSaving(true);
     setSaveMessage("");
 
@@ -102,12 +119,30 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
     }
   };
 
+  // Check if at buyer limit and get upgrade recommendation
+  const canAddBuyer = featureGuard?.canAddBuyer() ?? true;
+  const upgradeRecommendation = featureGuard?.getUpgradeRecommendation();
+  
+  if (loading) {
+    return <div className="animate-pulse bg-gray-200 h-64 rounded"></div>;
+  }
+
   return (
     <div>
       <div className="mb-6">        
         <h1 className="text-2xl font-bold mb-2">Add New Buyer</h1>
         <p className="text-gray-600">Create a new buyer profile</p>
       </div>
+      
+      {/* Show upgrade prompt if at limit */}
+      {!canAddBuyer && upgradeRecommendation && (
+        <UpgradePrompt
+          isVisible={true}
+          reason={upgradeRecommendation.reason}
+          suggestedPlan={upgradeRecommendation.suggestedPlan}
+          variant="banner"
+        />
+      )}
 
       <div className="bg-white rounded-lg shadow-sm p-6">
         <form onSubmit={handleSubmit}>
@@ -242,7 +277,7 @@ export default function AddBuyerForm({ tags }: { tags: any }) {
             </Link>
             <button
               type="submit"
-              disabled={isSaving}
+              disabled={isSaving || !canAddBuyer}
               className="inline-flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors disabled:opacity-50"
             >
               {isSaving ? (
