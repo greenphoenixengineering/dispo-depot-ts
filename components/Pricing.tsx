@@ -72,8 +72,8 @@ export async function Pricing() {
                   ))}
                 </ul>
 
-                {session ? (
-                  isCurrentPlan ? (
+                {session &&
+                  (isCurrentPlan ? (
                     <div className="text-center">
                       <span className="inline-block w-full py-2 text-center rounded-md bg-gray-100 text-gray-600 cursor-not-allowed">
                         Current Plan
@@ -89,25 +89,11 @@ export async function Pricing() {
                           : "border border-black hover:bg-gray-50"
                       }`}
                     >
-                      {operation === 'upgrade' && 'Upgrade'}
-                      {operation === 'downgrade' && 'Downgrade'}
-                      {operation === 'new' && 'Get Started'}
+                      {operation === "upgrade" && "Upgrade"}
+                      {operation === "downgrade" && "Downgrade"}
+                      {operation === "new" && "Get Started"}
                     </SubscriptionManager>
-                  )
-                ) : (
-                  <Link
-                    href={`${
-                      config.auth.loginUrl
-                    }?callbackUrl`}
-                    className={`block w-full py-2 text-center rounded-md transition-colors ${
-                      plan.isFeatured
-                        ? "bg-green-500 text-white hover:bg-green-600"
-                        : "border border-black hover:bg-gray-50"
-                    }`}
-                  >
-                    Get Started
-                  </Link>
-                )}
+                  ))}
               </div>
             );
           })}
