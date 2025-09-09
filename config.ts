@@ -20,7 +20,7 @@ const config = {
     plans: [
       {
         // REQUIRED — we use this to find the plan in the webhook (for instance if you want to update the user's credits based on the plan)
-        priceId: process.env.STRIPE_FREE_PLAN_PRICE_ID || "",
+        priceId: process.env.STRIPE_FREE_PLAN_PRICE_ID || "test_plan_1",
         
         //  REQUIRED - Name of the plan, displayed on the pricing page
         name: PlanName.FREE,
