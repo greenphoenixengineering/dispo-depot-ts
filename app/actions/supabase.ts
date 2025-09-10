@@ -38,14 +38,29 @@ export async function getBuyersWithTags() {
 export async function getCurrentWholesaler() {
   const session = await getServerSession(authOptions);
 
-  if (!session?.user?.id) {
+  if (!session) {
     throw new Error("Unauthorized: No user session found.");
+  }
+
+  if (session.wholesaler) {
+    return session.wholesaler;
+  }
+
+  if (!session.user?.id) {
+    throw new Error("Unauthorized: No user ID found in session.");
+  }
+  return await getWholesalerById(session.user.id);
+}
+export async function getWholesalerById(wholesalerId: string) {
+
+  if (!wholesalerId) {
+    throw new Error("No wholesaler ID found.");
   }
 
   const { data, error } = await supabase
     .from("wholesaler")
     .select("*")
-    .eq("user_id", session.user.id)
+    .eq("user_id", wholesalerId)
     .single();
 
   if (error) {

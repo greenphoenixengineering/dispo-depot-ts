@@ -10,7 +10,6 @@ export function useFeatureGuard() {
   const [usage, setUsage] = useState<WholesalerUsage | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-console.log("session",session);
   useEffect(() => {
     const fetchUsage = async () => {
       if (planLoading || !session?.user?.id) {
