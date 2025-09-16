@@ -214,6 +214,20 @@ export default function DealAnalysisPage() {
 
   return (
     <div className="px-3 sm:px-4 lg:px-6 max-w-7xl mx-auto">
+      {/* Construction Banner */}
+      <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-6 rounded-r-lg">
+        <div className="flex items-center">
+          <div className="flex-shrink-0">
+            <span className="text-2xl">🚧</span>
+          </div>
+          <div className="ml-3">
+            <p className="text-sm font-medium text-yellow-800">
+              This feature is still under construction. Some functionality may be limited or unavailable.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="mb-4 sm:mb-6">
         <Link href="/dashboard" className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 mb-3 sm:mb-4">
           <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />
