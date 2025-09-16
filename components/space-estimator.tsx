@@ -51,8 +51,8 @@ export function SpaceEstimator({ spaceNumber, onSpaceUpdate, initialData }: Spac
   const removeImage = () => {
     const updatedData = {
       ...spaceData,
-      image: null,
-      imagePreview: null,
+      image: null as File | null,
+      imagePreview: null as string | null,
     }
     setSpaceData(updatedData)
     onSpaceUpdate(updatedData)
