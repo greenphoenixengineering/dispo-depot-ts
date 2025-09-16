@@ -10,7 +10,9 @@ import { TagChip } from "@/components/tag-ship";
 import {
   addTagToMailerlite,
   addTagToSupabase,
+  decreaseUsageCount,
   deleteTag,
+  incrementUsageCount,
 } from "@/app/actions/supabase";
 import { useRouter } from "next/navigation";
 import { TagWithBuyerCount } from "@/libs/tagTypes";
@@ -75,7 +77,10 @@ export default function TagWithBuyerTable({
           "Tag created in MailerLite, but failed to save to our database."
         );
       }
+    //INCREMENT WHOLESALER TAG COUNT
+     await  incrementUsageCount("tag_count")
 
+      
       isSuccess = true;
       router.refresh();
       setNewTagName("");
@@ -121,7 +126,9 @@ export default function TagWithBuyerTable({
         tagId: deletingTag.id,
         tagApiId: deletingTag.api_id,
       });
-
+     
+      // DECREASE THE TAG COUNT
+      await decreaseUsageCount("tag_count")
       if (deleteResult.success) {
         setDeletingTag(null);
         router.refresh();

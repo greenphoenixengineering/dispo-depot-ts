@@ -5,6 +5,7 @@ import DashboardSideBar from "@/components/DashboardSideBar";
 import { Menu } from "lucide-react";
 import Link from "next/link";
 import UpgradeButton from "./UpgradeButton";
+import ButtonSignin from "./ButtonSignin";
 
 export default function DashboardShell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -43,6 +44,9 @@ export default function DashboardShell({ children }: { children: React.ReactNode
             </Link>
           </div>
           <div className="w-10 h-10" />
+          <div className="absolute right-4 top-1/2 -translate-y-1/2">
+            <ButtonSignin extraStyle="bg-gray-300 text-white px-4 py-2 rounded-full font-medium hover:bg-green-600 transition-colors font-normal" />
+          </div>
         </header>
         {/* Page content */}
         <main className="flex-1 overflow-y-auto p-3 sm:p-6 bg-gray-100">

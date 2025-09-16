@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { ArrowLeft, Save, Trash, X } from "lucide-react";
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal";
-import { deleteBuyer, updateBuyerAndTagsAction } from "@/app/actions/supabase";
+import { decreaseUsageCount, deleteBuyer, updateBuyerAndTagsAction } from "@/app/actions/supabase";
 import { useRouter } from "next/navigation";
 
 interface Tag {
@@ -158,6 +158,9 @@ export default function EditBuyerForm({ buyer, availableTags }: Props) {
     setIsDeleting(true);
 
     await deleteBuyer({ buyerId: buyer.id, buyerApiId: buyer.api_id });
+    // DECREASE THE COUNT
+    await decreaseUsageCount("buyer_count")
+
 
     setIsDeleting(false);
     setShowDeleteModal(false);
