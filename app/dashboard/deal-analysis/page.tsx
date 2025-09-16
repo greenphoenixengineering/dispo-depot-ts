@@ -290,7 +290,7 @@ export default function DealAnalysisPage() {
                 <h2 className="text-lg sm:text-xl font-semibold mb-2">Property: {propertyAddress}</h2>                
               </div>
               <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
-                Select the number of rooms or spaces of the property you need to analyze for this deal.
+                Select the number of rooms/spaces on the property that need repair.
               </p>
 
               <div className="mb-3 sm:mb-4">
