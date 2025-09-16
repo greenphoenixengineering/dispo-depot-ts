@@ -46,7 +46,8 @@ const DashboardSideBar = ({ open = false, onClose }: DashboardSideBarProps) => {
         {[
           { href: "/dashboard/tags", icon: Tag, label: "Tags" },
           { href: "/dashboard", icon: User, label: "Buyers" },        
-          { href: "/dashboard/deals", icon: Mail, label: "Send Deals" },
+          { href: "/dashboard/deal-analysis", icon: Mail, label: "Deal Analysis 🚧" },
+          { href: "/dashboard/deals", icon: Mail, label: "Send Deals" },          
         ].map(({ href, icon: Icon, label }) => {
           const isActive = pathname === href || (href === "/dashboard" && pathname === "/dashboard");
           return (
