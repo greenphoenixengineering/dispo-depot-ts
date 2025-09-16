@@ -63,13 +63,13 @@ export async function getPropertyDetails(address: string): Promise<PropertyDetai
   try {
     const options = {
       method: 'GET',
-      url: 'https://zillow56.p.rapidapi.com/search_address',
+      url: `${process.env.property_url}` + '/search_address',
       params: {
         address: address
       },
       headers: {
-        'x-rapidapi-key': '9cc16e2667mshc9ef73d069dcd84p1407a7jsn1203671e5803',
-        'x-rapidapi-host': 'zillow56.p.rapidapi.com'
+        'x-rapidapi-key': `${process.env.x_rapidapi_key}`,
+        'x-rapidapi-host': `${process.env.x_rapidapi_host}`
       }
     };
 
