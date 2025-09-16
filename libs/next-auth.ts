@@ -49,7 +49,7 @@ export const authOptions: NextAuthOptionsExtended = {
           return await supabaseUserService.upsertUser({
             email: user.email,
             name: user.name || '',
-            has_access: false,
+            has_access: true,
           });
         }
       } catch (error) {
@@ -95,7 +95,7 @@ export const authOptions: NextAuthOptionsExtended = {
             await supabaseUserService.upsertUser({
               email: user.email,
               name: user.name || '',
-              has_access: false,
+              has_access: true,
             });
           } catch (error) {
             console.error('Failed to add user to custom table:', error);
@@ -107,9 +107,6 @@ export const authOptions: NextAuthOptionsExtended = {
           e
         );
       }
-
-
-      
     },
   },
   adapter: SupabaseAdapter({
