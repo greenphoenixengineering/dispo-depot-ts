@@ -37,7 +37,6 @@ export const supabaseUserService = {
     plan_name?: string;
     has_access?: boolean;
     wholesaler_id?:string
-    
   }) {
     const { data, error } = await supabaseService
       .from('wholesaler_subscriptions')
