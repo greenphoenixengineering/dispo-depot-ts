@@ -23,7 +23,6 @@ export function useFeatureGuard() {
 
         // Direct Supabase call instead of API route
         const usageData = await getWholesalerUsage();
-        console.log("usageData",usageData);
         setUsage({
           buyer_count: usageData.buyer_count || 0,
           tag_count: usageData.tag_count || 0,

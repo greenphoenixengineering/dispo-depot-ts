@@ -446,7 +446,6 @@ export async function sendDealsAction(
     
     if (planLimits.emailsPerTagPerMonth !== Infinity) {
       const currentEmailCount = usage.email_count || 0;
-      console.log("currentEmailCount",currentEmailCount,planLimits.emailsPerTagPerMonth);
       if (currentEmailCount >= planLimits.emailsPerTagPerMonth) {
         return {
           errors: { api: `Email limit reached (${currentEmailCount}/${planLimits.emailsPerTagPerMonth} emails this month). Please upgrade your plan or wait until next month.` },
@@ -637,7 +636,6 @@ export async function incrementUsageCount(metricName: UsageMetric) {
       return { success: false, message: `Error increasing the ${metricName}.` };
     }
 
-    console.log(`${metricName} was successfully updated to ${newCount}.`);
     return { success: true, newCount };
   } catch (error: any) {
     // Make the generic error message more informative

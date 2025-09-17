@@ -28,7 +28,6 @@ export function FeatureGate({
   if (!featureGuard) {
     return fallback || null;
   }
-console.log("featureGuard",featureGuard);
   let hasAccess = true;
   let upgradeRecommendation: { shouldUpgrade: boolean; reason: string; suggestedPlan?: PlanName } = { shouldUpgrade: false, reason: '' };
 
