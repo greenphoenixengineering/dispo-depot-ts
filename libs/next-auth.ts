@@ -138,8 +138,6 @@ export const authOptions: NextAuthOptionsExtended = {
             };
       } catch (error) {
         // User doesn't have plan data yet, which is fine
-        console.log('No plan data found for user:', session.user.email);
-        console.error('Error fetching user plan:', error);
         session.user.plan = {
           name: 'Free',
           hasAccess: false,
