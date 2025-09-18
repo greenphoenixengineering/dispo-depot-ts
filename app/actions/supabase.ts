@@ -444,7 +444,10 @@ export async function sendDealsAction(
     }
   } catch (limitError) {
     console.error("Error checking email limits:", limitError);
-    // Continue with the request if limit checking fails
+    return {
+      errors: { api: "Error checking email limits. Please try again." },
+      success: false,
+    };
   }
 
   const today = new Date();
