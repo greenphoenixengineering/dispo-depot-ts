@@ -10,3 +10,15 @@ export type Wholesaler = {
   alias: string;
   email_authorized: boolean;
 };
+
+// Define proper types for the email usage data
+export type EmailUsageData = {
+  wholesaler: any | null;
+  usage: any | null;
+  currentPlan: string;
+  planLimits: {
+    emailsPerTagPerMonth: number | typeof Infinity;
+  };
+  currentEmailCount: number;
+  error?: string;
+};
