@@ -5,7 +5,7 @@ import config from "@/config";
 import { supabaseUserService } from "@/libs/supabase";
 
 import { SupabaseAdapter } from "@auth/supabase-adapter";
-import { createWholesaler, updateUserAliasOnSupa } from "@/app/actions/supabase";
+import { createWholesaler, getWholesalerById, updateUserAliasOnSupa } from "@/app/actions/supabase";
 import {
   createUserAlias,
   notifyAdminNewAliasCreated,
@@ -49,7 +49,7 @@ export const authOptions: NextAuthOptionsExtended = {
           return await supabaseUserService.upsertUser({
             email: user.email,
             name: user.name || '',
-            has_access: false,
+            has_access: true,
           });
         }
       } catch (error) {
@@ -95,7 +95,7 @@ export const authOptions: NextAuthOptionsExtended = {
             await supabaseUserService.upsertUser({
               email: user.email,
               name: user.name || '',
-              has_access: false,
+              has_access: true,
             });
           } catch (error) {
             console.error('Failed to add user to custom table:', error);
@@ -107,9 +107,6 @@ export const authOptions: NextAuthOptionsExtended = {
           e
         );
       }
-
-
-      
     },
   },
   adapter: SupabaseAdapter({
@@ -119,33 +116,46 @@ export const authOptions: NextAuthOptionsExtended = {
 
   callbacks: {
     session: async ({ session, token }) => {
-      if (session?.user) {
-        session.user.id = token.sub;
+      if (!session?.user) return session;
 
-        // Fetch user plan data from Supabase and include in session
-        try {
-          const userPlan = await supabaseUserService.getUserByEmail(session.user.email);
-          if (userPlan) {
-            session.user.plan = {
+      session.user.id = token.sub;
+
+      // Fetch user plan data from Supabase and include in session
+      try {
+        const userPlan = await supabaseUserService.getUserByEmail(session.user.email);
+        session.user.plan = userPlan
+          ? {
               name: userPlan.plan_name,
               hasAccess: userPlan.has_access,
               stripeCustomerId: userPlan.stripe_customer_id,
               stripePriceId: userPlan.stripe_price_id,
-            };
-          }else{
-            session.user.plan = {
+            }
+          : {
               name: 'Free',
               hasAccess: false,
               stripeCustomerId: null,
               stripePriceId: null,
             };
-          }
-        } catch (error) {
-          // User doesn't have plan data yet, which is fine
-          console.log('No plan data found for user:', session.user.email);
-          console.error('Error fetching user plan:', error);
-        }
+      } catch (error) {
+        // User doesn't have plan data yet, which is fine
+        session.user.plan = {
+          name: 'Free',
+          hasAccess: false,
+          stripeCustomerId: null,
+          stripePriceId: null,
+        };
       }
+
+      // Attach wholesaler info if available
+      try {
+        if (session.user.id) {
+          const wholesaler = await getWholesalerById(session.user.id);
+          session.wholesaler = wholesaler || null;
+        }
+      } catch (error) {
+        session.wholesaler = null;
+      }
+
       return session;
     },
   },

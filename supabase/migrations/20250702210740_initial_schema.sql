@@ -138,11 +138,12 @@ CREATE TABLE IF NOT EXISTS public.usage (
   id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   wholesaler_id bigint NOT NULL UNIQUE,
-  subscription_id uuid NOT NULL,
+  subscription_id uuid, -- Allow NULL for free users
   current_plan character varying,
   buyer_count bigint,
   tag_count bigint,
   email_count bigint,
+  last_email_reset_month text DEFAULT to_char(now(), 'YYYY-MM'), -- Track monthly email resets
   CONSTRAINT usage_pkey PRIMARY KEY (id),
   CONSTRAINT usage_subscription_id_fkey FOREIGN KEY (subscription_id) REFERENCES public.wholesaler_subscriptions(id),
   CONSTRAINT usage_wholesaler_id_fkey FOREIGN KEY (wholesaler_id) REFERENCES public.wholesaler(id)
@@ -196,17 +197,39 @@ RETURNS TRIGGER
 LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
+DECLARE
+  new_wholesaler_id BIGINT;
 BEGIN
-  -- Insert a new row into the public.wholesaler table
+  -- Insert a new row into the public.wholesaler table and get the ID
   INSERT INTO public.wholesaler (user_id, first_name, last_name, email, alias, email_authorized)
   VALUES (
     NEW.id,             -- The user_id from the new row in next_auth.users
     NEW.first_name,     -- The first_name from the new user
     NEW.last_name,      -- The last_name from the new user
     NEW.email,          -- The email from the new user
-    split_part(NEW.email, '@', 1), -- We'll create a default alias from the email (e.g., 'bghanbi50')
-    false               -- Set a default value for email_authorized
+    CONCAT('reply-', NEW.id, '@mydispodepot.io'), -- Create proper alias format
+    true                -- Set email_authorized to true for new users
+  )
+  RETURNING id INTO new_wholesaler_id;
+
+  -- Insert initial usage row for Free plan
+  INSERT INTO public.usage (
+    wholesaler_id,
+    subscription_id,    -- NULL for free users
+    current_plan,
+    buyer_count,
+    tag_count,
+    email_count
+  )
+  VALUES (
+    new_wholesaler_id,
+    NULL,               -- No subscription for free users
+    'Free',             -- Default to Free plan
+    0,                  -- Start with 0 buyers
+    0,                  -- Start with 0 tags
+    0                   -- Start with 0 emails
   );
+
   RETURN NEW;
 END;
 $$;
@@ -258,7 +281,65 @@ GRANT ALL PRIVILEGES ON TABLE next_auth.accounts TO service_role, anon, authenti
 GRANT ALL PRIVILEGES ON TABLE next_auth.sessions TO service_role, anon, authenticated;
 GRANT ALL PRIVILEGES ON TABLE next_auth.verification_tokens TO service_role, anon, authenticated;
 
+-- Create function to reset email count monthly
+CREATE OR REPLACE FUNCTION public.reset_monthly_email_count(wholesaler_id_input BIGINT)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  current_month TEXT;
+  last_reset_month TEXT;
+BEGIN
+  -- Get current year-month
+  current_month := to_char(now(), 'YYYY-MM');
+  
+  -- Get last reset month for this wholesaler
+  SELECT last_email_reset_month INTO last_reset_month
+  FROM usage 
+  WHERE wholesaler_id = wholesaler_id_input;
+  
+  -- If it's a new month, reset the email count
+  IF last_reset_month IS NULL OR last_reset_month != current_month THEN
+    UPDATE usage 
+    SET 
+      email_count = 0,
+      last_email_reset_month = current_month
+    WHERE wholesaler_id = wholesaler_id_input;
+  END IF;
+END;
+$$;
+
+-- Create function to increment email count with monthly reset check
+CREATE OR REPLACE FUNCTION public.increment_email_count_with_reset(wholesaler_id_input BIGINT)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  -- First, check and reset if needed
+  PERFORM reset_monthly_email_count(wholesaler_id_input);
+  
+  -- Then increment the count
+  UPDATE usage 
+  SET email_count = COALESCE(email_count, 0) + 1
+  WHERE wholesaler_id = wholesaler_id_input;
+END;
+$$;
+
 -- Grant execute permissions on functions
 GRANT EXECUTE ON FUNCTION public.get_tags_with_buyer_count(BIGINT) TO authenticated, anon, service_role;
 GRANT EXECUTE ON FUNCTION public.handle_new_user_to_wholesaler() TO authenticated, anon, service_role;
 GRANT EXECUTE ON FUNCTION public.update_buyer_and_sync_tags(BIGINT, TEXT, TEXT, TEXT, TEXT, BIGINT[]) TO authenticated, anon, service_role;
+GRANT EXECUTE ON FUNCTION public.reset_monthly_email_count(BIGINT) TO authenticated, anon, service_role;
+GRANT EXECUTE ON FUNCTION public.increment_email_count_with_reset(BIGINT) TO authenticated, anon, service_role;
+
+-- Add comments explaining the functions
+COMMENT ON FUNCTION public.handle_new_user_to_wholesaler() IS 
+'Automatically creates wholesaler and initial usage records when a new user signs up via OAuth. Free users get NULL subscription_id.';
+
+COMMENT ON FUNCTION public.reset_monthly_email_count(BIGINT) IS 
+'Resets email count to 0 if we are in a new month. Used to implement monthly email limits.';
+
+COMMENT ON FUNCTION public.increment_email_count_with_reset(BIGINT) IS 
+'Increments email count for a wholesaler, automatically resetting count if we are in a new month.';
