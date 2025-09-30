@@ -4,6 +4,7 @@ import { getBuyersWithTags } from '../actions/supabase'
 import Link from 'next/link'
 import { Plus } from 'lucide-react'
 import BuyersCardList from '@/components/BuyersCardList'
+import { BuyerLimitGate } from '@/components/FeatureGate'
 
 const Dashboard = async () => {
   const buyersWithTags = await getBuyersWithTags()
@@ -18,13 +19,22 @@ const Dashboard = async () => {
               Manage your buyers and send targeted deals
             </p>
           </div>
-          <Link
-            href="/dashboard/buyer/new"
-            className="inline-flex items-center gap-2 bg-green-500 text-white rounded-md px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base hover:bg-green-600 transition"
+          <BuyerLimitGate
+            fallback={
+              <div className="inline-flex items-center gap-2 bg-gray-400 text-white rounded-md px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base cursor-not-allowed">
+                <Plus className="w-4 h-4" />
+                <span>Add Buyer (Limit Reached)</span>
+              </div>
+            }
           >
-            <Plus className="w-4 h-4" />
-            <span>Add Buyer</span>
-          </Link>
+            <Link
+              href="/dashboard/buyer/new"
+              className="inline-flex items-center gap-2 bg-green-500 text-white rounded-md px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base hover:bg-green-600 transition"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Buyer</span>
+            </Link>
+          </BuyerLimitGate>
         </div>
       </div>
       

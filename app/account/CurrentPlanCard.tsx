@@ -1,11 +1,13 @@
-import { plans } from "./AvailablePlans"; 
+import { plans } from "./AvailablePlans";
+import { PLAN_LIMITS, formatLimit, getUsagePercentage } from "@/libs/planLimits";
+import { PlanName } from "@/types/config"; 
 
 interface WholesalerUsageProps {
   id: number;
   created_at: string;
   wholesaler_id: number;
   subscription_id: string;
-  current_plan: 'free' | 'standard' | 'pro';
+  current_plan: string;
   buyer_count: number;
   tag_count: number;
   email_count: number;
@@ -15,47 +17,21 @@ interface CurrentPlanCardProps {
   wholesalerUsage: WholesalerUsageProps;
 }
 
-const PLAN_LIMITS = {
-  free: {
-    buyers: 10,
-    emails: 1, 
-    tags: 'Unlimited' as const
-  },
-  standard: {
-    buyers: 500,
-    emails: 5000,
-    tags: 'Unlimited' as const,
-  },
-  pro: {
-    buyers: 'Unlimited' as const,
-    emails: 'Unlimited' as const,
-    tags: 'Unlimited' as const,
-  },
-};
+// Remove the old PLAN_LIMITS as we're importing it from planLimits.ts
 
 const CurrentPlanCard = ({ wholesalerUsage }: CurrentPlanCardProps) => {
   // Find the full plan information (name, description, price, etc.)
   const currentPlanInfo = plans.find(
-    (plan) => plan.name.toLowerCase() === wholesalerUsage.current_plan
+    (plan) => plan.name.toLowerCase() === wholesalerUsage.current_plan?.toLowerCase()
   );
 
-  // Get the specific limits for the current plan
-  const limits = PLAN_LIMITS[wholesalerUsage.current_plan];
-
-
-  // Helper function to calculate percentage for progress bars
-  const getPercentage = (count: number, limit: number | 'Unlimited') => {
-    if (limit === 'Unlimited' || limit === 0) {
-      // For unlimited, you can decide how to show it. 100% is a common choice.
-      return 100;
-    }
-    // Calculate percentage, but don't let it go over 100%
-    return Math.min((count / limit) * 100, 100);
-  };
+  // Get the specific limits for the current plan using the new system
+  const planName = wholesalerUsage.current_plan as PlanName || PlanName.FREE;
+  const limits = PLAN_LIMITS[planName] || PLAN_LIMITS[PlanName.FREE];
   
-  const buyerPercentage = getPercentage(wholesalerUsage.buyer_count, limits.buyers);
-  const emailPercentage = getPercentage(wholesalerUsage.email_count, limits.emails);
-  const tagPercentage = getPercentage(wholesalerUsage.tag_count, limits.tags);
+  const buyerPercentage = getUsagePercentage(wholesalerUsage.buyer_count, limits.buyers);
+  const emailPercentage = getUsagePercentage(wholesalerUsage.email_count, limits.emailsPerTagPerMonth);
+  const tagPercentage = getUsagePercentage(wholesalerUsage.tag_count, limits.tags);
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 sm:p-8 flex flex-col sm:flex-row gap-6 sm:gap-10 items-start sm:items-center mb-10">
@@ -82,7 +58,7 @@ const CurrentPlanCard = ({ wholesalerUsage }: CurrentPlanCardProps) => {
             <div className="flex justify-between text-xs font-medium text-gray-600 mb-1">
               <span>Buyers</span>
               <span className="text-gray-800 font-semibold">
-                {wholesalerUsage.buyer_count} / {limits.buyers}
+                {wholesalerUsage.buyer_count} / {formatLimit(limits.buyers)}
               </span>
             </div>
             <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -97,7 +73,7 @@ const CurrentPlanCard = ({ wholesalerUsage }: CurrentPlanCardProps) => {
             <div className="flex justify-between text-xs font-medium text-gray-600 mb-1">
               <span>Emails This Month</span>
               <span className="text-gray-800 font-semibold">
-                {wholesalerUsage.email_count} / {limits.emails}
+                {wholesalerUsage.email_count} / {formatLimit(limits.emailsPerTagPerMonth)}
               </span>
             </div>
             <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -112,7 +88,7 @@ const CurrentPlanCard = ({ wholesalerUsage }: CurrentPlanCardProps) => {
             <div className="flex justify-between text-xs font-medium text-gray-600 mb-1">
               <span>Tags Created</span>
               <span className="text-gray-800 font-semibold">
-                {wholesalerUsage.tag_count} / {limits.tags}
+                {wholesalerUsage.tag_count} / {formatLimit(limits.tags)}
               </span>
             </div>
             <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">

@@ -1,4 +1,5 @@
 import 'next-auth'; // or your auth library
+import { Wholesaler } from '.';
 
 // Extend the built-in 'User' type
 declare module 'next-auth' {
@@ -27,5 +28,6 @@ declare module 'next-auth' {
     user: User & {
       plan?: plan;
     };
+    wholesaler?: Wholesaler;
   }
 }

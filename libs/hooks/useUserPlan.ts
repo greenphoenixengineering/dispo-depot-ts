@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
+import { supabaseUserService } from '../supabase';
 
 export interface UserPlan {
   email: string;
@@ -31,18 +32,23 @@ export function useUserPlan() {
         setLoading(true);
         setError(null);
 
-        const response = await fetch('/api/user/plan');
+        // Direct Supabase call instead of API route
+        const userPlan = await supabaseUserService.getUserByEmail(session.user.email);
         
-        if (!response.ok) {
-          if (response.status === 404) {
-            // User plan not found - this is normal for new users
-            setUserPlan(null);
-          } else {
-            throw new Error('Failed to fetch user plan');
-          }
+        if (userPlan) {
+          setUserPlan({
+            email: userPlan.email,
+            name: userPlan.name,
+            plan_name: userPlan.plan_name,
+            has_access: userPlan.has_access,
+            stripe_customer_id: userPlan.stripe_customer_id,
+            stripe_price_id: userPlan.stripe_price_id,
+            created_at: userPlan.created_at,
+            updated_at: userPlan.updated_at,
+          });
         } else {
-          const data = await response.json();
-          setUserPlan(data.data);
+          // User plan not found - this is normal for new users
+          setUserPlan(null);
         }
       } catch (err) {
         console.error('Error fetching user plan:', err);
@@ -59,10 +65,22 @@ export function useUserPlan() {
     if (session?.user?.email) {
       setLoading(true);
       try {
-        const response = await fetch('/api/user/plan');
-        if (response.ok) {
-          const data = await response.json();
-          setUserPlan(data.data);
+        // Direct Supabase call for refetch
+        const userPlan = await supabaseUserService.getUserByEmail(session.user.email);
+        
+        if (userPlan) {
+          setUserPlan({
+            email: userPlan.email,
+            name: userPlan.name,
+            plan_name: userPlan.plan_name,
+            has_access: userPlan.has_access,
+            stripe_customer_id: userPlan.stripe_customer_id,
+            stripe_price_id: userPlan.stripe_price_id,
+            created_at: userPlan.created_at,
+            updated_at: userPlan.updated_at,
+          });
+        } else {
+          setUserPlan(null);
         }
       } catch (err) {
         console.error('Error refetching user plan:', err);

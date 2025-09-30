@@ -7,6 +7,8 @@ import { SubmitButton } from "./SubmitButton";
 import { Tag } from "@/libs/tagTypes";
 import MultiSelectTagsDropDown from "./MultiSelectTagsDropDown";
 import { sendDealsAction } from "@/app/actions/supabase";
+import { useFeatureGuard } from "@/libs/hooks/useFeatureGuard";
+import { UpgradePrompt } from "./UpgradePrompt";
 
 export default function SendDealForm({ tags }: { tags: Tag[] }) {
   const initialState: SendDealsState = {
@@ -19,6 +21,8 @@ export default function SendDealForm({ tags }: { tags: Tag[] }) {
   const formRef = useRef<HTMLFormElement>(null);
 
   const [selectedTagObjects, setSelectedTagObjects] = useState<any[]>([]);
+  
+  const { featureGuard, loading } = useFeatureGuard();
 
   useEffect(() => {
     if (
@@ -38,8 +42,26 @@ export default function SendDealForm({ tags }: { tags: Tag[] }) {
     }
   }, [formState]);
 
+  // Check email sending limits
+  const canSendEmail = featureGuard?.canSendEmail() ?? true;
+  const upgradeRecommendation = featureGuard?.getUpgradeRecommendation();
+  
+  if (loading) {
+    return <div className="animate-pulse bg-gray-200 h-64 rounded"></div>;
+  }
+
   return (
     <div>
+      {/* Show upgrade prompt if at email limit */}
+      {!canSendEmail && upgradeRecommendation && (
+        <UpgradePrompt
+          isVisible={true}
+          reason={upgradeRecommendation.reason}
+          suggestedPlan={upgradeRecommendation.suggestedPlan}
+          variant="banner"
+        />
+      )}
+      
       {messageVisible && formState.success && formState.message && (
         <div className="mb-4 p-3 bg-green-100 text-green-700 border border-green-300 rounded text-xs sm:text-sm">
           {formState.message}
@@ -117,7 +139,17 @@ export default function SendDealForm({ tags }: { tags: Tag[] }) {
         </div>
 
         <div className="flex justify-end">
-          <SubmitButton />
+          {canSendEmail ? (
+            <SubmitButton />
+          ) : (
+            <button
+              type="button"
+              disabled
+              className="bg-gray-400 text-white px-4 py-2 rounded-md cursor-not-allowed opacity-50"
+            >
+              Send Deal (Limit Reached)
+            </button>
+          )}
         </div>
       </form>
     </div>
