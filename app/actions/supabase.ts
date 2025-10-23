@@ -587,7 +587,6 @@ export async function getWholesalerByEmail(email: string) {
 
 type UsageMetric = "buyer_count" | "tag_count" | "email_count";
 type DecrementableUsageMetric = "buyer_count" | "tag_count";
-type UsageData = Partial<Record<UsageMetric, number>>; // An object where keys are from UsageMetric and values are numbers
 
 export async function incrementUsageCount(metricName: UsageMetric) {
   try {
@@ -598,25 +597,12 @@ export async function incrementUsageCount(metricName: UsageMetric) {
     }
     const wholesalerId = wholesalerData.id;
 
-    const { data, error: fetchError } = await supabase
-      .from("usage")
-      .select(metricName)
-      .eq("wholesaler_id", wholesalerId)
-      .single();
-
-    // Cast the data to your defined type
-    const usageData = data as UsageData;
-    if (fetchError) {
-      console.error(
-        `Error fetching usage data for ${metricName}:`,
-        fetchError.message
-      );
-      throw fetchError;
-    }
+    // Use getWholesalerUsage() which already handles PGRST116 errors
+    const usageData = await getWholesalerUsage(wholesalerId);
 
     // 3. Increment the value in your code
-    const currentCount = usageData ? usageData[metricName] : 0;
-    const newCount = (currentCount || 0) + 1;
+    const currentCount = usageData[metricName] || 0;
+    const newCount = currentCount + 1;
 
     // 4. Write the new, calculated value back to the database
     const { error: updateError } = await supabase
@@ -650,25 +636,18 @@ export async function decreaseUsageCount(metricName: DecrementableUsageMetric) {
     }
     const wholesalerId = wholesalerData.id;
 
-    // 2. Read the current counts from the database
-    const { data: usageData, error: fetchError } = await supabase
-      .from("usage")
-      .select("buyer_count, tag_count, email_count")
-      .eq("wholesaler_id", wholesalerId)
-      .single();
-
-    if (fetchError) {
-      throw fetchError;
-    }
+    // Use getWholesalerUsage() which already handles PGRST116 errors
+    const usageData = await getWholesalerUsage(wholesalerId);
 
     // 3. Get the current count and perform the safety check
-    const currentCount = usageData ? usageData[metricName] : 0;
+    const currentCount = usageData[metricName] || 0;
 
     // If the count is already zero, do nothing and report success.
     if (currentCount <= 0) {
       console.log(
         `Attempted to decrease ${metricName}, but it is already at 0.`
       );
+      return { success: true, newCount: 0 };
     }
 
     // 4. Calculate the new, decreased value
@@ -694,15 +673,57 @@ export async function decreaseUsageCount(metricName: DecrementableUsageMetric) {
 }
 
 // get user usage
-export async function getWholesalerUsage() {
-  const wholesalerData = await getCurrentWholesaler();
+export async function getWholesalerUsage(
+  wholesalerId: string | undefined = undefined
+) {
+  let targetWholesalerId = wholesalerId;
+
+  if (!targetWholesalerId) {
+    const wholesalerData = await getCurrentWholesaler();
+    targetWholesalerId = wholesalerData.id;
+  }
+
   const { data, error } = await supabase
     .from("usage")
     .select("*")
-    .eq("wholesaler_id", wholesalerData.id)
+    .eq("wholesaler_id", targetWholesalerId)
     .single();
 
   if (error) {
+    // Handle PGRST116 error (no rows found) by creating default usage record
+    if (error.code === "PGRST116") {
+      console.log(
+        "No usage record found, creating default usage record for wholesaler:",
+        targetWholesalerId
+      );
+
+      const { data: newUsage, error: insertError } = await supabase
+        .from("usage")
+        .insert([
+          {
+            wholesaler_id: targetWholesalerId,
+            buyer_count: 0,
+            tag_count: 0,
+            email_count: 0,
+            current_plan: "Free",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+        ])
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error("Error creating default usage record:", insertError);
+        throw new Error(
+          `Failed to create usage record: ${insertError.message}`
+        );
+      }
+
+      return newUsage;
+    }
+
+    // For other errors, throw them as before
     throw error;
   }
 

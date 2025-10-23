@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "node init && next dev",
+    "build": "node init && next build",
     "postbuild": "next-sitemap",
-    "start": "next start",
+    "start": "node init && next start",
     "lint": "next lint",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
