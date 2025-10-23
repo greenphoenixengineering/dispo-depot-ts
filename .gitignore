@@ -26,7 +26,6 @@ yarn-error.log*
 
 # local env files
 .env*.local
-.env
 # vercel
 .vercel
 
@@ -38,3 +37,4 @@ next-env.d.ts
 public/robots.txt
 public/sitemap.xml
 public/sitemap-0.xml
+config.bat
